@@ -477,7 +477,8 @@
       pwdChanged:"Mot de passe mis à jour.", pwdMismatch:"Les mots de passe ne correspondent pas.", pwdTooShort:"6 caractères minimum.",
       logoutBtn:"Déconnexion", markR4:"Nommer R4", unmarkR4:"Retirer R4",
       toastMarkedR4:"Membre nommé R4.", toastUnmarkedR4:"Statut R4 retiré.",
-      r4AccountError:"Erreur lors de la création du compte", r4AccountCreatedMsg:"Compte R4 créé pour {email}. Mot de passe temporaire : {pwd} (à communiquer au joueur, il devra le changer à sa première connexion)."},
+      r4AccountError:"Erreur lors de la création du compte", r4AccountCreatedMsg:"Compte R4 créé pour {email}. Mot de passe temporaire : {pwd} (à communiquer au joueur, il devra le changer à sa première connexion).",
+      noR4Accounts:"Aucun membre n'est marqué R4 pour l'instant."},
     en:{brandSub:"Alliance convoy", todayTitle:"Today's convoy", roleConductor:"Conductor", roleVip:"VIP",
       declareBtn:"Declare yourself conductor", declareHint:"One conductor per day. Pick your name from the list.",
       vipBtn:"Confirm VIP", vipHint:"Only members not conductor/VIP in the last 14 days are shown.",
@@ -517,7 +518,8 @@
       pwdChanged:"Password updated.", pwdMismatch:"Passwords don't match.", pwdTooShort:"6 characters minimum.",
       logoutBtn:"Log out", markR4:"Make R4", unmarkR4:"Remove R4",
       toastMarkedR4:"Member made R4.", toastUnmarkedR4:"R4 status removed.",
-      r4AccountError:"Error creating account", r4AccountCreatedMsg:"R4 account created for {email}. Temporary password: {pwd} (share it with the player, they'll need to change it on first login)."},
+      r4AccountError:"Error creating account", r4AccountCreatedMsg:"R4 account created for {email}. Temporary password: {pwd} (share it with the player, they'll need to change it on first login).",
+      noR4Accounts:"No member is marked R4 yet."},
     es:{brandSub:"Convoy de alianza", todayTitle:"Convoy de hoy", roleConductor:"Conductor", roleVip:"VIP",
       declareBtn:"Declararme conductor", declareHint:"Un solo conductor por día. Elige tu nombre de la lista.",
       vipBtn:"Confirmar VIP", vipHint:"Solo aparecen los miembros que no fueron conductor/VIP en los últimos 14 días.",
@@ -557,7 +559,8 @@
       pwdChanged:"Contraseña actualizada.", pwdMismatch:"Las contraseñas no coinciden.", pwdTooShort:"Mínimo 6 caracteres.",
       logoutBtn:"Cerrar sesión", markR4:"Hacer R4", unmarkR4:"Quitar R4",
       toastMarkedR4:"Miembro hecho R4.", toastUnmarkedR4:"Estado R4 eliminado.",
-      r4AccountError:"Error al crear la cuenta", r4AccountCreatedMsg:"Cuenta R4 creada para {email}. Contraseña temporal: {pwd} (compártela con el jugador, deberá cambiarla en su primer inicio de sesión)."},
+      r4AccountError:"Error al crear la cuenta", r4AccountCreatedMsg:"Cuenta R4 creada para {email}. Contraseña temporal: {pwd} (compártela con el jugador, deberá cambiarla en su primer inicio de sesión).",
+      noR4Accounts:"Ningún miembro está marcado como R4 todavía."},
     it:{brandSub:"Convoglio d'alleanza", todayTitle:"Convoglio di oggi", roleConductor:"Conducente", roleVip:"VIP",
       declareBtn:"Dichiarati conducente", declareHint:"Un solo conducente al giorno. Scegli il tuo nome dall'elenco.",
       vipBtn:"Conferma VIP", vipHint:"Sono mostrati solo i membri che non sono stati conducente/VIP negli ultimi 14 giorni.",
@@ -597,7 +600,8 @@
       pwdChanged:"Password aggiornata.", pwdMismatch:"Le password non corrispondono.", pwdTooShort:"Minimo 6 caratteri.",
       logoutBtn:"Disconnetti", markR4:"Rendi R4", unmarkR4:"Rimuovi R4",
       toastMarkedR4:"Membro reso R4.", toastUnmarkedR4:"Stato R4 rimosso.",
-      r4AccountError:"Errore nella creazione dell'account", r4AccountCreatedMsg:"Account R4 creato per {email}. Password temporanea: {pwd} (comunicala al giocatore, dovrà cambiarla al primo accesso)."}
+      r4AccountError:"Errore nella creazione dell'account", r4AccountCreatedMsg:"Account R4 creato per {email}. Password temporanea: {pwd} (comunicala al giocatore, dovrà cambiarla al primo accesso).",
+      noR4Accounts:"Nessun membro è ancora segnato come R4."}
   };
 
   const WINDOW_DAYS = 14;
@@ -1077,9 +1081,9 @@
         conductorComment: '',
         vipComment: ''
       }));
-      db.ref('members').set(allMembers);
-      db.ref('history').set(importedHistory);
-      db.ref('seeded').set(true);
+      db.ref('members').set(allMembers).catch(err => showToast('Erreur d\'amorçage (membres) : ' + err.message));
+      db.ref('history').set(importedHistory).catch(err => showToast('Erreur d\'amorçage (historique) : ' + err.message));
+      db.ref('seeded').set(true).catch(err => showToast('Erreur d\'amorçage (flag) : ' + err.message));
     });
   }
 
@@ -1108,7 +1112,7 @@
       const r4List = members.filter(m => m.isR4 && !isDeparted(m)).sort((a,b)=> a.name.localeCompare(b.name));
       pseudoInput.innerHTML = r4List.length
         ? r4List.map(m => `<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}</option>`).join('')
-        : `<option value="">${t('noEligible')}</option>`;
+        : `<option value="">${t('noR4Accounts')}</option>`;
       passInput.value = '';
       overlay.style.display = 'flex';
       function cleanup(result){
