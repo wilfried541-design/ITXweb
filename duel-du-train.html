@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ITX — Duel du Dimanche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<style>
+  :root{
+    --bg:#0b0d0a; --panel:#151913; --panel-2:#1c2317;
+    --accent:#e2a13c; --accent-2:#c1442f;
+    --text:#eae7dd; --text-dim:#9aa08f;
+    --eligible:#6f9c5f; --ineligible:#8a5240; --border:#2c3326; --radius:10px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(226,161,60,0.08), transparent 60%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 6px),
+      var(--bg);
+    color:var(--text); font-family:'Oswald','Arial Narrow',sans-serif; min-height:100vh; padding-bottom:40px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:480px; margin:0 auto; padding:14px 14px 0;}
+
+  header{display:flex; align-items:center; justify-content:space-between; padding:10px 2px 14px; border-bottom:1px solid var(--border);}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand svg{width:28px;height:28px;flex-shrink:0;}
+  .brand-text .name{font-weight:700; font-size:18px; letter-spacing:2px; color:var(--accent); line-height:1;}
+  .brand-text .sub{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;}
+
+  .r4-bar{display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:10px 0 0;}
+  .r4-status{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim);}
+  .r4-status.on{color:var(--eligible);}
+  #r4Btn.on{border-color:var(--eligible); color:var(--eligible); background:rgba(111,156,95,0.1);}
+
+  .section-title{
+    display:flex; align-items:center; gap:8px; margin:26px 0 10px; color:var(--text-dim); font-size:11px;
+    letter-spacing:3px; text-transform:uppercase; font-family:'JetBrains Mono',monospace;
+  }
+  .section-title::before{content:''; width:14px; height:2px; background:var(--accent);}
+
+  .board{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px; text-align:center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.35);
+  }
+  .round-label{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;}
+  .round-number{font-size:34px; font-weight:700; color:var(--accent); margin:4px 0 2px;}
+  .status-line{font-size:13px; color:var(--text-dim); margin-bottom:4px;}
+
+  .winner-banner{
+    background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
+    border:1px solid var(--accent); border-radius:var(--radius); padding:20px 16px; text-align:center; margin-top:14px;
+  }
+  .winner-banner .trophy{font-size:34px;}
+  .winner-banner .wname{font-size:22px; font-weight:700; color:var(--accent); margin-top:4px;}
+  .winner-banner .wsub{font-size:12px; color:var(--text-dim); margin-top:4px;}
+
+  .idle-box{padding:24px 12px; text-align:center; color:var(--text-dim); font-size:14px;}
+
+  .player-list{display:flex; flex-direction:column; gap:8px; margin-top:14px;}
+  .player-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  }
+  .player-row.eliminated{opacity:0.4;}
+  .player-row .pname{font-size:15px; flex:1;}
+  .player-row .pname .out{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent-2); margin-left:6px;}
+  .dice-value{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:18px; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid var(--border); background:#0e120d;
+  }
+  .dice-value.six{color:var(--eligible); border-color:var(--eligible);}
+  .dice-value.dead{color:var(--accent-2); border-color:var(--accent-2);}
+  button{
+    font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    font-size:13px; border:none; border-radius:8px; padding:10px 14px; cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:#1a1400;}
+  .btn-primary:disabled{background:#3a3324; color:#6b6450; cursor:not-allowed;}
+  .btn-secondary{background:var(--panel-2); color:var(--text); border:1px solid var(--border);}
+  .btn-danger{background:transparent; color:var(--accent-2); border:1px solid var(--accent-2);}
+  .btn-ghost{background:transparent; color:var(--text-dim); border:1px solid var(--border); padding:7px 10px; font-size:11px;}
+  .roll-btn{padding:7px 14px; font-size:11px;}
+
+  .action-block{margin-top:16px; display:flex; flex-direction:column; gap:8px;}
+
+  .ledger{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  .round-log{padding:12px; border-bottom:1px solid var(--border); font-size:13px;}
+  .round-log:last-child{border-bottom:none;}
+  .round-log .rl-title{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;}
+  .round-log .rl-row{display:flex; justify-content:space-between; padding:2px 0;}
+  .round-log .rl-row .survived{color:var(--eligible);}
+  .round-log .rl-row .out{color:var(--accent-2);}
+  .empty-state{padding:20px 12px; text-align:center; color:var(--text-dim); font-size:13px;}
+
+  .toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px);
+    background:var(--panel-2); border:1px solid var(--accent); color:var(--text); padding:10px 16px; border-radius:8px;
+    font-size:13px; opacity:0; pointer-events:none; transition:all 0.25s ease; z-index:50; max-width:90%; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;}
+  .modal-box{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:18px; width:100%; max-width:340px;}
+  .modal-title{font-size:15px; margin-bottom:12px; line-height:1.4;}
+  .modal-box select, .modal-box input{
+    width:100%; background:#0e120d; border:1px solid var(--border); color:var(--text); padding:11px 10px;
+    border-radius:8px; font-family:'Oswald',sans-serif; font-size:15px; margin-bottom:10px;
+  }
+  .modal-actions{display:flex; gap:8px;}
+  .modal-actions button{flex:1;}
+
+  footer{text-align:center; margin-top:28px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;}
+</style>
+</head>
+<body>
+<div id="configNeeded" style="display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px; text-align:center; font-family:sans-serif; color:#eae7dd; background:#0b0d0a;">
+  <div style="max-width:420px;">
+    <h2 style="color:#e2a13c;">Configuration Firebase requise</h2>
+    <p>Vérifie que le bloc firebaseConfig en haut du script est bien rempli.</p>
+  </div>
+</div>
+
+<div class="wrap" id="mainApp" style="display:none;">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 48 48" fill="none">
+        <rect x="10" y="10" width="28" height="28" rx="5" fill="#e2a13c"/>
+        <circle cx="17" cy="17" r="2.6" fill="#0e120d"/>
+        <circle cx="31" cy="17" r="2.6" fill="#0e120d"/>
+        <circle cx="17" cy="31" r="2.6" fill="#0e120d"/>
+        <circle cx="31" cy="31" r="2.6" fill="#0e120d"/>
+        <circle cx="24" cy="24" r="2.6" fill="#0e120d"/>
+      </svg>
+      <div class="brand-text">
+        <div class="name">ITX</div>
+        <div class="sub">Duel du dimanche</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="r4-bar">
+    <span class="r4-status" id="r4Status"></span>
+    <button class="btn-ghost" id="r4Btn">Accès R4</button>
+  </div>
+
+  <div class="section-title"><span>Partie en cours</span></div>
+
+  <div id="idleBox" class="board" style="display:none;">
+    <div class="idle-box">Aucune partie en cours pour le moment.</div>
+    <div class="action-block" id="startBlock" style="display:none;">
+      <button class="btn-primary" id="startBtn">Nouvelle partie</button>
+    </div>
+  </div>
+
+  <div id="gameBox" class="board" style="display:none;">
+    <div class="round-label">Manche</div>
+    <div class="round-number" id="roundNumber">1</div>
+    <div class="status-line" id="statusLine"></div>
+  </div>
+
+  <div id="winnerBanner" class="winner-banner" style="display:none;">
+    <div class="trophy">🏆</div>
+    <div class="wname" id="winnerName"></div>
+    <div class="wsub">Conduira le train dimanche !</div>
+  </div>
+
+  <div id="restartBlock" class="action-block" style="display:none;">
+    <button class="btn-danger" id="restartBtn">Nouvelle partie</button>
+  </div>
+
+  <div class="player-list" id="playerList"></div>
+
+  <div class="section-title"><span>Historique des manches</span></div>
+  <div class="ledger" id="roundLog"></div>
+
+  <footer>ITX — Duel du dimanche pour le train</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="loginModalOverlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">Connexion R4</div>
+    <select id="loginPseudoInput"></select>
+    <input type="password" id="loginPasswordInput" class="mono" placeholder="Mot de passe">
+    <div class="modal-actions">
+      <button class="btn-secondary" id="loginCancel">Annuler</button>
+      <button class="btn-primary" id="loginConfirm">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pwdModalOverlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">Choisis un nouveau mot de passe (première connexion)</div>
+    <input type="password" id="pwdNewInput" class="mono" placeholder="Nouveau mot de passe">
+    <input type="password" id="pwdConfirmInput" class="mono" placeholder="Confirmer le mot de passe">
+    <div class="modal-actions">
+      <button class="btn-primary" id="pwdConfirm">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzUubSnJ5h8Uup1Vlww7-iTHsXBlaLLXc",
+    authDomain: "itxweb-53bb3.firebaseapp.com",
+    databaseURL: "https://itxweb-53bb3-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "itxweb-53bb3",
+    storageBucket: "itxweb-53bb3.firebasestorage.app",
+    messagingSenderId: "1015783442955",
+    appId: "1:1015783442955:web:0e5c93470609a328ff550e"
+  };
+
+  let db=null, auth=null, r4Unlocked=false, currentR4Name=null;
+  let members = [];     // roster from the main train app (read-only reference here)
+  let game = null;       // sundayGame state
+  const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
+
+  const $ = id => document.getElementById(id);
+  function pseudoToEmail(p){ return p.trim().toLowerCase().replace(/[^a-z0-9]/g,'') + AUTH_DOMAIN_SUFFIX; }
+  function emailToPseudo(e){ return (e||'').split('@')[0]; }
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function showToast(msg){
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(()=> el.classList.remove('show'), 2400);
+  }
+
+  function isConfigured(){
+    return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('REMPLACER_');
+  }
+
+  // ---- R4 auth (shared with the train app) ----
+  function showLoginModal(){
+    return new Promise(resolve=>{
+      const overlay = $('loginModalOverlay');
+      const pseudoInput = $('loginPseudoInput');
+      const passInput = $('loginPasswordInput');
+      const r4List = members.filter(m => m.isR4 && m.status !== 'departed').sort((a,b)=>a.name.localeCompare(b.name));
+      pseudoInput.innerHTML = r4List.length
+        ? r4List.map(m=>`<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}</option>`).join('')
+        : `<option value="">Aucun membre R4</option>`;
+      passInput.value = '';
+      overlay.style.display = 'flex';
+      const confirmBtn = $('loginConfirm'), cancelBtn = $('loginCancel');
+      function cleanup(r){ overlay.style.display='none'; confirmBtn.removeEventListener('click', onConfirm); cancelBtn.removeEventListener('click', onCancel); resolve(r); }
+      function onConfirm(){ cleanup({pseudo: pseudoInput.value, password: passInput.value}); }
+      function onCancel(){ cleanup(null); }
+      confirmBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+    });
+  }
+
+  function showPasswordChangeModal(){
+    return new Promise(resolve=>{
+      const overlay = $('pwdModalOverlay');
+      const newInput = $('pwdNewInput'), confirmInput = $('pwdConfirmInput');
+      newInput.value=''; confirmInput.value='';
+      overlay.style.display='flex';
+      const confirmBtn = $('pwdConfirm');
+      function onConfirm(){
+        if(newInput.value.length < 6){ showToast('6 caractères minimum.'); return; }
+        if(newInput.value !== confirmInput.value){ showToast('Les mots de passe ne correspondent pas.'); return; }
+        overlay.style.display='none'; confirmBtn.removeEventListener('click', onConfirm); resolve(newInput.value);
+      }
+      confirmBtn.addEventListener('click', onConfirm);
+    });
+  }
+
+  async function maybeForcePasswordChange(user){
+    try{
+      const snap = await db.ref('userMeta/' + user.uid + '/passwordChanged').once('value');
+      if(snap.exists() && snap.val()===true) return;
+      const newPassword = await showPasswordChangeModal();
+      await user.updatePassword(newPassword);
+      await db.ref('userMeta/' + user.uid + '/passwordChanged').set(true);
+      showToast('Mot de passe mis à jour.');
+    }catch(e){ showToast(e.message || 'Erreur'); }
+  }
+
+  async function toggleR4(){
+    if(r4Unlocked){ await auth.signOut(); showToast('Déconnecté.'); return; }
+    const creds = await showLoginModal();
+    if(!creds || !creds.pseudo || !creds.password) return;
+    try{
+      await auth.signInWithEmailAndPassword(pseudoToEmail(creds.pseudo), creds.password);
+      showToast('Connecté en tant que R4.');
+    }catch(e){ showToast('Pseudo ou mot de passe incorrect.'); }
+  }
+
+  function renderR4Status(){
+    const btn = $('r4Btn'), status = $('r4Status');
+    btn.classList.toggle('on', r4Unlocked);
+    status.classList.toggle('on', r4Unlocked);
+    status.textContent = r4Unlocked ? (currentR4Name||'') : '';
+    btn.textContent = r4Unlocked ? 'Déconnexion' : 'Accès R4';
+  }
+
+  // ---- Storage init ----
+  function initStorage(){
+    if(!isConfigured()){
+      $('configNeeded').style.display='flex'; $('mainApp').style.display='none';
+      return;
+    }
+    $('configNeeded').style.display='none'; $('mainApp').style.display='block';
+
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    auth = firebase.auth();
+
+    db.ref('members').on('value', snap=>{ members = snap.val() || []; render(); });
+
+    db.ref('sundayGame').on('value', snap=>{ game = snap.val() || null; render(); });
+
+    auth.onAuthStateChanged(user=>{
+      r4Unlocked = !!user;
+      currentR4Name = user ? emailToPseudo(user.email) : null;
+      render();
+      if(user) maybeForcePasswordChange(user);
+    });
+  }
+
+  // ---- Game logic ----
+  async function startNewGame(){
+    if(!r4Unlocked){ showToast('Action réservée aux R4.'); return; }
+    const active = members.filter(m => m.status !== 'departed');
+    if(active.length < 2){ showToast('Il faut au moins 2 membres actifs.'); return; }
+    const players = {};
+    active.forEach(m => { players[m.id] = {name: m.name, alive: true}; });
+    const newState = {
+      status: 'playing',
+      round: 1,
+      players,
+      rolls: {},
+      log: [],
+      winnerId: null,
+      winnerName: null
+    };
+    await db.ref('sundayGame').set(newState);
+    showToast('Nouvelle partie lancée !');
+  }
+
+  async function rollDice(playerId){
+    if(!game || game.status !== 'playing') return;
+    const player = game.players[playerId];
+    if(!player || !player.alive) return;
+    if(game.rolls && game.rolls[playerId] !== undefined) return; // already rolled this round
+    const value = Math.floor(Math.random()*6) + 1;
+    await db.ref('sundayGame/rolls/' + playerId).set(value);
+    await resolveRoundIfComplete();
+  }
+
+  async function resolveRoundIfComplete(){
+    await db.ref('sundayGame').transaction(current=>{
+      if(!current || current.status !== 'playing') return current;
+      const players = current.players || {};
+      const rolls = current.rolls || {};
+      const aliveIds = Object.keys(players).filter(id => players[id].alive);
+      const rolledIds = aliveIds.filter(id => rolls[id] !== undefined);
+      if(rolledIds.length < aliveIds.length) return current; // round not finished yet
+
+      const survivors = aliveIds.filter(id => rolls[id] === 6);
+      const eliminated = aliveIds.filter(id => rolls[id] !== 6);
+
+      const logEntry = {
+        round: current.round,
+        rolls: aliveIds.map(id => ({name: players[id].name, value: rolls[id]})),
+        replayed: survivors.length === 0
+      };
+      current.log = (current.log || []).concat([logEntry]);
+
+      if(survivors.length === 0){
+        // everyone eliminated at once -> void this attempt, replay same round with same alive set
+        current.rolls = {};
+        return current;
+      }
+
+      eliminated.forEach(id => { current.players[id].alive = false; });
+      current.rolls = {};
+
+      if(survivors.length === 1){
+        current.status = 'finished';
+        current.winnerId = survivors[0];
+        current.winnerName = players[survivors[0]].name;
+      } else {
+        current.round = (current.round || 1) + 1;
+      }
+      return current;
+    });
+  }
+
+  async function restartConfirm(){
+    if(!r4Unlocked){ showToast('Action réservée aux R4.'); return; }
+    await db.ref('sundayGame').remove();
+    showToast('Partie réinitialisée.');
+  }
+
+  // ---- Render ----
+  function render(){
+    renderR4Status();
+    const idleBox = $('idleBox'), gameBox = $('gameBox'), winnerBanner = $('winnerBanner');
+    const restartBlock = $('restartBlock'), playerList = $('playerList'), startBlock = $('startBlock');
+
+    startBlock.style.display = r4Unlocked ? 'flex' : 'none';
+
+    if(!game){
+      idleBox.style.display = 'block';
+      gameBox.style.display = 'none';
+      winnerBanner.style.display = 'none';
+      restartBlock.style.display = 'none';
+      playerList.innerHTML = '';
+      renderLog();
+      return;
+    }
+
+    idleBox.style.display = 'none';
+    gameBox.style.display = 'block';
+    $('roundNumber').textContent = game.round || 1;
+
+    const players = game.players || {};
+    const rolls = game.rolls || {};
+    const aliveIds = Object.keys(players).filter(id => players[id].alive);
+    const rolledCount = aliveIds.filter(id => rolls[id] !== undefined).length;
+
+    if(game.status === 'finished'){
+      $('statusLine').textContent = 'Partie terminée';
+      winnerBanner.style.display = 'block';
+      $('winnerName').textContent = game.winnerName || '';
+      restartBlock.style.display = r4Unlocked ? 'flex' : 'none';
+    } else {
+      $('statusLine').textContent = `${rolledCount}/${aliveIds.length} ont lancé le dé`;
+      winnerBanner.style.display = 'none';
+      restartBlock.style.display = r4Unlocked ? 'flex' : 'none';
+    }
+
+    const allIds = Object.keys(players).sort((a,b)=> players[a].name.localeCompare(players[b].name));
+    playerList.innerHTML = allIds.map(id=>{
+      const p = players[id];
+      const rolledValue = rolls[id];
+      let diceHtml;
+      if(!p.alive){
+        diceHtml = `<span class="dice-value dead">✕</span>`;
+      } else if(rolledValue !== undefined){
+        diceHtml = `<span class="dice-value ${rolledValue===6?'six':''}">${rolledValue}</span>`;
+      } else if(game.status === 'playing'){
+        diceHtml = `<button class="btn-primary roll-btn" data-id="${id}">Lancer</button>`;
+      } else {
+        diceHtml = `<span class="dice-value">—</span>`;
+      }
+      return `
+      <div class="player-row ${p.alive ? '' : 'eliminated'}">
+        <span class="pname">${escapeHtml(p.name)}${!p.alive ? '<span class="out">ÉLIMINÉ</span>' : ''}</span>
+        ${diceHtml}
+      </div>`;
+    }).join('');
+
+    playerList.querySelectorAll('.roll-btn').forEach(b=>{
+      b.addEventListener('click', ()=> rollDice(b.dataset.id));
+    });
+
+    renderLog();
+  }
+
+  function renderLog(){
+    const box = $('roundLog');
+    if(!game || !game.log || game.log.length === 0){
+      box.innerHTML = `<div class="empty-state">Aucune manche jouée pour l'instant.</div>`;
+      return;
+    }
+    box.innerHTML = game.log.slice().reverse().map(entry=>{
+      const rows = entry.rolls.map(r=>{
+        const cls = r.value === 6 ? 'survived' : 'out';
+        return `<div class="rl-row"><span>${escapeHtml(r.name)}</span><span class="${cls} mono">${r.value}</span></div>`;
+      }).join('');
+      const title = entry.replayed ? `Manche ${entry.round} (rejouée — égalité)` : `Manche ${entry.round}`;
+      return `<div class="round-log"><div class="rl-title">${title}</div>${rows}</div>`;
+    }).join('');
+  }
+
+  // ---- Init ----
+  $('r4Btn').addEventListener('click', toggleR4);
+  $('startBtn').addEventListener('click', startNewGame);
+  $('restartBtn').addEventListener('click', restartConfirm);
+
+  initStorage();
+})();
+</script>
+</body>
+</html>
