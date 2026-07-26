@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <style>
   :root{
     --bg:#0b0d0a; --panel:#151913; --panel-2:#1c2317;
@@ -29,15 +28,17 @@
   .wrap{max-width:480px; margin:0 auto; padding:14px 14px 0;}
 
   header{display:flex; align-items:center; justify-content:space-between; padding:10px 2px 14px; border-bottom:1px solid var(--border);}
+  .langs{display:flex; gap:4px;}
+  .lang-btn{
+    background:transparent; border:1px solid var(--border); color:var(--text-dim);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 7px; border-radius:5px;
+    cursor:pointer; letter-spacing:1px;
+  }
+  .lang-btn.active{border-color:var(--accent); color:var(--accent); background:rgba(226,161,60,0.08);}
   .brand{display:flex; align-items:center; gap:10px;}
   .brand svg{width:28px;height:28px;flex-shrink:0;}
   .brand-text .name{font-weight:700; font-size:18px; letter-spacing:2px; color:var(--accent); line-height:1;}
   .brand-text .sub{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;}
-
-  .r4-bar{display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:10px 0 0;}
-  .r4-status{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim);}
-  .r4-status.on{color:var(--eligible);}
-  #r4Btn.on{border-color:var(--eligible); color:var(--eligible); background:rgba(111,156,95,0.1);}
 
   .section-title{
     display:flex; align-items:center; gap:8px; margin:26px 0 10px; color:var(--text-dim); font-size:11px;
@@ -47,87 +48,84 @@
 
   .board{
     background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px; text-align:center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.35);
+    padding:20px; text-align:center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.35);
   }
-  .round-label{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;}
-  .round-number{font-size:34px; font-weight:700; color:var(--accent); margin:4px 0 2px;}
-  .status-line{font-size:13px; color:var(--text-dim); margin-bottom:4px;}
+  .info-line{font-size:14px; color:var(--text-dim); line-height:1.5;}
+  .info-line b{color:var(--accent);}
 
-  .winner-banner{
-    background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
-    border:1px solid var(--accent); border-radius:var(--radius); padding:20px 16px; text-align:center; margin-top:14px;
-  }
-  .winner-banner .trophy{font-size:34px;}
-  .winner-banner .wname{font-size:22px; font-weight:700; color:var(--accent); margin-top:4px;}
-  .winner-banner .wsub{font-size:12px; color:var(--text-dim); margin-top:4px;}
+  .rules-box{text-align:left; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:14px;}
+  .rules-title{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px;}
+  .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6;}
+  .rules-list li{margin-bottom:4px;}
+  .rules-list b{color:var(--text);}
+  .tiebreak-tag{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim);}
 
-  .idle-box{padding:24px 12px; text-align:center; color:var(--text-dim); font-size:14px;}
-
-  .player-list{display:flex; flex-direction:column; gap:8px; margin-top:14px;}
-  .player-row{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  select{
+    width:100%; background:#0e120d; border:1px solid var(--border); color:var(--text);
+    padding:11px 10px; border-radius:8px; font-family:'Oswald',sans-serif; font-size:15px; margin-top:14px;
   }
-  .player-row.eliminated{opacity:0.4;}
-  .player-row .pname{font-size:15px; flex:1;}
-  .player-row .pname .out{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent-2); margin-left:6px;}
-  .dice-value{
-    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:18px; width:34px; height:34px;
-    display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid var(--border); background:#0e120d;
-  }
-  .dice-value.six{color:var(--eligible); border-color:var(--eligible);}
-  .dice-value.dead{color:var(--accent-2); border-color:var(--accent-2);}
   button{
     font-family:'Oswald',sans-serif; font-weight:600; letter-spacing:1px; text-transform:uppercase;
-    font-size:13px; border:none; border-radius:8px; padding:10px 14px; cursor:pointer;
+    font-size:14px; border:none; border-radius:8px; padding:12px 16px; cursor:pointer; width:100%; margin-top:14px;
   }
   .btn-primary{background:var(--accent); color:#1a1400;}
   .btn-primary:disabled{background:#3a3324; color:#6b6450; cursor:not-allowed;}
   .btn-secondary{background:var(--panel-2); color:var(--text); border:1px solid var(--border);}
-  .btn-danger{background:transparent; color:var(--accent-2); border:1px solid var(--accent-2);}
-  .btn-ghost{background:transparent; color:var(--text-dim); border:1px solid var(--border); padding:7px 10px; font-size:11px;}
-  .roll-btn{padding:7px 14px; font-size:11px;}
 
-  .action-block{margin-top:16px; display:flex; flex-direction:column; gap:8px;}
+  .level-label{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-top:4px;}
+  .level-number{font-size:15px; font-weight:600; color:var(--accent);}
 
-  .ledger{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
-  .round-log{padding:12px; border-bottom:1px solid var(--border); font-size:13px;}
-  .round-log:last-child{border-bottom:none;}
-  .round-log .rl-title{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px;}
-  .round-log .rl-row{display:flex; justify-content:space-between; padding:2px 0;}
-  .round-log .rl-row .survived{color:var(--eligible);}
-  .round-log .rl-row .out{color:var(--accent-2);}
+  .dice-stage{margin:18px auto 6px; width:110px; height:110px; display:flex; align-items:center; justify-content:center;}
+  .dice-face{
+    width:100px; height:100px; border-radius:18px; background:#0e120d; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700;
+    font-family:'JetBrains Mono',monospace; color:var(--text); transition:transform 0.15s ease, border-color 0.3s ease, color 0.3s ease;
+  }
+  .dice-face.spinning{animation:spin 0.15s linear infinite;}
+  .dice-face.six{border-color:var(--eligible); color:var(--eligible);}
+  .dice-face.dead{border-color:var(--accent-2); color:var(--accent-2);}
+  @keyframes spin{
+    0%{transform:rotate(0deg) scale(1);}
+    50%{transform:rotate(8deg) scale(1.04);}
+    100%{transform:rotate(-8deg) scale(1);}
+  }
+
+  .result-msg{font-size:15px; margin-top:10px; min-height:22px;}
+  .result-msg.survived{color:var(--eligible);}
+  .result-msg.dead{color:var(--accent-2);}
+
+  .leaderboard{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+  .lb-row{
+    display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;
+    padding:10px 12px; font-size:14px; border-bottom:1px solid var(--border);
+  }
+  .lb-row:last-child{border-bottom:none;}
+  .lb-row.head{
+    font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--text-dim); background:var(--panel-2);
+  }
+  .lb-row .lvl{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent); text-align:center;}
+  .lb-row .st{font-size:11px; text-align:right;}
+  .lb-row .st.alive{color:var(--eligible);}
+  .lb-row .st.dead{color:var(--accent-2);}
+  .lb-row.me{background:rgba(226,161,60,0.08);}
   .empty-state{padding:20px 12px; text-align:center; color:var(--text-dim); font-size:13px;}
+  .reset-zone{margin-top:18px; text-align:center;}
+  .reset-zone button{width:auto; padding:8px 14px; font-size:11px;}
 
-  .toast{
-    position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px);
-    background:var(--panel-2); border:1px solid var(--accent); color:var(--text); padding:10px 16px; border-radius:8px;
-    font-size:13px; opacity:0; pointer-events:none; transition:all 0.25s ease; z-index:50; max-width:90%; text-align:center;
+  .winner-banner{
+    background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
+    border:1px solid var(--accent); border-radius:var(--radius); padding:22px 16px; text-align:center; margin-bottom:16px;
   }
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-
-  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;}
-  .modal-box{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:18px; width:100%; max-width:340px;}
-  .modal-title{font-size:15px; margin-bottom:12px; line-height:1.4;}
-  .modal-box select, .modal-box input{
-    width:100%; background:#0e120d; border:1px solid var(--border); color:var(--text); padding:11px 10px;
-    border-radius:8px; font-family:'Oswald',sans-serif; font-size:15px; margin-bottom:10px;
-  }
-  .modal-actions{display:flex; gap:8px;}
-  .modal-actions button{flex:1;}
+  .winner-banner .trophy{font-size:36px;}
+  .winner-banner .wname{font-size:22px; font-weight:700; color:var(--accent); margin-top:4px;}
+  .winner-banner .wsub{font-size:12px; color:var(--text-dim); margin-top:4px;}
 
   footer{text-align:center; margin-top:28px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;}
 </style>
 </head>
 <body>
-<div id="configNeeded" style="display:none; min-height:100vh; align-items:center; justify-content:center; padding:24px; text-align:center; font-family:sans-serif; color:#eae7dd; background:#0b0d0a;">
-  <div style="max-width:420px;">
-    <h2 style="color:#e2a13c;">Configuration Firebase requise</h2>
-    <p>Vérifie que le bloc firebaseConfig en haut du script est bien rempli.</p>
-  </div>
-</div>
-
-<div class="wrap" id="mainApp" style="display:none;">
+<div class="wrap">
   <header>
     <div class="brand">
       <svg viewBox="0 0 48 48" fill="none">
@@ -140,72 +138,80 @@
       </svg>
       <div class="brand-text">
         <div class="name">ITX</div>
-        <div class="sub">Duel du dimanche</div>
+        <div class="sub" id="brandSub">Duel du dimanche</div>
       </div>
+    </div>
+    <div class="langs">
+      <button class="lang-btn" data-lang="fr">FR</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+      <button class="lang-btn" data-lang="it">IT</button>
     </div>
   </header>
 
-  <div class="r4-bar">
-    <span class="r4-status" id="r4Status"></span>
-    <button class="btn-ghost" id="r4Btn">Accès R4</button>
+  <div class="section-title"><span id="sectionGameTitle">La partie</span></div>
+
+  <!-- Phase: pas dimanche -->
+  <div id="phaseNotSunday" class="board" style="display:none;">
+    <div class="info-line" id="notSundayText"></div>
   </div>
 
-  <div class="section-title"><span>Partie en cours</span></div>
+  <!-- Phase: avant l'ouverture -->
+  <div id="phaseBefore" class="board" style="display:none;">
+    <div class="info-line" id="beforeText"></div>
+  </div>
 
-  <div id="idleBox" class="board" style="display:none;">
-    <div class="idle-box">Aucune partie en cours pour le moment.</div>
-    <div class="action-block" id="startBlock" style="display:none;">
-      <button class="btn-primary" id="startBtn">Nouvelle partie</button>
+  <!-- Phase: ouverte, sélection du joueur -->
+  <div id="phaseSelect" class="board" style="display:none;">
+    <div class="rules-box">
+      <div class="rules-title" id="rulesTitle">Règles du duel</div>
+      <ul class="rules-list" id="rulesListBody"></ul>
     </div>
+    <div class="info-line" id="selectInfoText"></div>
+    <select id="playerSelect"></select>
+    <button class="btn-primary" id="confirmPlayerBtn"></button>
   </div>
 
-  <div id="gameBox" class="board" style="display:none;">
-    <div class="round-label">Manche</div>
-    <div class="round-number" id="roundNumber">1</div>
-    <div class="status-line" id="statusLine"></div>
+  <!-- Phase: ouverte, tirage du nombre de départage -->
+  <div id="phaseTiebreak" class="board" style="display:none;">
+    <div class="info-line" id="tiebreakPlayerLine"><span id="tiebreakPlayerLabel"></span><b id="tiebreakPlayerName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="tiebreakInfoText"></div>
+    <div class="dice-stage"><div class="dice-face" id="tiebreakFace">?</div></div>
+    <button class="btn-primary" id="tiebreakBtn"></button>
   </div>
 
-  <div id="winnerBanner" class="winner-banner" style="display:none;">
-    <div class="trophy">🏆</div>
-    <div class="wname" id="winnerName"></div>
-    <div class="wsub">Conduira le train dimanche !</div>
+  <!-- Phase: ouverte, jeu du joueur -->
+  <div id="phasePlay" class="board" style="display:none;">
+    <div class="info-line" id="playingAsLine"><span id="playingAsLabel"></span><b id="playingAsName"></b> <span class="tiebreak-tag" id="tiebreakTag"></span></div>
+    <div class="level-label" id="levelLabel">Niveau atteint</div>
+    <div class="level-number" id="levelNumber">0</div>
+    <div class="dice-stage"><div class="dice-face" id="diceFace">?</div></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="btn-primary" id="rollBtn"></button>
+    <button class="btn-secondary" id="changePlayerBtn"></button>
   </div>
 
-  <div id="restartBlock" class="action-block" style="display:none;">
-    <button class="btn-danger" id="restartBtn">Nouvelle partie</button>
+  <!-- Phase: fermée -->
+  <div id="phaseAfter" style="display:none;">
+    <div class="winner-banner" id="winnerBanner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="winnerName"></div>
+      <div class="wsub" id="winnerSub"></div>
+    </div>
+    <div class="info-line" style="margin-bottom:14px;" id="closedInfoLine"></div>
   </div>
 
-  <div class="player-list" id="playerList"></div>
+  <div class="section-title"><span id="sectionLeaderboardTitle">Classement en direct</span></div>
+  <div class="leaderboard">
+    <div class="lb-row head"><span id="lbHeadName">Joueur</span><span id="lbHeadLvl">Niv.</span><span id="lbHeadStatus">Statut</span></div>
+    <div id="leaderboardBody"></div>
+  </div>
 
-  <div class="section-title"><span>Historique des manches</span></div>
-  <div class="ledger" id="roundLog"></div>
+  <div class="reset-zone">
+    <button class="btn-secondary" id="resetGameBtn"></button>
+  </div>
 
   <footer>ITX — Duel du dimanche pour le train</footer>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<div class="modal-overlay" id="loginModalOverlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-title">Connexion R4</div>
-    <select id="loginPseudoInput"></select>
-    <input type="password" id="loginPasswordInput" class="mono" placeholder="Mot de passe">
-    <div class="modal-actions">
-      <button class="btn-secondary" id="loginCancel">Annuler</button>
-      <button class="btn-primary" id="loginConfirm">Se connecter</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="pwdModalOverlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-title">Choisis un nouveau mot de passe (première connexion)</div>
-    <input type="password" id="pwdNewInput" class="mono" placeholder="Nouveau mot de passe">
-    <input type="password" id="pwdConfirmInput" class="mono" placeholder="Confirmer le mot de passe">
-    <div class="modal-actions">
-      <button class="btn-primary" id="pwdConfirm">Enregistrer</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -220,280 +226,499 @@
     appId: "1:1015783442955:web:0e5c93470609a328ff550e"
   };
 
-  let db=null, auth=null, r4Unlocked=false, currentR4Name=null;
-  let members = [];     // roster from the main train app (read-only reference here)
-  let game = null;       // sundayGame state
-  const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
+  // Fenêtre horaire de la partie — référence fixe : heure italienne (Europe/Rome),
+  // quel que soit le fuseau horaire de l'appareil du joueur.
+  const WINDOW_START_HOUR = 8;   // 8h00 (heure italienne)
+  const WINDOW_END_HOUR = 17;    // 17h00 (heure italienne)
+
+  // Probabilité de faire 6 selon le tour (un vrai dé donnerait 1/6 ≈ 16,7%).
+  // Plus élevée sur les premiers tours pour créer du suspense, puis redescend.
+  const SIX_PROB_EARLY = 0.55;      // tours 1 à EARLY_ROUNDS
+  const EARLY_ROUNDS = 4;           // nombre de tours concernés par la probabilité élevée
+  const SIX_PROB_LATE = 0.22;       // tours suivants
+
+  function sixProbabilityForLevel(level){
+    const upcomingRound = level + 1;
+    return upcomingRound <= EARLY_ROUNDS ? SIX_PROB_EARLY : SIX_PROB_LATE;
+  }
+
+  // ⚠️ MODE TEST : mettre à false avant la publication définitive pour l'alliance.
+  // Tant que c'est à true, le jeu reste ouvert en permanence, peu importe le jour/l'heure.
+  const TEST_MODE_ALWAYS_OPEN = true;
+
+  let lang = 'fr';
+  let db = null;
+  let members = [];
+  let myId = null, myName = null;
+  let currentResults = {};
+  let spinTimer = null;
 
   const $ = id => document.getElementById(id);
-  function pseudoToEmail(p){ return p.trim().toLowerCase().replace(/[^a-z0-9]/g,'') + AUTH_DOMAIN_SUFFIX; }
-  function emailToPseudo(e){ return (e||'').split('@')[0]; }
   function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function pad(n){ return String(n).padStart(2,'0'); }
 
-  function showToast(msg){
-    const el = $('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(()=> el.classList.remove('show'), 2400);
-  }
-
-  function isConfigured(){
-    return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('REMPLACER_');
-  }
-
-  // ---- R4 auth (shared with the train app) ----
-  function showLoginModal(){
-    return new Promise(resolve=>{
-      const overlay = $('loginModalOverlay');
-      const pseudoInput = $('loginPseudoInput');
-      const passInput = $('loginPasswordInput');
-      const r4List = members.filter(m => m.isR4 && m.status !== 'departed').sort((a,b)=>a.name.localeCompare(b.name));
-      pseudoInput.innerHTML = r4List.length
-        ? r4List.map(m=>`<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}</option>`).join('')
-        : `<option value="">Aucun membre R4</option>`;
-      passInput.value = '';
-      overlay.style.display = 'flex';
-      const confirmBtn = $('loginConfirm'), cancelBtn = $('loginCancel');
-      function cleanup(r){ overlay.style.display='none'; confirmBtn.removeEventListener('click', onConfirm); cancelBtn.removeEventListener('click', onCancel); resolve(r); }
-      function onConfirm(){ cleanup({pseudo: pseudoInput.value, password: passInput.value}); }
-      function onCancel(){ cleanup(null); }
-      confirmBtn.addEventListener('click', onConfirm);
-      cancelBtn.addEventListener('click', onCancel);
-    });
-  }
-
-  function showPasswordChangeModal(){
-    return new Promise(resolve=>{
-      const overlay = $('pwdModalOverlay');
-      const newInput = $('pwdNewInput'), confirmInput = $('pwdConfirmInput');
-      newInput.value=''; confirmInput.value='';
-      overlay.style.display='flex';
-      const confirmBtn = $('pwdConfirm');
-      function onConfirm(){
-        if(newInput.value.length < 6){ showToast('6 caractères minimum.'); return; }
-        if(newInput.value !== confirmInput.value){ showToast('Les mots de passe ne correspondent pas.'); return; }
-        overlay.style.display='none'; confirmBtn.removeEventListener('click', onConfirm); resolve(newInput.value);
-      }
-      confirmBtn.addEventListener('click', onConfirm);
-    });
-  }
-
-  async function maybeForcePasswordChange(user){
-    try{
-      const snap = await db.ref('userMeta/' + user.uid + '/passwordChanged').once('value');
-      if(snap.exists() && snap.val()===true) return;
-      const newPassword = await showPasswordChangeModal();
-      await user.updatePassword(newPassword);
-      await db.ref('userMeta/' + user.uid + '/passwordChanged').set(true);
-      showToast('Mot de passe mis à jour.');
-    }catch(e){ showToast(e.message || 'Erreur'); }
-  }
-
-  async function toggleR4(){
-    if(r4Unlocked){ await auth.signOut(); showToast('Déconnecté.'); return; }
-    const creds = await showLoginModal();
-    if(!creds || !creds.pseudo || !creds.password) return;
-    try{
-      await auth.signInWithEmailAndPassword(pseudoToEmail(creds.pseudo), creds.password);
-      showToast('Connecté en tant que R4.');
-    }catch(e){ showToast('Pseudo ou mot de passe incorrect.'); }
-  }
-
-  function renderR4Status(){
-    const btn = $('r4Btn'), status = $('r4Status');
-    btn.classList.toggle('on', r4Unlocked);
-    status.classList.toggle('on', r4Unlocked);
-    status.textContent = r4Unlocked ? (currentR4Name||'') : '';
-    btn.textContent = r4Unlocked ? 'Déconnexion' : 'Accès R4';
-  }
-
-  // ---- Storage init ----
-  function initStorage(){
-    if(!isConfigured()){
-      $('configNeeded').style.display='flex'; $('mainApp').style.display='none';
-      return;
+  const I18N = {
+    fr:{
+      brandSub:"Duel du dimanche", sectionGameTitle:"La partie", sectionLeaderboardTitle:"Classement en direct",
+      notSunday:"Pas de partie aujourd'hui.<br>Rendez-vous <b>dimanche</b>, de <b>{start}</b> à <b>{end}</b> (heure italienne).",
+      before:"La partie ouvre aujourd'hui à <b>{start}</b> (heure italienne).<br>Reviens à ce moment-là !",
+      rulesTitle:"Règles du duel",
+      rules:[
+        "Le jeu est ouvert chaque <b>dimanche</b>, de <b>{start}</b> à <b>{end}</b> (heure italienne) — soit <b>{startUK}</b> à <b>{endUK}</b> en heure anglaise.",
+        "Chaque joueur ne peut jouer <b>qu'une seule fois par semaine</b>.",
+        "Chaque tour, tu lances un dé à 6 faces.",
+        "Fais <b>6</b> pour te qualifier au tour suivant.",
+        "Autre chiffre que 6 : tu es <b>éliminé</b>, ton niveau final est le nombre de 6 déjà réussis.",
+        "Tu peux enchaîner les tours sans attendre les autres, jusqu'à ton élimination.",
+        "À la fermeture du jeu, celui qui a passé <b>le plus de tours</b> gagne le train du dimanche.",
+        "En cas d'égalité : le nombre de départage (1-99) tiré au tout début décide, le plus haut l'emporte."
+      ],
+      selectInfo:"La partie est ouverte jusqu'à <b>{end}</b> (heure italienne).<br>Sélectionne ton pseudo pour jouer :",
+      selectPlaceholder:"— Choisir un pseudo —", continueBtn:"Continuer",
+      playerLine:"Joueur : ", tiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
+      drawBtn:"Tirer mon nombre", levelLabel:"Niveau atteint", rollBtn:"Lancer le dé", changePlayerBtn:"Changer de joueur",
+      winnerSub:"A gagné le droit de conduire le train dimanche prochain !",
+      closedNoOne:"La partie du jour est terminée. Personne n'a joué.",
+      closedTieBroken:"Égalité au niveau {lvl} départagée par le nombre de départage ({tb}).",
+      closedFullTie:"Égalité totale (même niveau et même nombre de départage) — à départager entre les R4.",
+      lbName:"Joueur", lbLevel:"Niv.", lbStatus:"Statut", lbAlive:"En jeu", lbDead:"Éliminé",
+      lbEmpty:"Personne n'a encore joué aujourd'hui.",
+      eliminatedMsg:"Éliminé ! Niveau atteint : {lvl}",
+      continueMsg:"Tu as passé {lvl} tour{s} — continue !",
+      readyMsg:"Prêt à lancer ton premier dé ?",
+      tiebreakTagText:"— départage : {tb}",
+      resetBtn:"Réinitialiser la partie du jour",
+      resetConfirm:"Effacer tous les résultats de la partie d'aujourd'hui ? Cette action est définitive.",
+      footer:"ITX — Duel du dimanche pour le train"
+    },
+    en:{
+      brandSub:"Sunday Duel", sectionGameTitle:"The game", sectionLeaderboardTitle:"Live standings",
+      notSunday:"No game today.<br>See you <b>Sunday</b>, from <b>{start}</b> to <b>{end}</b> (Italian time).",
+      before:"The game opens today at <b>{start}</b> (Italian time).<br>Come back then!",
+      rulesTitle:"Duel rules",
+      rules:[
+        "The game is open every <b>Sunday</b>, from <b>{start}</b> to <b>{end}</b> (Italian time) — that's <b>{startUK}</b> to <b>{endUK}</b> UK time.",
+        "Each player can only play <b>once per week</b>.",
+        "Each round, you roll a 6-sided die.",
+        "Roll a <b>6</b> to qualify for the next round.",
+        "Any other number: you're <b>eliminated</b>, your final level is the number of 6s already rolled.",
+        "You can chain rounds without waiting for others, until you're eliminated.",
+        "When the game closes, whoever passed <b>the most rounds</b> wins Sunday's train.",
+        "In case of a tie: the tiebreak number (1-99) drawn at the very start decides, highest wins."
+      ],
+      selectInfo:"The game is open until <b>{end}</b> (Italian time).<br>Select your nickname to play:",
+      selectPlaceholder:"— Pick a nickname —", continueBtn:"Continue",
+      playerLine:"Player: ", tiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it will only be used in case of a level tie at the end.",
+      drawBtn:"Draw my number", levelLabel:"Level reached", rollBtn:"Roll the die", changePlayerBtn:"Change player",
+      winnerSub:"Won the right to drive the train next Sunday!",
+      closedNoOne:"Today's game is over. No one played.",
+      closedTieBroken:"Tie at level {lvl} broken by the tiebreak number ({tb}).",
+      closedFullTie:"Full tie (same level and same tiebreak number) — to be settled between R4s.",
+      lbName:"Player", lbLevel:"Lvl", lbStatus:"Status", lbAlive:"Playing", lbDead:"Eliminated",
+      lbEmpty:"No one has played today yet.",
+      eliminatedMsg:"Eliminated! Level reached: {lvl}",
+      continueMsg:"You passed {lvl} round{s} — keep going!",
+      readyMsg:"Ready to roll your first die?",
+      tiebreakTagText:"— tiebreak: {tb}",
+      resetBtn:"Reset today's game",
+      resetConfirm:"Clear all of today's game results? This action is permanent.",
+      footer:"ITX — Sunday duel for the train"
+    },
+    es:{
+      brandSub:"Duelo del domingo", sectionGameTitle:"La partida", sectionLeaderboardTitle:"Clasificación en directo",
+      notSunday:"No hay partida hoy.<br>Nos vemos el <b>domingo</b>, de <b>{start}</b> a <b>{end}</b> (hora italiana).",
+      before:"La partida abre hoy a las <b>{start}</b> (hora italiana).<br>¡Vuelve entonces!",
+      rulesTitle:"Reglas del duelo",
+      rules:[
+        "El juego está abierto cada <b>domingo</b>, de <b>{start}</b> a <b>{end}</b> (hora italiana) — es decir, de <b>{startUK}</b> a <b>{endUK}</b> hora del Reino Unido.",
+        "Cada jugador solo puede jugar <b>una vez por semana</b>.",
+        "En cada ronda, lanzas un dado de 6 caras.",
+        "Saca un <b>6</b> para clasificarte a la siguiente ronda.",
+        "Cualquier otro número: quedas <b>eliminado</b>, tu nivel final es el número de 6 ya conseguidos.",
+        "Puedes encadenar rondas sin esperar a los demás, hasta que quedes eliminado.",
+        "Al cerrar el juego, quien haya pasado <b>más rondas</b> gana el tren del domingo.",
+        "En caso de empate: el número de desempate (1-99) sacado al principio decide, el más alto gana."
+      ],
+      selectInfo:"La partida está abierta hasta las <b>{end}</b> (hora italiana).<br>Elige tu apodo para jugar:",
+      selectPlaceholder:"— Elegir un apodo —", continueBtn:"Continuar",
+      playerLine:"Jugador: ", tiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
+      drawBtn:"Sacar mi número", levelLabel:"Nivel alcanzado", rollBtn:"Lanzar el dado", changePlayerBtn:"Cambiar de jugador",
+      winnerSub:"¡Ha ganado el derecho a conducir el tren el próximo domingo!",
+      closedNoOne:"La partida de hoy ha terminado. Nadie jugó.",
+      closedTieBroken:"Empate en el nivel {lvl} desempatado por el número de desempate ({tb}).",
+      closedFullTie:"Empate total (mismo nivel y mismo número de desempate) — a resolver entre los R4.",
+      lbName:"Jugador", lbLevel:"Niv.", lbStatus:"Estado", lbAlive:"Jugando", lbDead:"Eliminado",
+      lbEmpty:"Nadie ha jugado todavía hoy.",
+      eliminatedMsg:"¡Eliminado! Nivel alcanzado: {lvl}",
+      continueMsg:"Has pasado {lvl} ronda{s} — ¡sigue!",
+      readyMsg:"¿Listo para lanzar tu primer dado?",
+      tiebreakTagText:"— desempate: {tb}",
+      resetBtn:"Reiniciar la partida de hoy",
+      resetConfirm:"¿Borrar todos los resultados de la partida de hoy? Esta acción es definitiva.",
+      footer:"ITX — Duelo del domingo por el tren"
+    },
+    it:{
+      brandSub:"Duello della domenica", sectionGameTitle:"La partita", sectionLeaderboardTitle:"Classifica in diretta",
+      notSunday:"Nessuna partita oggi.<br>Ci vediamo <b>domenica</b>, dalle <b>{start}</b> alle <b>{end}</b> (ora italiana).",
+      before:"La partita apre oggi alle <b>{start}</b> (ora italiana).<br>Torna in quel momento!",
+      rulesTitle:"Regole del duello",
+      rules:[
+        "Il gioco è aperto ogni <b>domenica</b>, dalle <b>{start}</b> alle <b>{end}</b> (ora italiana) — cioè dalle <b>{startUK}</b> alle <b>{endUK}</b> ora del Regno Unito.",
+        "Ogni giocatore può giocare <b>una sola volta a settimana</b>.",
+        "Ad ogni turno, lanci un dado a 6 facce.",
+        "Fai <b>6</b> per qualificarti al turno successivo.",
+        "Qualsiasi altro numero: sei <b>eliminato</b>, il tuo livello finale è il numero di 6 già ottenuti.",
+        "Puoi concatenare i turni senza aspettare gli altri, finché non vieni eliminato.",
+        "Alla chiusura del gioco, chi ha superato <b>più turni</b> vince il treno della domenica.",
+        "In caso di parità: il numero di spareggio (1-99) estratto all'inizio decide, il più alto vince."
+      ],
+      selectInfo:"La partita è aperta fino alle <b>{end}</b> (ora italiana).<br>Seleziona il tuo nickname per giocare:",
+      selectPlaceholder:"— Scegli un nickname —", continueBtn:"Continua",
+      playerLine:"Giocatore: ", tiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
+      drawBtn:"Estrai il mio numero", levelLabel:"Livello raggiunto", rollBtn:"Lancia il dado", changePlayerBtn:"Cambia giocatore",
+      winnerSub:"Ha vinto il diritto di guidare il treno domenica prossima!",
+      closedNoOne:"La partita di oggi è terminata. Nessuno ha giocato.",
+      closedTieBroken:"Parità al livello {lvl} risolta dal numero di spareggio ({tb}).",
+      closedFullTie:"Parità totale (stesso livello e stesso numero di spareggio) — da risolvere tra gli R4.",
+      lbName:"Giocatore", lbLevel:"Liv.", lbStatus:"Stato", lbAlive:"In gioco", lbDead:"Eliminato",
+      lbEmpty:"Nessuno ha ancora giocato oggi.",
+      eliminatedMsg:"Eliminato! Livello raggiunto: {lvl}",
+      continueMsg:"Hai superato {lvl} turno{s} — continua!",
+      readyMsg:"Pronto a lanciare il tuo primo dado?",
+      tiebreakTagText:"— spareggio: {tb}",
+      resetBtn:"Reimposta la partita di oggi",
+      resetConfirm:"Cancellare tutti i risultati della partita di oggi? Questa azione è definitiva.",
+      footer:"ITX — Duello della domenica per il treno"
     }
-    $('configNeeded').style.display='none'; $('mainApp').style.display='block';
+  };
 
+  function t(key){ return (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : I18N.fr[key]; }
+  function fmt(str, vars){
+    return str.replace(/\{(\w+)\}/g, (m,k)=> (vars[k] !== undefined ? vars[k] : m));
+  }
+
+  function weightedDiceRoll(level){
+    const p = sixProbabilityForLevel(level || 0);
+    if(Math.random() < p) return 6;
+    return 1 + Math.floor(Math.random()*5); // uniform among 1-5
+  }
+
+  // Renvoie l'heure/jour actuels tels qu'affichés en Italie (Europe/Rome),
+  // pour que la fenêtre du jeu soit la même pour tout le monde peu importe son fuseau.
+  function nowInRome(){
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone:'Europe/Rome', year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit', hour12:false, weekday:'short'
+    }).formatToParts(new Date());
+    const map = {};
+    parts.forEach(p => map[p.type] = p.value);
+    return map;
+  }
+
+  function todayDateStr(){
+    const r = nowInRome();
+    return `${r.year}-${r.month}-${r.day}`;
+  }
+
+  function getPhase(){
+    if(TEST_MODE_ALWAYS_OPEN) return 'open';
+    const testOverride = new URLSearchParams(window.location.search).get('test');
+    if(testOverride === 'open' || testOverride === 'before' || testOverride === 'after' || testOverride === 'not-sunday'){
+      return testOverride;
+    }
+    const r = nowInRome();
+    if(r.weekday !== 'Sun') return 'not-sunday';
+    const h = parseInt(r.hour,10) + parseInt(r.minute,10)/60;
+    if(h < WINDOW_START_HOUR) return 'before';
+    if(h >= WINDOW_END_HOUR) return 'after';
+    return 'open';
+  }
+
+  function initStorage(){
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
-    auth = firebase.auth();
 
-    db.ref('members').on('value', snap=>{ members = snap.val() || []; render(); });
-
-    db.ref('sundayGame').on('value', snap=>{ game = snap.val() || null; render(); });
-
-    auth.onAuthStateChanged(user=>{
-      r4Unlocked = !!user;
-      currentR4Name = user ? emailToPseudo(user.email) : null;
+    db.ref('members').on('value', snap=>{
+      members = snap.val() || [];
+      populatePlayerSelect();
       render();
-      if(user) maybeForcePasswordChange(user);
+    });
+
+    const gameDate = todayDateStr();
+    db.ref('sundayGame/' + gameDate + '/results').on('value', snap=>{
+      currentResults = snap.val() || {};
+      render();
+    });
+
+    // rafraîchit l'affichage régulièrement pour détecter le changement de phase (ouverture/fermeture automatique)
+    setInterval(render, 30000);
+  }
+
+  function populatePlayerSelect(){
+    const sel = $('playerSelect');
+    const active = members.filter(m => m.status !== 'departed').sort((a,b)=>a.name.localeCompare(b.name));
+    sel.innerHTML = `<option value="">${t('selectPlaceholder')}</option>` +
+      active.map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
+  }
+
+  function hideAllPhases(){
+    ['phaseNotSunday','phaseBefore','phaseSelect','phaseTiebreak','phasePlay','phaseAfter'].forEach(id=>{
+      $(id).style.display = 'none';
     });
   }
 
-  // ---- Game logic ----
-  async function startNewGame(){
-    if(!r4Unlocked){ showToast('Action réservée aux R4.'); return; }
-    const active = members.filter(m => m.status !== 'departed');
-    if(active.length < 2){ showToast('Il faut au moins 2 membres actifs.'); return; }
-    const players = {};
-    active.forEach(m => { players[m.id] = {name: m.name, alive: true}; });
-    const newState = {
-      status: 'playing',
-      round: 1,
-      players,
-      rolls: {},
-      log: [],
-      winnerId: null,
-      winnerName: null
-    };
-    await db.ref('sundayGame').set(newState);
-    showToast('Nouvelle partie lancée !');
-  }
+  const TIME_VARS = {
+    start: pad(WINDOW_START_HOUR) + 'h00',
+    end: pad(WINDOW_END_HOUR) + 'h00',
+    startUK: pad(WINDOW_START_HOUR - 1) + 'h00', // l'Italie a toujours 1h d'avance sur le Royaume-Uni
+    endUK: pad(WINDOW_END_HOUR - 1) + 'h00'
+  };
 
-  async function rollDice(playerId){
-    if(!game || game.status !== 'playing') return;
-    const player = game.players[playerId];
-    if(!player || !player.alive) return;
-    if(game.rolls && game.rolls[playerId] !== undefined) return; // already rolled this round
-    const value = Math.floor(Math.random()*6) + 1;
-    await db.ref('sundayGame/rolls/' + playerId).set(value);
-    await resolveRoundIfComplete();
-  }
-
-  async function resolveRoundIfComplete(){
-    await db.ref('sundayGame').transaction(current=>{
-      if(!current || current.status !== 'playing') return current;
-      const players = current.players || {};
-      const rolls = current.rolls || {};
-      const aliveIds = Object.keys(players).filter(id => players[id].alive);
-      const rolledIds = aliveIds.filter(id => rolls[id] !== undefined);
-      if(rolledIds.length < aliveIds.length) return current; // round not finished yet
-
-      const survivors = aliveIds.filter(id => rolls[id] === 6);
-      const eliminated = aliveIds.filter(id => rolls[id] !== 6);
-
-      const logEntry = {
-        round: current.round,
-        rolls: aliveIds.map(id => ({name: players[id].name, value: rolls[id]})),
-        replayed: survivors.length === 0
-      };
-      current.log = (current.log || []).concat([logEntry]);
-
-      if(survivors.length === 0){
-        // everyone eliminated at once -> void this attempt, replay same round with same alive set
-        current.rolls = {};
-        return current;
-      }
-
-      eliminated.forEach(id => { current.players[id].alive = false; });
-      current.rolls = {};
-
-      if(survivors.length === 1){
-        current.status = 'finished';
-        current.winnerId = survivors[0];
-        current.winnerName = players[survivors[0]].name;
-      } else {
-        current.round = (current.round || 1) + 1;
-      }
-      return current;
+  function applyI18n(){
+    $('brandSub').textContent = t('brandSub');
+    $('sectionGameTitle').textContent = t('sectionGameTitle');
+    $('sectionLeaderboardTitle').textContent = t('sectionLeaderboardTitle');
+    $('notSundayText').innerHTML = fmt(t('notSunday'), TIME_VARS);
+    $('beforeText').innerHTML = fmt(t('before'), TIME_VARS);
+    $('rulesTitle').textContent = t('rulesTitle');
+    $('rulesListBody').innerHTML = t('rules').map(r => `<li>${fmt(r, TIME_VARS)}</li>`).join('');
+    $('selectInfoText').innerHTML = fmt(t('selectInfo'), TIME_VARS);
+    $('confirmPlayerBtn').textContent = t('continueBtn');
+    $('tiebreakInfoText').innerHTML = t('tiebreakInfo');
+    $('tiebreakPlayerLabel').textContent = t('playerLine');
+    $('playingAsLabel').textContent = t('playerLine');
+    $('tiebreakBtn').textContent = t('drawBtn');
+    $('levelLabel').textContent = t('levelLabel');
+    $('rollBtn').textContent = t('rollBtn');
+    $('changePlayerBtn').textContent = t('changePlayerBtn');
+    $('winnerSub').textContent = t('winnerSub');
+    $('lbHeadName').textContent = t('lbName');
+    $('lbHeadLvl').textContent = t('lbLevel');
+    $('lbHeadStatus').textContent = t('lbStatus');
+    $('resetGameBtn').textContent = t('resetBtn');
+    document.querySelector('footer').textContent = t('footer');
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang === lang);
     });
+    populatePlayerSelect();
+    render();
   }
 
-  async function restartConfirm(){
-    if(!r4Unlocked){ showToast('Action réservée aux R4.'); return; }
-    await db.ref('sundayGame').remove();
-    showToast('Partie réinitialisée.');
+  function setLang(l){
+    lang = l;
+    applyI18n();
   }
 
-  // ---- Render ----
   function render(){
-    renderR4Status();
-    const idleBox = $('idleBox'), gameBox = $('gameBox'), winnerBanner = $('winnerBanner');
-    const restartBlock = $('restartBlock'), playerList = $('playerList'), startBlock = $('startBlock');
+    const phase = getPhase();
 
-    startBlock.style.display = r4Unlocked ? 'flex' : 'none';
+    hideAllPhases();
+    renderLeaderboard();
 
-    if(!game){
-      idleBox.style.display = 'block';
-      gameBox.style.display = 'none';
-      winnerBanner.style.display = 'none';
-      restartBlock.style.display = 'none';
-      playerList.innerHTML = '';
-      renderLog();
+    if(phase === 'not-sunday'){
+      $('phaseNotSunday').style.display = 'block';
+      return;
+    }
+    if(phase === 'before'){
+      $('phaseBefore').style.display = 'block';
+      return;
+    }
+    if(phase === 'after'){
+      $('phaseAfter').style.display = 'block';
+      renderWinner();
       return;
     }
 
-    idleBox.style.display = 'none';
-    gameBox.style.display = 'block';
-    $('roundNumber').textContent = game.round || 1;
-
-    const players = game.players || {};
-    const rolls = game.rolls || {};
-    const aliveIds = Object.keys(players).filter(id => players[id].alive);
-    const rolledCount = aliveIds.filter(id => rolls[id] !== undefined).length;
-
-    if(game.status === 'finished'){
-      $('statusLine').textContent = 'Partie terminée';
-      winnerBanner.style.display = 'block';
-      $('winnerName').textContent = game.winnerName || '';
-      restartBlock.style.display = r4Unlocked ? 'flex' : 'none';
-    } else {
-      $('statusLine').textContent = `${rolledCount}/${aliveIds.length} ont lancé le dé`;
-      winnerBanner.style.display = 'none';
-      restartBlock.style.display = r4Unlocked ? 'flex' : 'none';
+    // phase === 'open'
+    if(!myId){
+      $('phaseSelect').style.display = 'block';
+      return;
     }
+    const rec = currentResults[myId];
+    if(!rec || rec.tiebreak === undefined){
+      $('phaseTiebreak').style.display = 'block';
+      $('tiebreakPlayerName').textContent = myName;
+    } else {
+      $('phasePlay').style.display = 'block';
+      renderPlayState();
+    }
+  }
 
-    const allIds = Object.keys(players).sort((a,b)=> players[a].name.localeCompare(players[b].name));
-    playerList.innerHTML = allIds.map(id=>{
-      const p = players[id];
-      const rolledValue = rolls[id];
-      let diceHtml;
-      if(!p.alive){
-        diceHtml = `<span class="dice-value dead">✕</span>`;
-      } else if(rolledValue !== undefined){
-        diceHtml = `<span class="dice-value ${rolledValue===6?'six':''}">${rolledValue}</span>`;
-      } else if(game.status === 'playing'){
-        diceHtml = `<button class="btn-primary roll-btn" data-id="${id}">Lancer</button>`;
+  function renderWinner(){
+    const entries = Object.keys(currentResults).map(id => ({id, ...currentResults[id]}));
+    if(entries.length === 0){
+      $('winnerBanner').style.display = 'none';
+      $('closedInfoLine').textContent = t('closedNoOne');
+      return;
+    }
+    const maxLevel = Math.max(...entries.map(e => e.level || 0));
+    const topPlayers = entries.filter(e => (e.level || 0) === maxLevel);
+    $('winnerBanner').style.display = 'block';
+    if(topPlayers.length === 1){
+      $('winnerName').textContent = topPlayers[0].name;
+      $('closedInfoLine').textContent = '';
+    } else {
+      const maxTiebreak = Math.max(...topPlayers.map(p => p.tiebreak || 0));
+      const finalWinners = topPlayers.filter(p => (p.tiebreak || 0) === maxTiebreak);
+      if(finalWinners.length === 1){
+        $('winnerName').textContent = finalWinners[0].name;
+        $('closedInfoLine').textContent = fmt(t('closedTieBroken'), {lvl:maxLevel, tb:maxTiebreak});
       } else {
-        diceHtml = `<span class="dice-value">—</span>`;
+        $('winnerName').textContent = finalWinners.map(p=>p.name).join(' & ');
+        $('closedInfoLine').textContent = t('closedFullTie');
       }
-      return `
-      <div class="player-row ${p.alive ? '' : 'eliminated'}">
-        <span class="pname">${escapeHtml(p.name)}${!p.alive ? '<span class="out">ÉLIMINÉ</span>' : ''}</span>
-        ${diceHtml}
+    }
+  }
+
+  async function rollTiebreak(){
+    if(spinTimer) return;
+    const btn = $('tiebreakBtn');
+    const face = $('tiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    spinTimer = setInterval(()=>{
+      face.textContent = String(1 + Math.floor(Math.random()*99));
+    }, 70);
+    await new Promise(r=> setTimeout(r, 900));
+    clearInterval(spinTimer);
+    spinTimer = null;
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=> setTimeout(r, 400));
+
+    const gameDate = todayDateStr();
+    const path = 'sundayGame/' + gameDate + '/results/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, level:0, eliminated:false, history:[]};
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function renderPlayState(){
+    $('playingAsName').textContent = myName;
+    const rec = currentResults[myId];
+    const level = rec ? (rec.level || 0) : 0;
+    $('levelNumber').textContent = level;
+    $('tiebreakTag').textContent = rec && rec.tiebreak !== undefined ? fmt(t('tiebreakTagText'), {tb: rec.tiebreak}) : '';
+    const rollBtn = $('rollBtn');
+    const resultMsg = $('resultMsg');
+    const dice = $('diceFace');
+
+    if(rec && rec.eliminated){
+      rollBtn.disabled = true;
+      rollBtn.style.display = 'none';
+      resultMsg.className = 'result-msg dead';
+      resultMsg.textContent = fmt(t('eliminatedMsg'), {lvl: level});
+      dice.classList.add('dead');
+    } else {
+      rollBtn.disabled = false;
+      rollBtn.style.display = 'block';
+      if(!spinTimer){
+        resultMsg.className = 'result-msg';
+        resultMsg.textContent = level > 0 ? fmt(t('continueMsg'), {lvl: level, s: level>1?'s':''}) : t('readyMsg');
+        dice.classList.remove('dead','six');
+        if(dice.textContent === '' || dice.textContent === 'undefined') dice.textContent = '?';
+      }
+    }
+  }
+
+  function renderLeaderboard(){
+    const body = $('leaderboardBody');
+    const entries = Object.keys(currentResults).map(id => ({id, ...currentResults[id]}))
+      .sort((a,b)=> (b.level||0) - (a.level||0) || a.name.localeCompare(b.name));
+    if(entries.length === 0){
+      body.innerHTML = `<div class="empty-state">${t('lbEmpty')}</div>`;
+      return;
+    }
+    body.innerHTML = entries.map(e=>{
+      const statusCls = e.eliminated ? 'dead' : 'alive';
+      const statusTxt = e.eliminated ? t('lbDead') : t('lbAlive');
+      const meCls = e.id === myId ? 'me' : '';
+      return `<div class="lb-row ${meCls}">
+        <span>${escapeHtml(e.name)}</span>
+        <span class="lvl">${e.level||0}</span>
+        <span class="st ${statusCls}">${statusTxt}</span>
       </div>`;
     }).join('');
-
-    playerList.querySelectorAll('.roll-btn').forEach(b=>{
-      b.addEventListener('click', ()=> rollDice(b.dataset.id));
-    });
-
-    renderLog();
   }
 
-  function renderLog(){
-    const box = $('roundLog');
-    if(!game || !game.log || game.log.length === 0){
-      box.innerHTML = `<div class="empty-state">Aucune manche jouée pour l'instant.</div>`;
-      return;
-    }
-    box.innerHTML = game.log.slice().reverse().map(entry=>{
-      const rows = entry.rolls.map(r=>{
-        const cls = r.value === 6 ? 'survived' : 'out';
-        return `<div class="rl-row"><span>${escapeHtml(r.name)}</span><span class="${cls} mono">${r.value}</span></div>`;
-      }).join('');
-      const title = entry.replayed ? `Manche ${entry.round} (rejouée — égalité)` : `Manche ${entry.round}`;
-      return `<div class="round-log"><div class="rl-title">${title}</div>${rows}</div>`;
-    }).join('');
+  async function rollDice(){
+    if(spinTimer) return;
+    const rollBtn = $('rollBtn');
+    const dice = $('diceFace');
+    const resultMsg = $('resultMsg');
+    rollBtn.disabled = true;
+    dice.classList.add('spinning');
+    dice.classList.remove('six','dead');
+    resultMsg.textContent = '';
+
+    spinTimer = setInterval(()=>{
+      dice.textContent = String(1 + Math.floor(Math.random()*6));
+    }, 80);
+
+    await new Promise(r=> setTimeout(r, 900));
+    clearInterval(spinTimer);
+    spinTimer = null;
+    dice.classList.remove('spinning');
+
+    const currentLevel = (currentResults[myId] && currentResults[myId].level) || 0;
+    const finalValue = weightedDiceRoll(currentLevel);
+    dice.textContent = finalValue;
+
+    const survived = finalValue === 6;
+    if(survived) dice.classList.add('six'); else dice.classList.add('dead');
+
+    await new Promise(r=> setTimeout(r, 350));
+    await recordRoll(finalValue, survived);
+    rollBtn.disabled = false;
+    renderPlayState();
+  }
+
+  async function recordRoll(value, survived){
+    const gameDate = todayDateStr();
+    const path = 'sundayGame/' + gameDate + '/results/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, level: 0, eliminated: false, history: []};
+      if(rec.eliminated) return rec;
+      rec.history = (rec.history || []).concat([value]);
+      if(survived){ rec.level = (rec.level || 0) + 1; }
+      else { rec.eliminated = true; }
+      return rec;
+    });
+  }
+
+  async function resetGame(){
+    if(!window.confirm(t('resetConfirm'))) return;
+    const gameDate = todayDateStr();
+    await db.ref('sundayGame/' + gameDate).remove();
+    myId = null; myName = null;
+    render();
   }
 
   // ---- Init ----
-  $('r4Btn').addEventListener('click', toggleR4);
-  $('startBtn').addEventListener('click', startNewGame);
-  $('restartBtn').addEventListener('click', restartConfirm);
+  $('confirmPlayerBtn').addEventListener('click', ()=>{
+    const sel = $('playerSelect');
+    if(!sel.value) return;
+    myId = sel.value;
+    myName = sel.options[sel.selectedIndex].textContent;
+    render();
+  });
+  $('changePlayerBtn').addEventListener('click', ()=>{
+    myId = null; myName = null;
+    render();
+  });
+  $('rollBtn').addEventListener('click', rollDice);
+  $('tiebreakBtn').addEventListener('click', rollTiebreak);
+  $('resetGameBtn').addEventListener('click', resetGame);
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.addEventListener('click', ()=> setLang(b.dataset.lang));
+  });
 
+  setLang('fr');
   initStorage();
 })();
 </script>
