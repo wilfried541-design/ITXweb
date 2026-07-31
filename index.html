@@ -48,7 +48,7 @@
   .brand svg{width:30px;height:30px;flex-shrink:0;}
   .brand-text .name{font-weight:700; font-size:20px; letter-spacing:3px; color:var(--accent); line-height:1;}
   .brand-text .sub{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;}
-  .langs{display:flex; gap:4px;}
+  .langs{display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; max-width:190px;}
   .lang-btn{
     background:transparent; border:1px solid var(--border); color:var(--text-dim);
     font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 7px; border-radius:5px;
@@ -196,6 +196,13 @@
     padding:8px 10px; border-radius:8px; font-size:13px; resize:vertical; font-family:'JetBrains Mono',monospace;
   }
   .comment-dot{margin-left:4px; font-size:11px; opacity:0.85;}
+  .ledger-row.missing-row{
+    background:rgba(193,68,47,0.14); border-left:3px solid var(--accent-2);
+  }
+  .ledger-row.missing-row .missing-label{
+    color:var(--accent-2); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .ledger-row.missing-row .edit-link{color:var(--accent-2);}
 
   .chip-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; max-height:190px; overflow-y:auto; padding:2px;}
   .chip{
@@ -307,6 +314,8 @@
       <button class="lang-btn" data-lang="en">EN</button>
       <button class="lang-btn" data-lang="es">ES</button>
       <button class="lang-btn" data-lang="it">IT</button>
+      <button class="lang-btn" data-lang="tr">TR</button>
+      <button class="lang-btn" data-lang="nl">NL</button>
     </div>
   </header>
 
@@ -478,7 +487,8 @@
       logoutBtn:"Déconnexion", markR4:"Nommer R4", unmarkR4:"Retirer R4",
       toastMarkedR4:"Membre nommé R4.", toastUnmarkedR4:"Statut R4 retiré.",
       r4AccountError:"Erreur lors de la création du compte", r4AccountCreatedMsg:"Compte R4 créé pour {email}. Mot de passe temporaire : {pwd} (à communiquer au joueur, il devra le changer à sa première connexion).",
-      noR4Accounts:"Aucun membre n'est marqué R4 pour l'instant."},
+      noR4Accounts:"Aucun membre n'est marqué R4 pour l'instant.",
+      missingLabel:"Non complété", completeBtn:"Compléter"},
     en:{brandSub:"Alliance convoy", todayTitle:"Today's convoy", roleConductor:"Conductor", roleVip:"VIP",
       declareBtn:"Declare yourself conductor", declareHint:"One conductor per day. Pick your name from the list.",
       vipBtn:"Confirm VIP", vipHint:"Only members not conductor/VIP in the last 14 days are shown.",
@@ -519,7 +529,8 @@
       logoutBtn:"Log out", markR4:"Make R4", unmarkR4:"Remove R4",
       toastMarkedR4:"Member made R4.", toastUnmarkedR4:"R4 status removed.",
       r4AccountError:"Error creating account", r4AccountCreatedMsg:"R4 account created for {email}. Temporary password: {pwd} (share it with the player, they'll need to change it on first login).",
-      noR4Accounts:"No member is marked R4 yet."},
+      noR4Accounts:"No member is marked R4 yet.",
+      missingLabel:"Not filled in", completeBtn:"Fill in"},
     es:{brandSub:"Convoy de alianza", todayTitle:"Convoy de hoy", roleConductor:"Conductor", roleVip:"VIP",
       declareBtn:"Declararme conductor", declareHint:"Un solo conductor por día. Elige tu nombre de la lista.",
       vipBtn:"Confirmar VIP", vipHint:"Solo aparecen los miembros que no fueron conductor/VIP en los últimos 14 días.",
@@ -560,7 +571,8 @@
       logoutBtn:"Cerrar sesión", markR4:"Hacer R4", unmarkR4:"Quitar R4",
       toastMarkedR4:"Miembro hecho R4.", toastUnmarkedR4:"Estado R4 eliminado.",
       r4AccountError:"Error al crear la cuenta", r4AccountCreatedMsg:"Cuenta R4 creada para {email}. Contraseña temporal: {pwd} (compártela con el jugador, deberá cambiarla en su primer inicio de sesión).",
-      noR4Accounts:"Ningún miembro está marcado como R4 todavía."},
+      noR4Accounts:"Ningún miembro está marcado como R4 todavía.",
+      missingLabel:"Sin completar", completeBtn:"Completar"},
     it:{brandSub:"Convoglio d'alleanza", todayTitle:"Convoglio di oggi", roleConductor:"Conducente", roleVip:"VIP",
       declareBtn:"Dichiarati conducente", declareHint:"Un solo conducente al giorno. Scegli il tuo nome dall'elenco.",
       vipBtn:"Conferma VIP", vipHint:"Sono mostrati solo i membri che non sono stati conducente/VIP negli ultimi 14 giorni.",
@@ -601,7 +613,92 @@
       logoutBtn:"Disconnetti", markR4:"Rendi R4", unmarkR4:"Rimuovi R4",
       toastMarkedR4:"Membro reso R4.", toastUnmarkedR4:"Stato R4 rimosso.",
       r4AccountError:"Errore nella creazione dell'account", r4AccountCreatedMsg:"Account R4 creato per {email}. Password temporanea: {pwd} (comunicala al giocatore, dovrà cambiarla al primo accesso).",
-      noR4Accounts:"Nessun membro è ancora segnato come R4."}
+      noR4Accounts:"Nessun membro è ancora segnato come R4.",
+      missingLabel:"Da completare", completeBtn:"Completa"},
+    tr:{brandSub:"İttifak konvoyu", todayTitle:"Günün konvoyu", roleConductor:"Makinist", roleVip:"VIP",
+      declareBtn:"Kendini makinist ilan et", declareHint:"Günde tek makinist. Listeden takma adını seç.",
+      vipBtn:"VIP'i onayla", vipHint:"Sadece son 14 gündür makinist/VIP olmayan üyeler görünür.",
+      resetBtn:"Günün kaydını iptal et", historyTitle:"Geçmiş (son 14 gün)",
+      colDate:"Tarih", colConductor:"Makinist", colVip:"VIP", membersTitle:"İttifak üyeleri",
+      membersSummary:"Üyeleri yönet", newMemberPh:"Oyuncu takma adı", addBtn:"Ekle",
+      footer:"ITX — Tren konvoyu yönetimi", selectPlaceholder:"— Bir takma ad seç —",
+      noMembers:"Henüz üye yok. Aşağıdan oyuncu ekle.",
+      noHistory:"Henüz geçmiş yok.", eligibleIn:"{n}g sonra uygun", eligible:"uygun",
+      toastConductorSet:"Günün makinisti kaydedildi.", toastVipSet:"Günün VIP'i kaydedildi.",
+      toastReset:"Günün kaydı iptal edildi.", toastMemberAdded:"Üye eklendi.", toastMemberRemoved:"Üye silindi.",
+      toastMemberRenamed:"Üye yeniden adlandırıldı.", confirmDelete:"Bu üye silinsin mi?", rename:"Yeniden adlandır", remove:"Sil",
+      alreadyDeclared:"Bugün için zaten bir makinist ilan edildi.", pickSomeone:"Önce bir takma ad seç.",
+      cannotBeOwnVip:"Makinist kendi VIP'i olamaz.",
+      eligibleTitle:"Bugün uygun olanlar", eligibleHint:"Bugün makinist veya VIP olabilirler.",
+      noEligible:"Bugün kimse uygun değil.",
+      r4Btn:"R4 Girişi", r4On:"R4 modu aktif", r4Off:"",
+      r4SetPin:"Henüz R4 kodu yok. R4'ler için bir PIN kodu seç:",
+      r4EnterPin:"R4 PIN kodu:", r4Wrong:"Hatalı kod.", r4PinSet:"R4 kodu belirlendi.",
+      r4Enabled:"R4 modu etkinleştirildi.", r4Disabled:"R4 modu devre dışı bırakıldı.",
+      r4Required:"Bu işlem sadece R4'lere özel. R4 modunu etkinleştir.",
+      edit:"Düzenle", save:"Kaydet", cancel:"İptal",
+      forceNote:"R4 modu: 14 günlük kural zorlanabilir.",
+      editEntryTitle:"Şu tarihin kaydını düzelt:",
+      noConductorWarning:"Bugün için henüz makinist ilan edilmedi!",
+      ledger14:"14g", ledger30:"30g",
+      statsTitle:"İstatistikler", statsSummary:"İstatistikleri görüntüle",
+      statsConductor:"Makinist", statsVip:"VIP", statsTotal:"Toplam", statsNever:"Hiç",
+      memberSearchPh:"Bir üye ara...",
+      statusDeparted:"Ayrıldı", markActive:"Aktif olarak işaretle", markDeparted:"Ayrıldı olarak işaretle",
+      toastMarkedDeparted:"Üye ayrıldı olarak işaretlendi.", toastMarkedActive:"Üye aktif olarak işaretlendi.",
+      commentConductor:"Makinist yorumu", commentVip:"VIP yorumu",
+      commentPh:"Yorum yok...", ledgerAll:"Tümü",
+      loginTitle:"R4 Girişi", loginPseudoPh:"Takma adın", loginPasswordPh:"Şifre", loginBtn:"Giriş yap",
+      pwdChangeTitle:"Yeni bir şifre seç (ilk giriş)", pwdNewPh:"Yeni şifre", pwdConfirmPh:"Şifreyi onayla",
+      loginWrong:"Takma ad veya şifre hatalı.", loginSuccess:"R4 olarak giriş yapıldı.", logoutSuccess:"Çıkış yapıldı.",
+      pwdChanged:"Şifre güncellendi.", pwdMismatch:"Şifreler eşleşmiyor.", pwdTooShort:"En az 6 karakter.",
+      logoutBtn:"Çıkış yap", markR4:"R4 yap", unmarkR4:"R4'ü kaldır",
+      toastMarkedR4:"Üye R4 yapıldı.", toastUnmarkedR4:"R4 statüsü kaldırıldı.",
+      r4AccountError:"Hesap oluşturulurken hata oluştu", r4AccountCreatedMsg:"{email} için R4 hesabı oluşturuldu. Geçici şifre: {pwd} (oyuncuya ilet, ilk girişte değiştirmesi gerekecek).",
+      noR4Accounts:"Henüz hiçbir üye R4 olarak işaretlenmedi.",
+      missingLabel:"Tamamlanmadı", completeBtn:"Tamamla"},
+    nl:{brandSub:"Alliantieconvooi", todayTitle:"Konvooi van vandaag", roleConductor:"Machinist", roleVip:"VIP",
+      declareBtn:"Meld jezelf aan als machinist", declareHint:"Eén machinist per dag. Kies je naam uit de lijst.",
+      vipBtn:"VIP bevestigen", vipHint:"Alleen leden die de laatste 14 dagen geen machinist/VIP waren, verschijnen.",
+      resetBtn:"Invoer van vandaag annuleren", historyTitle:"Geschiedenis (laatste 14 dagen)",
+      colDate:"Datum", colConductor:"Machinist", colVip:"VIP", membersTitle:"Alliantieleden",
+      membersSummary:"Leden beheren", newMemberPh:"Spelersnaam", addBtn:"Toevoegen",
+      footer:"ITX — Beheer van het treinkonvooi", selectPlaceholder:"— Kies een naam —",
+      noMembers:"Nog geen leden. Voeg hieronder spelers toe.",
+      noHistory:"Nog geen geschiedenis.", eligibleIn:"beschikbaar over {n}d", eligible:"beschikbaar",
+      toastConductorSet:"Machinist van vandaag opgeslagen.", toastVipSet:"VIP van vandaag opgeslagen.",
+      toastReset:"Invoer van vandaag geannuleerd.", toastMemberAdded:"Lid toegevoegd.", toastMemberRemoved:"Lid verwijderd.",
+      toastMemberRenamed:"Lid hernoemd.", confirmDelete:"Dit lid verwijderen?", rename:"Hernoemen", remove:"Verwijderen",
+      alreadyDeclared:"Er is vandaag al een machinist aangemeld.", pickSomeone:"Kies eerst een naam.",
+      cannotBeOwnVip:"De machinist kan niet zijn eigen VIP zijn.",
+      eligibleTitle:"Vandaag beschikbaar", eligibleHint:"Kunnen vandaag machinist of VIP worden.",
+      noEligible:"Niemand is vandaag beschikbaar.",
+      r4Btn:"R4-toegang", r4On:"R4-modus actief", r4Off:"",
+      r4SetPin:"Er bestaat nog geen R4-code. Kies een pincode voor de R4's:",
+      r4EnterPin:"R4-pincode:", r4Wrong:"Onjuiste code.", r4PinSet:"R4-code ingesteld.",
+      r4Enabled:"R4-modus geactiveerd.", r4Disabled:"R4-modus gedeactiveerd.",
+      r4Required:"Actie voorbehouden aan R4's. Activeer de R4-modus.",
+      edit:"Bewerken", save:"Opslaan", cancel:"Annuleren",
+      forceNote:"R4-modus: de 14-dagenregel kan worden geforceerd.",
+      editEntryTitle:"Invoer corrigeren van",
+      noConductorWarning:"Er is vandaag nog geen machinist aangemeld!",
+      ledger14:"14d", ledger30:"30d",
+      statsTitle:"Statistieken", statsSummary:"Statistieken bekijken",
+      statsConductor:"Machinist", statsVip:"VIP", statsTotal:"Totaal", statsNever:"Nooit",
+      memberSearchPh:"Een lid zoeken...",
+      statusDeparted:"Vertrokken", markActive:"Als actief markeren", markDeparted:"Als vertrokken markeren",
+      toastMarkedDeparted:"Lid gemarkeerd als vertrokken.", toastMarkedActive:"Lid gemarkeerd als actief.",
+      commentConductor:"Opmerking machinist", commentVip:"Opmerking VIP",
+      commentPh:"Geen opmerking...", ledgerAll:"Alles",
+      loginTitle:"R4-login", loginPseudoPh:"Jouw naam", loginPasswordPh:"Wachtwoord", loginBtn:"Inloggen",
+      pwdChangeTitle:"Kies een nieuw wachtwoord (eerste keer inloggen)", pwdNewPh:"Nieuw wachtwoord", pwdConfirmPh:"Bevestig wachtwoord",
+      loginWrong:"Onjuiste naam of wachtwoord.", loginSuccess:"Ingelogd als R4.", logoutSuccess:"Uitgelogd.",
+      pwdChanged:"Wachtwoord bijgewerkt.", pwdMismatch:"Wachtwoorden komen niet overeen.", pwdTooShort:"Minimaal 6 tekens.",
+      logoutBtn:"Uitloggen", markR4:"R4 maken", unmarkR4:"R4 verwijderen",
+      toastMarkedR4:"Lid R4 gemaakt.", toastUnmarkedR4:"R4-status verwijderd.",
+      r4AccountError:"Fout bij het aanmaken van het account", r4AccountCreatedMsg:"R4-account aangemaakt voor {email}. Tijdelijk wachtwoord: {pwd} (deel dit met de speler, die het bij de eerste keer inloggen moet wijzigen).",
+      noR4Accounts:"Nog geen enkel lid is als R4 gemarkeerd.",
+      missingLabel:"Niet ingevuld", completeBtn:"Invullen"}
   };
 
   const WINDOW_DAYS = 14;
@@ -1340,6 +1437,21 @@
     $('r4ForceNote') && ($('r4ForceNote').style.display = r4Unlocked ? 'block' : 'none');
   }
 
+  function computeMissingDates(viewDays){
+    if(viewDays === Infinity) return [];
+    const cutoff = todayStr();
+    const missing = [];
+    for(let i=1; i<=viewDays; i++){
+      const d = new Date(cutoff + 'T00:00:00');
+      d.setDate(d.getDate() - i);
+      const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if(!history.find(h => h.date === dateStr)){
+        missing.push(dateStr);
+      }
+    }
+    return missing;
+  }
+
   function renderLedger(){
     const toggle = $('ledgerToggle');
     toggle.style.display = r4Unlocked ? 'flex' : 'none';
@@ -1354,25 +1466,41 @@
     const rows = history
       .filter(h => daysBetween(h.date, cutoff) <= viewDays && daysBetween(h.date, cutoff) >= 0)
       .sort((a,b)=> a.date < b.date ? 1 : -1);
-    if(rows.length === 0){
+
+    const missingDates = r4Unlocked ? computeMissingDates(viewDays) : [];
+    const slots = rows.map(r => ({date:r.date, entry:r}))
+      .concat(missingDates.map(d => ({date:d, entry:null})))
+      .sort((a,b)=> a.date < b.date ? 1 : -1);
+
+    if(slots.length === 0){
       body.innerHTML = `<div class="empty-state">${t('noHistory')}</div>`;
       return;
     }
-    body.innerHTML = rows.map(r=>{
-      if(editingDate === r.date){
+    body.innerHTML = slots.map(slot=>{
+      const r = slot.entry;
+      if(editingDate === slot.date){
         const memberOptions = (selectedId)=> '<option value="">—</option>' + members
           .map(m=>`<option value="${m.id}" ${m.id===selectedId?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
         return `
         <div class="ledger-edit">
-          <div class="edit-label">${t('editEntryTitle')} ${r.date}</div>
-          <select id="editConductor_${r.date}">${memberOptions(r.conductorId)}</select>
-          <textarea id="editConductorComment_${r.date}" class="mono" rows="2" placeholder="${t('commentConductor')}">${escapeHtml(r.conductorComment || '')}</textarea>
-          <select id="editVip_${r.date}">${memberOptions(r.vipId)}</select>
-          <textarea id="editVipComment_${r.date}" class="mono" rows="2" placeholder="${t('commentVip')}">${escapeHtml(r.vipComment || '')}</textarea>
+          <div class="edit-label">${t('editEntryTitle')} ${slot.date}</div>
+          <select id="editConductor_${slot.date}">${memberOptions(r ? r.conductorId : null)}</select>
+          <textarea id="editConductorComment_${slot.date}" class="mono" rows="2" placeholder="${t('commentConductor')}">${escapeHtml(r ? (r.conductorComment || '') : '')}</textarea>
+          <select id="editVip_${slot.date}">${memberOptions(r ? r.vipId : null)}</select>
+          <textarea id="editVipComment_${slot.date}" class="mono" rows="2" placeholder="${t('commentVip')}">${escapeHtml(r ? (r.vipComment || '') : '')}</textarea>
           <div class="edit-actions">
-            <button class="btn-primary save-entry-btn" data-date="${r.date}">${t('save')}</button>
+            <button class="btn-primary save-entry-btn" data-date="${slot.date}">${t('save')}</button>
             <button class="btn-secondary cancel-entry-btn">${t('cancel')}</button>
           </div>
+        </div>`;
+      }
+      if(!r){
+        return `
+        <div class="ledger-row missing-row">
+          <span class="d">${slot.date.slice(5)}</span>
+          <span class="missing-label">${t('missingLabel')}</span>
+          <span></span>
+          <span><button class="edit-link edit-entry-btn" data-date="${slot.date}">${t('completeBtn')}</button></span>
         </div>`;
       }
       const hasComment = (r.conductorComment && r.conductorComment.trim()) || (r.vipComment && r.vipComment.trim());
@@ -1645,8 +1773,11 @@
   }
 
   async function saveEditEntry(date){
-    const entry = history.find(h=>h.date === date);
-    if(!entry) return;
+    let entry = history.find(h=>h.date === date);
+    const isNew = !entry;
+    if(isNew){
+      entry = {date, conductorId:null, conductorName:null, vipId:null, vipName:null, conductorComment:'', vipComment:''};
+    }
     const cSel = document.getElementById('editConductor_' + date);
     const vSel = document.getElementById('editVip_' + date);
     const cComment = document.getElementById('editConductorComment_' + date);
@@ -1659,6 +1790,7 @@
     entry.vipName = vMember ? vMember.name : null;
     entry.conductorComment = cComment ? cComment.value.trim() : '';
     entry.vipComment = vComment ? vComment.value.trim() : '';
+    if(isNew) history.push(entry);
     await saveHistory();
     editingDate = null;
     showToast(t('toastConductorSet'));
