@@ -42,7 +42,7 @@
     width:100%; max-width:480px; margin:0 auto; display:block;
     filter:drop-shadow(0 8px 20px rgba(0,0,0,0.5));
   }
-  .hero-wrap{max-width:480px; margin:0 auto; overflow:hidden; border-radius:0 0 var(--radius) var(--radius); border:1px solid var(--border); border-top:none;}
+  .hero-wrap{max-width:480px; margin:0 auto; overflow:hidden; border-radius:0 0 var(--radius) var(--radius); border:1px solid var(--border); border-top:none; position:relative;}
   .puff{animation:puffUp 2.6s ease-out infinite; transform-box:fill-box; transform-origin:center;}
   .puff2{animation:puffUp 2.6s ease-out 0.9s infinite; transform-box:fill-box; transform-origin:center;}
   .puff3{animation:puffUp 2.6s ease-out 1.8s infinite; transform-box:fill-box; transform-origin:center;}
@@ -59,6 +59,15 @@
     text-align:center; padding-bottom:14px; border-bottom:1px solid var(--border);
     font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;
   }
+  .langs{
+    display:flex; gap:3px; flex-wrap:nowrap; justify-content:flex-end; padding:8px 2px 0;
+  }
+  .lang-btn{
+    background:transparent; border:1px solid var(--border); color:var(--text-dim);
+    font-family:'JetBrains Mono',monospace; font-size:8px; padding:2px 5px; border-radius:3px;
+    cursor:pointer; letter-spacing:0.3px; width:auto; margin-top:0; line-height:1.4;
+  }
+  .lang-btn.active{border-color:var(--accent); color:var(--accent); background:rgba(226,161,60,0.1);}
 
   .section-title{
     display:flex; align-items:center; gap:8px; margin:22px 0 10px; color:var(--text-dim); font-size:11px;
@@ -226,46 +235,32 @@
       <line x1="445" y1="146" x2="445" y2="158"/><line x1="470" y1="146" x2="470" y2="158"/>
     </g>
 
-    <!-- fumée -->
-    <circle class="puff" cx="90" cy="55" r="6" fill="#eae7dd" opacity="0.7"/>
-    <circle class="puff2" cx="90" cy="55" r="5" fill="#eae7dd" opacity="0.6"/>
-    <circle class="puff3" cx="90" cy="55" r="4" fill="#eae7dd" opacity="0.6"/>
-
-    <!-- ==== le personnage : locomotive ITX ==== -->
+    <!-- ==== le personnage : locomotive ITX (sprite) ==== -->
     <g>
       <!-- ombre -->
-      <ellipse cx="150" cy="150" rx="95" ry="8" fill="#000" opacity="0.35"/>
-      <!-- cheminée -->
-      <rect x="84" y="58" width="12" height="20" rx="2" fill="#3a3324"/>
-      <!-- cabine -->
-      <rect x="72" y="75" width="48" height="27" rx="8" fill="url(#bodyGrad)"/>
-      <rect x="80" y="82" width="20" height="14" rx="3" fill="#14170f"/>
-      <rect x="82" y="84" width="8" height="6" rx="1" fill="#bfeeE8" opacity="0.55"/>
-      <!-- fanion -->
-      <polygon points="76,75 76,62 92,68" fill="#4fd6c9"/>
-      <line x1="76" y1="62" x2="76" y2="75" stroke="#14170f" stroke-width="2"/>
-      <!-- corps principal -->
-      <rect x="70" y="97" width="130" height="45" rx="12" fill="url(#bodyGrad)"/>
-      <rect x="70" y="97" width="130" height="10" rx="5" fill="#ffe6b3" opacity="0.35"/>
-      <!-- nez avant -->
-      <rect x="185" y="100" width="30" height="38" rx="11" fill="#c1442f"/>
-      <rect x="185" y="128" width="30" height="4" fill="#14170f" opacity="0.4"/>
-      <rect x="212" y="118" width="9" height="11" rx="2" fill="#14170f"/>
-      <!-- roues -->
-      <g>
-        <circle cx="98" cy="146" r="13" fill="#14170f"/><circle cx="98" cy="146" r="4" fill="#e2a13c"/>
-        <circle cx="134" cy="146" r="13" fill="#14170f"/><circle cx="134" cy="146" r="4" fill="#e2a13c"/>
-        <circle cx="170" cy="146" r="13" fill="#14170f"/><circle cx="170" cy="146" r="4" fill="#e2a13c"/>
-        <circle cx="196" cy="146" r="10" fill="#14170f"/><circle cx="196" cy="146" r="3" fill="#e2a13c"/>
-      </g>
+      <ellipse cx="150" cy="146" rx="100" ry="8" fill="#000" opacity="0.35"/>
+      <image href="assets/train-sprite.png" x="35" y="48" width="215" height="98"/>
     </g>
+
+    <!-- fumée -->
+    <circle class="puff" cx="70" cy="48" r="6" fill="#eae7dd" opacity="0.7"/>
+    <circle class="puff2" cx="70" cy="48" r="5" fill="#eae7dd" opacity="0.6"/>
+    <circle class="puff3" cx="70" cy="48" r="4" fill="#eae7dd" opacity="0.6"/>
   </svg>
   <div class="hero-name">ITX</div>
-  <div class="hero-sub">Jeu du train</div>
+  <div class="hero-sub" id="heroSub">Jeu du train</div>
 </div>
 
 <div class="wrap">
-  <div class="section-title"><span>La partie</span></div>
+  <div class="langs">
+    <button class="lang-btn" data-lang="fr">FR</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="it">IT</button>
+    <button class="lang-btn" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="nl">NL</button>
+  </div>
+  <div class="section-title"><span id="sectionGameTitle">La partie</span></div>
 
 
   <!-- Aucun jeu ouvert -->
@@ -276,21 +271,21 @@
   <!-- Sélection du joueur (commune à tous les jeux) -->
   <div id="playerSelectBox" class="board" style="display:none;">
     <div id="rulesInject"></div>
-    <div class="info-line">Sélectionne ton pseudo pour jouer :</div>
+    <div class="info-line" id="selectPseudoText">Sélectionne ton pseudo pour jouer :</div>
     <select id="playerSelect"></select>
     <button class="btn-primary" id="confirmPlayerBtn">Continuer</button>
   </div>
 
   <!-- ==================== JEU : DICE ==================== -->
   <div id="diceTiebreakBox" class="board" style="display:none;">
-    <div class="info-line">Joueur : <b id="diceTiebreakName"></b></div>
-    <div class="info-line" style="margin-top:8px;">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.</div>
+    <div class="info-line"><span id="dicePlayerLabel1">Joueur : </span><b id="diceTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="diceTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.</div>
     <div class="dice-stage"><div class="dice-face" id="tiebreakFace">?</div></div>
     <button class="btn-primary" id="tiebreakBtn">Tirer mon nombre</button>
   </div>
   <div id="dicePlayBox" class="board" style="display:none;">
-    <div class="info-line">Joueur : <b id="diceName"></b> <span class="tiebreak-tag" id="tiebreakTag"></span></div>
-    <div class="level-label">Niveau atteint</div>
+    <div class="info-line"><span id="dicePlayerLabel2">Joueur : </span><b id="diceName"></b> <span class="tiebreak-tag" id="tiebreakTag"></span></div>
+    <div class="level-label" id="diceLevelLabel">Niveau atteint</div>
     <div class="level-number" id="diceLevelNumber">0</div>
     <div class="dice-stage"><div class="dice-face" id="diceFace">?</div></div>
     <div class="result-msg" id="diceResultMsg"></div>
@@ -300,16 +295,16 @@
     <div class="winner-banner">
       <div class="trophy">🏆</div>
       <div class="wname" id="diceWinnerName"></div>
-      <div class="wsub">A gagné le droit de conduire le train !</div>
+      <div class="wsub" id="diceWinnerSub">A gagné le droit de conduire le train !</div>
     </div>
   </div>
 
   <!-- ==================== JEU : TARGET ==================== -->
   <div id="targetBeforeBox" class="board" style="display:none;">
-    <div class="info-line">La partie ouvre à <b id="targetBeforeStart"></b> (heure italienne), pour 5 minutes.</div>
+    <div class="info-line"><span id="targetBeforeText1">La partie ouvre à </span><b id="targetBeforeStart"></b><span id="targetBeforeText2"> (heure italienne), pour 5 minutes.</span></div>
   </div>
   <div id="targetPlayBox" class="board" style="display:none;">
-    <div class="info-line">Joueur : <b id="targetName"></b></div>
+    <div class="info-line"><span id="targetPlayerLabel">Joueur : </span><b id="targetName"></b></div>
     <div class="clock" id="liveClock">--:--:--</div>
     <button class="big-target-btn" id="clickTargetBtn">Valider maintenant</button>
     <div class="result-msg" id="targetResultMsg"></div>
@@ -318,21 +313,21 @@
     <div class="winner-banner">
       <div class="trophy">🏆</div>
       <div class="wname" id="targetWinnerName"></div>
-      <div class="wsub">A gagné le droit de conduire le train !</div>
+      <div class="wsub" id="targetWinnerSub">A gagné le droit de conduire le train !</div>
       <div class="target-reveal" id="targetReveal"></div>
     </div>
   </div>
 
   <!-- ==================== JEU : RUN ==================== -->
   <div id="runIntroBox" class="board" style="display:none;">
-    <div class="info-line">Joueur : <b id="runIntroName"></b></div>
-    <div class="info-line" style="margin-top:8px;">Essai <b id="runAttemptNumber">1</b>/3 aujourd'hui.<span id="runBestSoFar"></span></div>
+    <div class="info-line"><span id="runPlayerLabel">Joueur : </span><b id="runIntroName"></b></div>
+    <div class="info-line" style="margin-top:8px;"><span id="runAttemptText1">Essai </span><b id="runAttemptNumber">1</b><span id="runAttemptText2">/3 aujourd'hui.</span><span id="runBestSoFar"></span></div>
     <button class="btn-primary" id="runStartBtn">Lancer l'essai</button>
   </div>
   <div id="runPlayBox" class="board" style="display:none;">
     <div class="hud">
       <span class="mono" id="runAttemptTag">Essai 1/3</span>
-      <span>Score : <span class="score" id="runScoreLabel">0</span></span>
+      <span><span id="runScoreText">Score : </span><span class="score" id="runScoreLabel">0</span></span>
       <span class="hits" id="runHitsDisplay"></span>
     </div>
     <canvas id="runCanvas" width="340" height="220"></canvas>
@@ -350,22 +345,22 @@
     <button class="btn-primary" id="runRetryBtn">Essai suivant</button>
   </div>
   <div id="runDoneBox" class="board" style="display:none;">
-    <div class="info-line">Tes 3 essais du jour sont terminés.</div>
-    <div class="level-label" style="margin-top:10px;">Ton meilleur score</div>
+    <div class="info-line" id="runDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="runDoneLabel">Ton meilleur score</div>
     <div class="level-number" id="runDoneBest" style="font-size:28px;">0</div>
-    <div class="info-line" style="margin-top:10px;">Reviens demain pour retenter ta chance !</div>
+    <div class="info-line" style="margin-top:10px;" id="runDoneText2">Reviens demain pour retenter ta chance !</div>
   </div>
 
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
        lui donner ses propres ids, et ajouter sa logique dans renderGame() / handlers plus bas. ==================== -->
 
-  <div class="section-title"><span>Classement</span></div>
+  <div class="section-title"><span id="sectionLbTitle">Classement</span></div>
   <div class="leaderboard">
     <div class="lb-row head" id="lbHead"><span>Joueur</span><span></span><span></span></div>
     <div id="leaderboardBody"></div>
   </div>
 
-  <footer>ITX — Jouer</footer>
+  <footer id="footerText">ITX — Jouer</footer>
 </div>
 
 <script>
@@ -393,6 +388,181 @@
   const $ = id => document.getElementById(id);
   function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function pad(n){ return String(n).padStart(2,'0'); }
+
+  let lang = 'fr';
+  const I18N = {
+    fr:{
+      heroSub:"Jeu du train", sectionGameTitle:"La partie", sectionLbTitle:"Classement", footerText:"ITX — Jouer",
+      closedDefault:"Aucun jeu n'est ouvert pour le moment.<br>Reviens plus tard !",
+      closedAccess:"L'accès est fermé pour le moment.",
+      targetNotConfigured:"La partie n'a pas encore été configurée.",
+      selectPseudoText:"Sélectionne ton pseudo pour jouer :", selectPlaceholder:"— Choisir un pseudo —", continueBtn:"Continuer",
+      playerLabel:"Joueur : ",
+      rulesTitle:"Règles",
+      rulesDice:["Fais <b>6</b> pour continuer, sinon tu es éliminé.","Enchaîne les tours sans attendre les autres.","Le plus grand nombre de tours passés gagne."],
+      rulesTarget:["Une heure secrète a été tirée dans la fenêtre actuelle.","Clique au moment où tu penses en être le plus proche, à la seconde près.","Un seul clic, définitif."],
+      rulesRun:["Conduis le train, évite les obstacles.","3 impacts autorisés, le 4ᵉ met fin à la partie.","La vitesse augmente sans arrêt. Le meilleur score gagne."],
+      diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
+      drawNumberBtn:"Tirer mon nombre", diceLevelLabel:"Niveau atteint", rollDiceBtn:"Lancer le dé",
+      diceWinnerSub:"A gagné le droit de conduire le train !",
+      diceEliminatedMsg:"Éliminé ! Niveau atteint : {lvl}", diceContinueMsg:"Tu as passé {lvl} tour{s} — continue !", diceReadyMsg:"Prêt à lancer ton premier dé ?",
+      tiebreakTagText:"— départage : {tb}",
+      targetBeforeText1:"La partie ouvre à ", targetBeforeText2:" (heure italienne), pour 5 minutes.",
+      targetValidateBtn:"Valider maintenant", targetValidatedMsg:"Validé à {time} — résultat à la fermeture.",
+      targetWinnerSub:"A gagné le droit de conduire le train !", targetRevealText:"Heure secrète : <b>{time}</b>",
+      runAttemptText1:"Essai ", runAttemptText2:"/3 aujourd'hui.", runBestSoFarText:" Meilleur score du jour : {score}.",
+      runStartBtn:"Lancer l'essai", runScoreText:"Score : ", runAttemptTag:"Essai {n}/3",
+      runNextAttemptBtn:"Essai suivant", runOverSubLast:"Dernier essai — meilleur score du jour : {score}",
+      runOverSubMore:"Essai {n}/3 — meilleur score du jour : {score}",
+      runDoneText1:"Tes 3 essais du jour sont terminés.", runDoneLabel:"Ton meilleur score", runDoneText2:"Reviens demain pour retenter ta chance !",
+      lbPlayer:"Joueur", lbLevel:"Niv.", lbStatus:"Statut", lbAlive:"En jeu", lbDead:"Éliminé",
+      lbTime:"Heure", lbDiff:"Écart", lbScore:"Score",
+      lbEmptyNoOne:"Personne n'a encore joué.", lbEmptyNoScore:"Aucun score pour l'instant.", lbEmptyGeneric:"Aucun classement pour l'instant."
+    },
+    en:{
+      heroSub:"Train game", sectionGameTitle:"The game", sectionLbTitle:"Leaderboard", footerText:"ITX — Play",
+      closedDefault:"No game is open right now.<br>Come back later!",
+      closedAccess:"Access is closed for now.",
+      targetNotConfigured:"The game hasn't been configured yet.",
+      selectPseudoText:"Select your nickname to play:", selectPlaceholder:"— Pick a nickname —", continueBtn:"Continue",
+      playerLabel:"Player: ",
+      rulesTitle:"Rules",
+      rulesDice:["Roll a <b>6</b> to continue, otherwise you're eliminated.","Chain rounds without waiting for others.","The most rounds passed wins."],
+      rulesTarget:["A secret time was drawn within the current window.","Click when you think you're closest to it, to the second.","One click only, final."],
+      rulesRun:["Drive the train, avoid the obstacles.","3 hits allowed, the 4th ends the run.","Speed keeps increasing. Best score wins."],
+      diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
+      drawNumberBtn:"Draw my number", diceLevelLabel:"Level reached", rollDiceBtn:"Roll the die",
+      diceWinnerSub:"Won the right to drive the train!",
+      diceEliminatedMsg:"Eliminated! Level reached: {lvl}", diceContinueMsg:"You passed {lvl} round{s} — keep going!", diceReadyMsg:"Ready to roll your first die?",
+      tiebreakTagText:"— tiebreak: {tb}",
+      targetBeforeText1:"The game opens at ", targetBeforeText2:" (Italian time), for 5 minutes.",
+      targetValidateBtn:"Confirm now", targetValidatedMsg:"Confirmed at {time} — result when it closes.",
+      targetWinnerSub:"Won the right to drive the train!", targetRevealText:"Secret time: <b>{time}</b>",
+      runAttemptText1:"Attempt ", runAttemptText2:"/3 today.", runBestSoFarText:" Best score today: {score}.",
+      runStartBtn:"Start attempt", runScoreText:"Score: ", runAttemptTag:"Attempt {n}/3",
+      runNextAttemptBtn:"Next attempt", runOverSubLast:"Last attempt — best score today: {score}",
+      runOverSubMore:"Attempt {n}/3 — best score today: {score}",
+      runDoneText1:"Your 3 attempts for today are done.", runDoneLabel:"Your best score", runDoneText2:"Come back tomorrow to try again!",
+      lbPlayer:"Player", lbLevel:"Lvl", lbStatus:"Status", lbAlive:"Playing", lbDead:"Eliminated",
+      lbTime:"Time", lbDiff:"Diff", lbScore:"Score",
+      lbEmptyNoOne:"No one has played yet.", lbEmptyNoScore:"No score yet.", lbEmptyGeneric:"No leaderboard yet."
+    },
+    es:{
+      heroSub:"Juego del tren", sectionGameTitle:"La partida", sectionLbTitle:"Clasificación", footerText:"ITX — Jugar",
+      closedDefault:"No hay ninguna partida abierta ahora mismo.<br>¡Vuelve más tarde!",
+      closedAccess:"El acceso está cerrado por ahora.",
+      targetNotConfigured:"La partida aún no ha sido configurada.",
+      selectPseudoText:"Elige tu apodo para jugar:", selectPlaceholder:"— Elegir un apodo —", continueBtn:"Continuar",
+      playerLabel:"Jugador: ",
+      rulesTitle:"Reglas",
+      rulesDice:["Saca un <b>6</b> para continuar, si no quedas eliminado.","Encadena rondas sin esperar a los demás.","Quien pase más rondas gana."],
+      rulesTarget:["Se ha sorteado una hora secreta dentro de la ventana actual.","Haz clic cuando creas estar más cerca, al segundo exacto.","Un solo clic, definitivo."],
+      rulesRun:["Conduce el tren, esquiva los obstáculos.","3 impactos permitidos, el 4º termina la partida.","La velocidad aumenta sin parar. Gana el mejor puntaje."],
+      diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
+      drawNumberBtn:"Sacar mi número", diceLevelLabel:"Nivel alcanzado", rollDiceBtn:"Lanzar el dado",
+      diceWinnerSub:"¡Ha ganado el derecho a conducir el tren!",
+      diceEliminatedMsg:"¡Eliminado! Nivel alcanzado: {lvl}", diceContinueMsg:"Has pasado {lvl} ronda{s} — ¡sigue!", diceReadyMsg:"¿Listo para lanzar tu primer dado?",
+      tiebreakTagText:"— desempate: {tb}",
+      targetBeforeText1:"La partida abre a las ", targetBeforeText2:" (hora italiana), durante 5 minutos.",
+      targetValidateBtn:"Confirmar ahora", targetValidatedMsg:"Confirmado a las {time} — resultado al cierre.",
+      targetWinnerSub:"¡Ha ganado el derecho a conducir el tren!", targetRevealText:"Hora secreta: <b>{time}</b>",
+      runAttemptText1:"Intento ", runAttemptText2:"/3 hoy.", runBestSoFarText:" Mejor puntaje de hoy: {score}.",
+      runStartBtn:"Iniciar intento", runScoreText:"Puntaje: ", runAttemptTag:"Intento {n}/3",
+      runNextAttemptBtn:"Siguiente intento", runOverSubLast:"Último intento — mejor puntaje de hoy: {score}",
+      runOverSubMore:"Intento {n}/3 — mejor puntaje de hoy: {score}",
+      runDoneText1:"Tus 3 intentos de hoy han terminado.", runDoneLabel:"Tu mejor puntaje", runDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
+      lbPlayer:"Jugador", lbLevel:"Niv.", lbStatus:"Estado", lbAlive:"Jugando", lbDead:"Eliminado",
+      lbTime:"Hora", lbDiff:"Dif.", lbScore:"Puntaje",
+      lbEmptyNoOne:"Nadie ha jugado todavía.", lbEmptyNoScore:"Sin puntaje todavía.", lbEmptyGeneric:"Sin clasificación todavía."
+    },
+    it:{
+      heroSub:"Gioco del treno", sectionGameTitle:"La partita", sectionLbTitle:"Classifica", footerText:"ITX — Gioca",
+      closedDefault:"Nessuna partita è aperta al momento.<br>Torna più tardi!",
+      closedAccess:"L'accesso è chiuso per ora.",
+      targetNotConfigured:"La partita non è stata ancora configurata.",
+      selectPseudoText:"Seleziona il tuo nickname per giocare:", selectPlaceholder:"— Scegli un nickname —", continueBtn:"Continua",
+      playerLabel:"Giocatore: ",
+      rulesTitle:"Regole",
+      rulesDice:["Fai <b>6</b> per continuare, altrimenti sei eliminato.","Concatena i turni senza aspettare gli altri.","Chi supera più turni vince."],
+      rulesTarget:["Un orario segreto è stato estratto nella finestra attuale.","Clicca quando pensi di essere più vicino, al secondo esatto.","Un solo clic, definitivo."],
+      rulesRun:["Guida il treno, evita gli ostacoli.","3 impatti consentiti, il 4° termina la partita.","La velocità aumenta senza sosta. Vince il punteggio migliore."],
+      diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
+      drawNumberBtn:"Estrai il mio numero", diceLevelLabel:"Livello raggiunto", rollDiceBtn:"Lancia il dado",
+      diceWinnerSub:"Ha vinto il diritto di guidare il treno!",
+      diceEliminatedMsg:"Eliminato! Livello raggiunto: {lvl}", diceContinueMsg:"Hai superato {lvl} turno{s} — continua!", diceReadyMsg:"Pronto a lanciare il tuo primo dado?",
+      tiebreakTagText:"— spareggio: {tb}",
+      targetBeforeText1:"La partita apre alle ", targetBeforeText2:" (ora italiana), per 5 minuti.",
+      targetValidateBtn:"Conferma ora", targetValidatedMsg:"Confermato alle {time} — risultato alla chiusura.",
+      targetWinnerSub:"Ha vinto il diritto di guidare il treno!", targetRevealText:"Orario segreto: <b>{time}</b>",
+      runAttemptText1:"Tentativo ", runAttemptText2:"/3 oggi.", runBestSoFarText:" Miglior punteggio di oggi: {score}.",
+      runStartBtn:"Inizia tentativo", runScoreText:"Punteggio: ", runAttemptTag:"Tentativo {n}/3",
+      runNextAttemptBtn:"Prossimo tentativo", runOverSubLast:"Ultimo tentativo — miglior punteggio di oggi: {score}",
+      runOverSubMore:"Tentativo {n}/3 — miglior punteggio di oggi: {score}",
+      runDoneText1:"I tuoi 3 tentativi di oggi sono terminati.", runDoneLabel:"Il tuo miglior punteggio", runDoneText2:"Torna domani per riprovare!",
+      lbPlayer:"Giocatore", lbLevel:"Liv.", lbStatus:"Stato", lbAlive:"In gioco", lbDead:"Eliminato",
+      lbTime:"Ora", lbDiff:"Diff.", lbScore:"Punteggio",
+      lbEmptyNoOne:"Nessuno ha ancora giocato.", lbEmptyNoScore:"Nessun punteggio ancora.", lbEmptyGeneric:"Nessuna classifica ancora."
+    },
+    tr:{
+      heroSub:"Tren oyunu", sectionGameTitle:"Oyun", sectionLbTitle:"Sıralama", footerText:"ITX — Oyna",
+      closedDefault:"Şu anda açık bir oyun yok.<br>Daha sonra tekrar gel!",
+      closedAccess:"Erişim şu anda kapalı.",
+      targetNotConfigured:"Oyun henüz yapılandırılmadı.",
+      selectPseudoText:"Oynamak için takma adını seç:", selectPlaceholder:"— Bir takma ad seç —", continueBtn:"Devam et",
+      playerLabel:"Oyuncu: ",
+      rulesTitle:"Kurallar",
+      rulesDice:["Devam etmek için <b>6</b> at, aksi halde elenirsin.","Diğerlerini beklemeden turları art arda oyna.","En çok turu geçen kazanır."],
+      rulesTarget:["Mevcut zaman aralığında gizli bir saat belirlendi.","En yakın olduğunu düşündüğün anda, saniyesi saniyesine tıkla.","Sadece bir tık, kesin."],
+      rulesRun:["Treni sür, engellerden kaçın.","3 çarpışmaya izin var, 4. çarpışma oyunu bitirir.","Hız durmadan artar. En yüksek skor kazanır."],
+      diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
+      drawNumberBtn:"Sayımı çek", diceLevelLabel:"Ulaşılan seviye", rollDiceBtn:"Zarı at",
+      diceWinnerSub:"Treni sürme hakkını kazandı!",
+      diceEliminatedMsg:"Elendin! Ulaşılan seviye: {lvl}", diceContinueMsg:"{lvl} tur geçtin — devam et!", diceReadyMsg:"İlk zarını atmaya hazır mısın?",
+      tiebreakTagText:"— eşitlik bozma: {tb}",
+      targetBeforeText1:"Oyun ", targetBeforeText2:" saatinde açılıyor (İtalyan saati), 5 dakika sürecek.",
+      targetValidateBtn:"Şimdi onayla", targetValidatedMsg:"{time} saatinde onaylandı — sonuç kapanışta.",
+      targetWinnerSub:"Treni sürme hakkını kazandı!", targetRevealText:"Gizli saat: <b>{time}</b>",
+      runAttemptText1:"Deneme ", runAttemptText2:"/3 bugün.", runBestSoFarText:" Bugünkü en iyi skor: {score}.",
+      runStartBtn:"Denemeyi başlat", runScoreText:"Skor: ", runAttemptTag:"Deneme {n}/3",
+      runNextAttemptBtn:"Sonraki deneme", runOverSubLast:"Son deneme — bugünkü en iyi skor: {score}",
+      runOverSubMore:"Deneme {n}/3 — bugünkü en iyi skor: {score}",
+      runDoneText1:"Bugünkü 3 denemen tamamlandı.", runDoneLabel:"En iyi skorun", runDoneText2:"Tekrar denemek için yarın gel!",
+      lbPlayer:"Oyuncu", lbLevel:"Sev.", lbStatus:"Durum", lbAlive:"Oyunda", lbDead:"Elendi",
+      lbTime:"Saat", lbDiff:"Fark", lbScore:"Skor",
+      lbEmptyNoOne:"Henüz kimse oynamadı.", lbEmptyNoScore:"Henüz skor yok.", lbEmptyGeneric:"Henüz sıralama yok."
+    },
+    nl:{
+      heroSub:"Treinspel", sectionGameTitle:"Het spel", sectionLbTitle:"Klassement", footerText:"ITX — Spelen",
+      closedDefault:"Er is momenteel geen spel geopend.<br>Kom later terug!",
+      closedAccess:"Toegang is momenteel gesloten.",
+      targetNotConfigured:"Het spel is nog niet geconfigureerd.",
+      selectPseudoText:"Kies je naam om te spelen:", selectPlaceholder:"— Kies een naam —", continueBtn:"Doorgaan",
+      playerLabel:"Speler: ",
+      rulesTitle:"Regels",
+      rulesDice:["Gooi een <b>6</b> om door te gaan, anders ben je uitgeschakeld.","Speel rondes achter elkaar zonder op anderen te wachten.","Wie de meeste rondes haalt wint."],
+      rulesTarget:["Er is een geheim tijdstip getrokken binnen het huidige venster.","Klik op het moment dat je denkt er het dichtst bij te zijn, tot op de seconde.","Slechts één klik, definitief."],
+      rulesRun:["Bestuur de trein, ontwijk de obstakels.","3 treffers toegestaan, de 4e beëindigt de poging.","De snelheid blijft toenemen. Beste score wint."],
+      diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
+      drawNumberBtn:"Trek mijn nummer", diceLevelLabel:"Bereikt niveau", rollDiceBtn:"Gooi de dobbelsteen",
+      diceWinnerSub:"Heeft het recht gewonnen om de trein te besturen!",
+      diceEliminatedMsg:"Uitgeschakeld! Bereikt niveau: {lvl}", diceContinueMsg:"Je hebt {lvl} ronde{s} gehaald — ga door!", diceReadyMsg:"Klaar om je eerste dobbelsteen te gooien?",
+      tiebreakTagText:"— tiebreak: {tb}",
+      targetBeforeText1:"Het spel opent om ", targetBeforeText2:" (Italiaanse tijd), voor 5 minuten.",
+      targetValidateBtn:"Nu bevestigen", targetValidatedMsg:"Bevestigd om {time} — resultaat bij sluiting.",
+      targetWinnerSub:"Heeft het recht gewonnen om de trein te besturen!", targetRevealText:"Geheim tijdstip: <b>{time}</b>",
+      runAttemptText1:"Poging ", runAttemptText2:"/3 vandaag.", runBestSoFarText:" Beste score vandaag: {score}.",
+      runStartBtn:"Start poging", runScoreText:"Score: ", runAttemptTag:"Poging {n}/3",
+      runNextAttemptBtn:"Volgende poging", runOverSubLast:"Laatste poging — beste score vandaag: {score}",
+      runOverSubMore:"Poging {n}/3 — beste score vandaag: {score}",
+      runDoneText1:"Je 3 pogingen van vandaag zijn afgerond.", runDoneLabel:"Jouw beste score", runDoneText2:"Kom morgen terug om het nog eens te proberen!",
+      lbPlayer:"Speler", lbLevel:"Niv.", lbStatus:"Status", lbAlive:"Speelt", lbDead:"Uitgeschakeld",
+      lbTime:"Tijd", lbDiff:"Verschil", lbScore:"Score",
+      lbEmptyNoOne:"Nog niemand heeft gespeeld.", lbEmptyNoScore:"Nog geen score.", lbEmptyGeneric:"Nog geen klassement."
+    }
+  };
+
+  function t(key){ return (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : I18N.fr[key]; }
+  function fmt(str, vars){ return str.replace(/\{(\w+)\}/g, (m,k)=> (vars[k] !== undefined ? vars[k] : m)); }
 
   function nowInRome(){
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -425,7 +595,7 @@
   function populatePlayerSelect(){
     const sel = $('playerSelect');
     const active = members.filter(m => m.status !== 'departed').sort((a,b)=>a.name.localeCompare(b.name));
-    sel.innerHTML = '<option value="">— Choisir un pseudo —</option>' +
+    sel.innerHTML = `<option value="">${t('selectPlaceholder')}</option>` +
       active.map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('');
   }
 
@@ -438,6 +608,46 @@
   }
 
   // ==================== RENDER PRINCIPAL ====================
+  function applyI18n(){
+    $('heroSub').textContent = t('heroSub');
+    $('sectionGameTitle').textContent = t('sectionGameTitle');
+    $('sectionLbTitle').textContent = t('sectionLbTitle');
+    $('footerText').textContent = t('footerText');
+    $('selectPseudoText').textContent = t('selectPseudoText');
+    $('confirmPlayerBtn').textContent = t('continueBtn');
+    $('dicePlayerLabel1').textContent = t('playerLabel');
+    $('dicePlayerLabel2').textContent = t('playerLabel');
+    $('diceTiebreakInfo').innerHTML = t('diceTiebreakInfo');
+    $('tiebreakBtn').textContent = t('drawNumberBtn');
+    $('diceLevelLabel').textContent = t('diceLevelLabel');
+    $('diceRollBtn').textContent = t('rollDiceBtn');
+    $('diceWinnerSub').textContent = t('diceWinnerSub');
+    $('targetBeforeText1').textContent = t('targetBeforeText1');
+    $('targetBeforeText2').textContent = t('targetBeforeText2');
+    $('targetPlayerLabel').textContent = t('playerLabel');
+    $('clickTargetBtn').textContent = t('targetValidateBtn');
+    $('targetWinnerSub').textContent = t('targetWinnerSub');
+    $('runPlayerLabel').textContent = t('playerLabel');
+    $('runAttemptText1').textContent = t('runAttemptText1');
+    $('runAttemptText2').textContent = t('runAttemptText2');
+    $('runStartBtn').textContent = t('runStartBtn');
+    $('runRetryBtn').textContent = t('runNextAttemptBtn');
+    $('runScoreText').textContent = t('runScoreText');
+    $('runDoneText1').textContent = t('runDoneText1');
+    $('runDoneLabel').textContent = t('runDoneLabel');
+    $('runDoneText2').textContent = t('runDoneText2');
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    populatePlayerSelect();
+    render();
+  }
+
+  function setLang(l){
+    lang = l;
+    applyI18n();
+  }
+
   function render(){
     hideAllGameBoxes();
     const type = control && control.activeGame;
@@ -445,7 +655,7 @@
 
     if(!type){
       $('closedBox').style.display = 'block';
-      $('closedText').innerHTML = "Aucun jeu n'est ouvert pour le moment.<br>Reviens plus tard !";
+      $('closedText').innerHTML = t('closedDefault');
       renderLeaderboard(null);
       return;
     }
@@ -455,7 +665,7 @@
     if(type === 'target'){
       if(!isOpen){
         $('closedBox').style.display = 'block';
-        $('closedText').innerHTML = "Aucun jeu n'est ouvert pour le moment.<br>Reviens plus tard !";
+        $('closedText').innerHTML = t('closedDefault');
         renderLeaderboard(null);
         return;
       }
@@ -479,7 +689,7 @@
         $('diceWinnerName').textContent = winner ? winner.name : '—';
       } else {
         $('closedBox').style.display = 'block';
-        $('closedText').innerHTML = "L'accès est fermé pour le moment.";
+        $('closedText').innerHTML = t('closedAccess');
       }
       renderLeaderboard(type);
       return;
@@ -500,22 +710,16 @@
 
   function rulesFor(type){
     if(type === 'dice'){
-      return `<div class="rules-box"><div class="rules-title"><span class="game-icon dice-icon">🎲</span>Règles</div><ul class="rules-list">
-        <li>Fais <b>6</b> pour continuer, sinon tu es éliminé.</li>
-        <li>Enchaîne les tours sans attendre les autres.</li>
-        <li>Le plus grand nombre de tours passés gagne.</li></ul></div>`;
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon dice-icon">🎲</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesDice').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     if(type === 'target'){
-      return `<div class="rules-box"><div class="rules-title"><span class="game-icon target-icon">🎯</span>Règles</div><ul class="rules-list">
-        <li>Une heure secrète a été tirée dans la fenêtre actuelle.</li>
-        <li>Clique au moment où tu penses en être le plus proche, à la seconde près.</li>
-        <li>Un seul clic, définitif.</li></ul></div>`;
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon target-icon">🎯</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesTarget').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     if(type === 'run'){
-      return `<div class="rules-box"><div class="rules-title"><span class="game-icon run-icon">🚂</span>Règles</div><ul class="rules-list">
-        <li>Conduis le train, évite les obstacles.</li>
-        <li>3 impacts autorisés, le 4ᵉ met fin à la partie.</li>
-        <li>La vitesse augmente sans arrêt. Le meilleur score gagne.</li></ul></div>`;
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon run-icon">🚂</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesRun').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -544,18 +748,18 @@
     $('diceName').textContent = myName;
     const level = rec.level || 0;
     $('diceLevelNumber').textContent = level;
-    $('tiebreakTag').textContent = `— départage : ${rec.tiebreak}`;
+    $('tiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
     const btn = $('diceRollBtn'), msg = $('diceResultMsg'), dice = $('diceFace');
     if(rec.eliminated){
       btn.disabled = true; btn.style.display = 'none';
       msg.className = 'result-msg dead';
-      msg.textContent = `Éliminé ! Niveau atteint : ${level}`;
+      msg.textContent = fmt(t('diceEliminatedMsg'), {lvl: level});
       dice.classList.add('dead');
     } else {
       btn.disabled = false; btn.style.display = 'block';
       if(!window._diceSpinning){
         msg.className = 'result-msg';
-        msg.textContent = level > 0 ? `Tu as passé ${level} tour${level>1?'s':''} — continue !` : 'Prêt à lancer ton premier dé ?';
+        msg.textContent = level > 0 ? fmt(t('diceContinueMsg'), {lvl: level, s: level>1?'s':''}) : t('diceReadyMsg');
         dice.classList.remove('dead','six');
       }
     }
@@ -631,7 +835,7 @@
 
   function renderTarget(){
     const phase = getTargetPhase();
-    if(phase === 'no-game'){ $('closedBox').style.display='block'; $('closedText').textContent = "La partie n'a pas encore été configurée."; return; }
+    if(phase === 'no-game'){ $('closedBox').style.display='block'; $('closedText').textContent = t('targetNotConfigured'); return; }
     if(phase === 'before'){
       $('targetBeforeBox').style.display = 'block';
       $('targetBeforeStart').textContent = targetGame.windowStart.slice(0,5);
@@ -641,7 +845,7 @@
       $('targetAfterBox').style.display = 'block';
       const results = targetGame.results || {};
       const entries = Object.keys(results).map(id=>({id, ...results[id]}));
-      $('targetReveal').innerHTML = `Heure secrète : <b>${targetGame.targetTime}</b>`;
+      $('targetReveal').innerHTML = fmt(t('targetRevealText'), {time: targetGame.targetTime});
       if(entries.length === 0){ $('targetWinnerName').textContent = '—'; return; }
       const targetSec = hmsToSeconds(targetGame.targetTime);
       entries.forEach(e => e.diff = Math.abs(e.clickSeconds - targetSec));
@@ -659,7 +863,7 @@
     if(rec){
       btn.disabled = true;
       msg.className = 'result-msg survived';
-      msg.textContent = `Validé à ${rec.clickTime} — résultat à la fermeture.`;
+      msg.textContent = fmt(t('targetValidatedMsg'), {time: rec.clickTime});
     } else {
       btn.disabled = false;
       msg.className = 'result-msg';
@@ -683,6 +887,7 @@
   // ==================== JEU : RUN ====================
   const LANES_Y = [42, 111, 180];
   const cloudImg = new Image(); cloudImg.src = 'assets/cloud9.png';
+  const trainSprite = new Image(); trainSprite.src = 'assets/train-sprite.png';
   const TRAIN_X = 58, TRAIN_W = 52, TRAIN_H = 32, OBST_W = 30, OBST_H = 30, MAX_HITS = 3, MAX_ATTEMPTS = 3;
   let runCanvas, runCtx, runLane=1, runLaneY=LANES_Y[1], runObstacles=[], runSpeed=140, runElapsed=0, runHits=0, runScore=0;
   let runRunning=false, runLastSpawn=0, runSpawnInterval=1400, runRafId=null, runLastTs=null, runInited=false;
@@ -736,7 +941,7 @@
     $('runIntroBox').style.display = 'block';
     $('runIntroName').textContent = myName;
     $('runAttemptNumber').textContent = runCurrentAttempt;
-    $('runBestSoFar').textContent = rec && rec.bestScore ? ` Meilleur score du jour : ${rec.bestScore}.` : '';
+    $('runBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
   }
 
   function startRun(){
@@ -744,7 +949,7 @@
     runLastSpawn=0; runSpawnInterval=1400; runLastTs=null; runFlash=0; runParticles=[]; runTrackOffset=0; runBgDistance=0; runSmokeTimer=0;
     updateRunHitsDisplay();
     $('runScoreLabel').textContent = '0';
-    $('runAttemptTag').textContent = `Essai ${runCurrentAttempt}/${MAX_ATTEMPTS}`;
+    $('runAttemptTag').textContent = fmt(t('runAttemptTag'), {n: runCurrentAttempt});
     $('runIntroBox').style.display = 'none';
     $('runOverBox').style.display = 'none';
     $('runDoneBox').style.display = 'none';
@@ -876,39 +1081,26 @@
     runCtx.beginPath();
     runCtx.ellipse(tx+TRAIN_W/2, ty+TRAIN_H+6, TRAIN_W/2, 5, 0, 0, Math.PI*2);
     runCtx.fill();
-    // corps
-    const body = runCtx.createLinearGradient(tx,ty,tx,ty+TRAIN_H);
-    body.addColorStop(0, '#f0b955');
-    body.addColorStop(1, '#c9821f');
-    runCtx.fillStyle = body;
-    drawRoundRect(runCtx, tx, ty, TRAIN_W, TRAIN_H, 8);
-    runCtx.fill();
-    // bande avant (nez)
-    runCtx.fillStyle = '#c1442f';
-    drawRoundRect(runCtx, tx+TRAIN_W-14, ty, 14, TRAIN_H, 6);
-    runCtx.fill();
-    // cabine / vitre
-    runCtx.fillStyle = '#0e120d';
-    drawRoundRect(runCtx, tx+8, ty+6, 14, 12, 3);
-    runCtx.fill();
-    runCtx.fillStyle = 'rgba(226,241,255,0.4)';
-    runCtx.fillRect(tx+9, ty+7, 5, 5);
-    // cheminée
-    runCtx.fillStyle = '#3a3324';
-    runCtx.fillRect(tx+8, ty-8, 6, 8);
-    // roues
-    runCtx.fillStyle = '#0e120d';
-    [tx+12, tx+34].forEach(wx=>{
-      runCtx.beginPath(); runCtx.arc(wx, ty+TRAIN_H+2, 6, 0, Math.PI*2); runCtx.fill();
-    });
-    runCtx.strokeStyle = 'rgba(226,161,60,0.6)'; runCtx.lineWidth = 1.5;
-    const wheelAngle = (runTrackOffset/6) % (Math.PI*2);
-    [tx+12, tx+34].forEach(wx=>{
-      runCtx.beginPath();
-      runCtx.moveTo(wx - Math.cos(wheelAngle)*5, ty+TRAIN_H+2 - Math.sin(wheelAngle)*5);
-      runCtx.lineTo(wx + Math.cos(wheelAngle)*5, ty+TRAIN_H+2 + Math.sin(wheelAngle)*5);
-      runCtx.stroke();
-    });
+
+    if(trainSprite.complete && trainSprite.naturalWidth){
+      const spriteW = 78, spriteH = Math.round(spriteW * trainSprite.naturalHeight / trainSprite.naturalWidth);
+      runCtx.drawImage(trainSprite, tx-6, ty+TRAIN_H-spriteH, spriteW, spriteH);
+    } else {
+      // repli (le temps que le sprite se charge) : version dessinée simplifiée
+      const body = runCtx.createLinearGradient(tx,ty,tx,ty+TRAIN_H);
+      body.addColorStop(0, '#f0b955');
+      body.addColorStop(1, '#c9821f');
+      runCtx.fillStyle = body;
+      drawRoundRect(runCtx, tx, ty, TRAIN_W, TRAIN_H, 8);
+      runCtx.fill();
+      runCtx.fillStyle = '#c1442f';
+      drawRoundRect(runCtx, tx+TRAIN_W-14, ty, 14, TRAIN_H, 6);
+      runCtx.fill();
+      runCtx.fillStyle = '#0e120d';
+      [tx+12, tx+34].forEach(wx=>{
+        runCtx.beginPath(); runCtx.arc(wx, ty+TRAIN_H+2, 6, 0, Math.PI*2); runCtx.fill();
+      });
+    }
 
     // flash rouge à l'impact
     if(runFlash > 0){
@@ -941,8 +1133,8 @@
     const rec = result.snapshot.val();
     const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
     $('runOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
-      ? `Dernier essai — meilleur score du jour : ${rec.bestScore}`
-      : `Essai ${attemptsUsed}/${MAX_ATTEMPTS} — meilleur score du jour : ${rec.bestScore}`;
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
     $('runRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
   }
 
@@ -951,18 +1143,18 @@
     const body = $('leaderboardBody');
     const head = $('lbHead');
     if(type === 'dice' && diceGame){
-      head.innerHTML = '<span>Joueur</span><span>Niv.</span><span>Statut</span>';
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbLevel')}</span><span>${t('lbStatus')}</span>`;
       const results = diceGame.results || {};
       const entries = Object.keys(results).map(id=>({id, ...results[id]}))
         .sort((a,b)=> (b.level||0)-(a.level||0) || a.name.localeCompare(b.name));
       body.innerHTML = entries.length ? entries.map(e=>{
-        const meCls = e.id===myId?'me':''; const stCls = e.eliminated?'dead':'alive'; const stTxt = e.eliminated?'Éliminé':'En jeu';
+        const meCls = e.id===myId?'me':''; const stCls = e.eliminated?'dead':'alive'; const stTxt = e.eliminated?t('lbDead'):t('lbAlive');
         return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="lvl">${e.level||0}</span><span class="st ${stCls}">${stTxt}</span></div>`;
-      }).join('') : `<div class="empty-state">Personne n'a encore joué.</div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoOne')}</div>`;
       return;
     }
     if(type === 'target' && targetGame){
-      head.innerHTML = '<span>Joueur</span><span>Heure</span><span>Écart</span>';
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbTime')}</span><span>${t('lbDiff')}</span>`;
       const results = targetGame.results || {};
       const entries = Object.keys(results).map(id=>({id, ...results[id]}));
       const revealed = getTargetPhase() === 'after';
@@ -976,20 +1168,20 @@
       body.innerHTML = entries.length ? entries.map((e,i)=>{
         const meCls = e.id===myId?'me':''; const winCls = (revealed && i===0)?'winner-row':'';
         return `<div class="lb-row ${meCls} ${winCls}"><span>${escapeHtml(e.name)}</span><span class="val">${revealed?e.clickTime:'✓'}</span><span class="diff">${revealed?e.diff+'s':''}</span></div>`;
-      }).join('') : `<div class="empty-state">Personne n'a encore joué.</div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoOne')}</div>`;
       return;
     }
     if(type === 'run'){
-      head.innerHTML = '<span>Joueur</span><span>Score</span><span></span>';
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
       const entries = Object.keys(runScores).map(id=>({id, ...runScores[id]})).sort((a,b)=>(b.bestScore||0)-(a.bestScore||0));
       body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
         const meCls = e.id===myId?'me':'';
         return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
-      }).join('') : `<div class="empty-state">Aucun score pour l'instant.</div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
-    head.innerHTML = '<span>Joueur</span><span></span><span></span>';
-    body.innerHTML = `<div class="empty-state">Aucun classement pour l'instant.</div>`;
+    head.innerHTML = `<span>${t('lbPlayer')}</span><span></span><span></span>`;
+    body.innerHTML = `<div class="empty-state">${t('lbEmptyGeneric')}</div>`;
   }
 
   // ---- Init ----
@@ -1003,7 +1195,11 @@
   $('tiebreakBtn').addEventListener('click', rollTiebreak);
   $('diceRollBtn').addEventListener('click', rollDice);
   $('clickTargetBtn').addEventListener('click', submitClick);
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.addEventListener('click', ()=> setLang(b.dataset.lang));
+  });
 
+  setLang('fr');
   initStorage();
 })();
 </script>
