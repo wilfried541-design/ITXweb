@@ -190,7 +190,7 @@
 <body>
 <div class="hazard-bar"></div>
 <div class="hero-wrap">
-  <svg class="hero-banner" viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg">
+  <svg class="hero-banner" viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
       <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#ff8a5c"/>
@@ -212,14 +212,14 @@
     <circle cx="392" cy="46" r="30" fill="url(#sunGrad)"/>
 
     <!-- nuages (Kenney) -->
-    <image href="assets/cloud9.png" x="30" y="14" width="70" opacity="0.5"/>
-    <image href="assets/cloud9.png" x="250" y="8" width="55" opacity="0.35"/>
+    <image href="assets/cloud9.png" xlink:href="assets/cloud9.png" x="30" y="14" width="70" opacity="0.5"/>
+    <image href="assets/cloud9.png" xlink:href="assets/cloud9.png" x="250" y="8" width="55" opacity="0.35"/>
 
     <!-- collines lointaines (Kenney, assombries en silhouette pour rester lisibles sur le ciel) -->
     <g style="filter:brightness(0.32) saturate(1.4);">
-      <image href="assets/mountain3.png" x="-30" y="48" width="240" opacity="0.9"/>
-      <image href="assets/mountain1.png" x="150" y="55" width="210" opacity="0.85"/>
-      <image href="assets/mountain3.png" x="330" y="50" width="210" opacity="0.9"/>
+      <image href="assets/mountain3.png" xlink:href="assets/mountain3.png" x="-30" y="48" width="240" opacity="0.9"/>
+      <image href="assets/mountain1.png" xlink:href="assets/mountain1.png" x="150" y="55" width="210" opacity="0.85"/>
+      <image href="assets/mountain3.png" xlink:href="assets/mountain3.png" x="330" y="50" width="210" opacity="0.9"/>
     </g>
 
     <!-- sol / voie -->
@@ -239,7 +239,7 @@
     <g>
       <!-- ombre -->
       <ellipse cx="150" cy="146" rx="100" ry="8" fill="#000" opacity="0.35"/>
-      <image href="assets/train-sprite.png" x="35" y="48" width="215" height="98"/>
+      <image href="assets/train-sprite.png" xlink:href="assets/train-sprite.png" x="35" y="48" width="215" height="98"/>
     </g>
 
     <!-- fumée -->
