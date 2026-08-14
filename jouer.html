@@ -12,6 +12,7 @@
   :root{
     --bg:#0b0d0a; --panel:#151913; --panel-2:#1c2317;
     --accent:#e2a13c; --accent-2:#c1442f;
+    --cyan:#4fd6c9; --purple:#8b5cf6;
     --text:#eae7dd; --text-dim:#9aa08f; --eligible:#6f9c5f; --border:#2c3326; --radius:10px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;}
@@ -22,12 +23,42 @@
       repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 6px),
       var(--bg);
     color:var(--text); font-family:'Oswald','Arial Narrow',sans-serif; min-height:100vh; padding-bottom:40px;
+    position:relative;
+  }
+  /* Voile de scanlines très léger, façon terminal de bord */
+  body::after{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+  .hazard-bar{
+    height:7px; width:100%;
+    background:repeating-linear-gradient(135deg, #e2a13c 0 14px, #14170f 14px 28px);
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);
   }
   .mono{font-family:'JetBrains Mono',monospace;}
-  .wrap{max-width:480px; margin:0 auto; padding:14px 14px 0;}
-  header{display:flex; align-items:center; justify-content:center; padding:10px 2px 14px; border-bottom:1px solid var(--border);}
-  .brand-text .name{font-weight:700; font-size:18px; letter-spacing:2px; color:var(--accent); line-height:1; text-align:center;}
-  .brand-text .sub{font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; text-align:center;}
+  .wrap{max-width:480px; margin:0 auto; padding:0 14px; position:relative; z-index:2;}
+  .hero-banner{
+    width:100%; max-width:480px; margin:0 auto; display:block;
+    filter:drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+  }
+  .hero-wrap{max-width:480px; margin:0 auto; overflow:hidden; border-radius:0 0 var(--radius) var(--radius); border:1px solid var(--border); border-top:none;}
+  .puff{animation:puffUp 2.6s ease-out infinite; transform-box:fill-box; transform-origin:center;}
+  .puff2{animation:puffUp 2.6s ease-out 0.9s infinite; transform-box:fill-box; transform-origin:center;}
+  .puff3{animation:puffUp 2.6s ease-out 1.8s infinite; transform-box:fill-box; transform-origin:center;}
+  @keyframes puffUp{
+    0%{transform:translate(0,0) scale(0.5); opacity:0;}
+    15%{opacity:0.85;}
+    100%{transform:translate(-8px,-26px) scale(1.5); opacity:0;}
+  }
+  .hero-name{
+    text-align:center; padding:12px 2px 4px;
+    font-weight:700; font-size:19px; letter-spacing:4px; color:var(--accent);
+  }
+  .hero-sub{
+    text-align:center; padding-bottom:14px; border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase;
+  }
 
   .section-title{
     display:flex; align-items:center; gap:8px; margin:22px 0 10px; color:var(--text-dim); font-size:11px;
@@ -38,11 +69,25 @@
   .board{
     background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); border-radius:var(--radius);
     padding:18px; text-align:center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.35);
+    position:relative;
   }
+  /* Rivets aux coins des panneaux, façon plaque de blindage */
+  .board::before, .board::after{
+    content:''; position:absolute; width:5px; height:5px; border-radius:50%; top:8px;
+    background:radial-gradient(circle at 35% 35%, #7a7256, #2c2a1e); box-shadow:0 1px 1px rgba(0,0,0,0.5);
+  }
+  .board::before{left:8px;} .board::after{right:8px;}
   .info-line{font-size:14px; color:var(--text-dim); line-height:1.5;}
   .info-line b{color:var(--accent);}
   .rules-box{text-align:left; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:14px;}
-  .rules-title{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px;}
+  .rules-title{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; display:flex; align-items:center; gap:8px;}
+  .game-icon{
+    display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%;
+    font-size:14px; background:var(--panel-2); border:1px solid var(--border);
+  }
+  .dice-icon{border-color:var(--accent); box-shadow:0 0 8px rgba(226,161,60,0.35);}
+  .target-icon{border-color:var(--accent-2); box-shadow:0 0 8px rgba(193,68,47,0.35);}
+  .run-icon{border-color:var(--cyan); box-shadow:0 0 8px rgba(79,214,201,0.35);}
   .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6; text-align:left;}
   .rules-list li{margin-bottom:4px;}
   .rules-list b{color:var(--text);}
@@ -99,7 +144,12 @@
 
   .winner-banner{
     background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
-    border:1px solid var(--accent); border-radius:var(--radius); padding:22px 16px; text-align:center; margin-bottom:16px;
+    border:1px solid var(--accent); border-radius:var(--radius); padding:22px 16px 18px; text-align:center; margin-bottom:16px;
+    position:relative; overflow:hidden;
+  }
+  .winner-banner::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:5px;
+    background:repeating-linear-gradient(135deg, #e2a13c 0 10px, #14170f 10px 20px);
   }
   .winner-banner .trophy{font-size:36px;}
   .winner-banner .wname{font-size:22px; font-weight:700; color:var(--accent); margin-top:4px;}
@@ -129,15 +179,95 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="brand-text">
-      <div class="name">ITX</div>
-      <div class="sub">Jeu du train</div>
-    </div>
-  </header>
+<div class="hazard-bar"></div>
+<div class="hero-wrap">
+  <svg class="hero-banner" viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ff8a5c"/>
+        <stop offset="45%" stop-color="#c9376d"/>
+        <stop offset="100%" stop-color="#2a1541"/>
+      </linearGradient>
+      <linearGradient id="sunGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ffe08a"/>
+        <stop offset="100%" stop-color="#f2994a"/>
+      </linearGradient>
+      <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f7c874"/>
+        <stop offset="100%" stop-color="#c9821f"/>
+      </linearGradient>
+    </defs>
 
+    <!-- ciel -->
+    <rect x="0" y="0" width="480" height="170" fill="url(#skyGrad)"/>
+    <circle cx="392" cy="46" r="30" fill="url(#sunGrad)"/>
+
+    <!-- nuages (Kenney) -->
+    <image href="assets/cloud9.png" x="30" y="14" width="70" opacity="0.55"/>
+    <image href="assets/cloud9.png" x="250" y="8" width="55" opacity="0.4"/>
+
+    <!-- collines lointaines (Kenney, teintées par le ciel via opacité) -->
+    <image href="assets/mountain3.png" x="-20" y="55" width="220" opacity="0.55" style="mix-blend-mode:soft-light;"/>
+    <image href="assets/mountain1.png" x="140" y="60" width="200" opacity="0.6" style="mix-blend-mode:soft-light;"/>
+    <image href="assets/mountain3.png" x="320" y="58" width="200" opacity="0.55" style="mix-blend-mode:soft-light;"/>
+    <path d="M0,125 Q80,100 160,122 T320,118 T480,124 V170 H0 Z" fill="#2c1538"/>
+
+    <!-- sol / voie -->
+    <rect x="0" y="140" width="480" height="30" fill="#14170f"/>
+    <line x1="0" y1="148" x2="480" y2="148" stroke="#e2a13c" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="156" x2="480" y2="156" stroke="#e2a13c" stroke-width="2" opacity="0.5"/>
+    <g stroke="#e2a13c" stroke-width="3" opacity="0.25">
+      <line x1="10" y1="146" x2="10" y2="158"/><line x1="35" y1="146" x2="35" y2="158"/>
+      <line x1="60" y1="146" x2="60" y2="158"/><line x1="270" y1="146" x2="270" y2="158"/>
+      <line x1="295" y1="146" x2="295" y2="158"/><line x1="320" y1="146" x2="320" y2="158"/>
+      <line x1="345" y1="146" x2="345" y2="158"/><line x1="370" y1="146" x2="370" y2="158"/>
+      <line x1="395" y1="146" x2="395" y2="158"/><line x1="420" y1="146" x2="420" y2="158"/>
+      <line x1="445" y1="146" x2="445" y2="158"/><line x1="470" y1="146" x2="470" y2="158"/>
+    </g>
+
+    <!-- fumée -->
+    <circle class="puff" cx="90" cy="55" r="6" fill="#eae7dd" opacity="0.7"/>
+    <circle class="puff2" cx="90" cy="55" r="5" fill="#eae7dd" opacity="0.6"/>
+    <circle class="puff3" cx="90" cy="55" r="4" fill="#eae7dd" opacity="0.6"/>
+
+    <!-- ==== le personnage : locomotive ITX ==== -->
+    <g>
+      <!-- ombre -->
+      <ellipse cx="150" cy="150" rx="95" ry="8" fill="#000" opacity="0.35"/>
+      <!-- cheminée -->
+      <rect x="84" y="58" width="12" height="20" rx="2" fill="#3a3324"/>
+      <!-- cabine -->
+      <rect x="72" y="75" width="48" height="27" rx="8" fill="url(#bodyGrad)"/>
+      <rect x="80" y="82" width="20" height="14" rx="3" fill="#14170f"/>
+      <rect x="82" y="84" width="8" height="6" rx="1" fill="#bfeeE8" opacity="0.55"/>
+      <!-- fanion -->
+      <polygon points="76,75 76,62 92,68" fill="#4fd6c9"/>
+      <line x1="76" y1="62" x2="76" y2="75" stroke="#14170f" stroke-width="2"/>
+      <!-- corps principal -->
+      <rect x="70" y="97" width="130" height="45" rx="12" fill="url(#bodyGrad)"/>
+      <rect x="70" y="97" width="130" height="10" rx="5" fill="#ffe6b3" opacity="0.35"/>
+      <!-- nez avant -->
+      <rect x="185" y="100" width="30" height="38" rx="11" fill="#c1442f"/>
+      <circle cx="200" cy="116" r="7" fill="#ffe6b3"/>
+      <circle cx="200" cy="116" r="7" fill="none" stroke="#14170f" stroke-width="2"/>
+      <rect x="185" y="128" width="30" height="4" fill="#14170f" opacity="0.4"/>
+      <rect x="212" y="118" width="9" height="11" rx="2" fill="#14170f"/>
+      <!-- roues -->
+      <g>
+        <circle cx="98" cy="146" r="13" fill="#14170f"/><circle cx="98" cy="146" r="4" fill="#e2a13c"/>
+        <circle cx="134" cy="146" r="13" fill="#14170f"/><circle cx="134" cy="146" r="4" fill="#e2a13c"/>
+        <circle cx="170" cy="146" r="13" fill="#14170f"/><circle cx="170" cy="146" r="4" fill="#e2a13c"/>
+        <circle cx="196" cy="146" r="10" fill="#14170f"/><circle cx="196" cy="146" r="3" fill="#e2a13c"/>
+      </g>
+    </g>
+  </svg>
+  <div class="hero-name">ITX</div>
+  <div class="hero-sub">Jeu du train</div>
+</div>
+
+<div class="wrap">
   <div class="section-title"><span>La partie</span></div>
+
 
   <!-- Aucun jeu ouvert -->
   <div id="closedBox" class="board" style="display:none;">
@@ -371,19 +501,19 @@
 
   function rulesFor(type){
     if(type === 'dice'){
-      return `<div class="rules-box"><div class="rules-title">Règles</div><ul class="rules-list">
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon dice-icon">🎲</span>Règles</div><ul class="rules-list">
         <li>Fais <b>6</b> pour continuer, sinon tu es éliminé.</li>
         <li>Enchaîne les tours sans attendre les autres.</li>
         <li>Le plus grand nombre de tours passés gagne.</li></ul></div>`;
     }
     if(type === 'target'){
-      return `<div class="rules-box"><div class="rules-title">Règles</div><ul class="rules-list">
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon target-icon">🎯</span>Règles</div><ul class="rules-list">
         <li>Une heure secrète a été tirée dans la fenêtre actuelle.</li>
         <li>Clique au moment où tu penses en être le plus proche, à la seconde près.</li>
         <li>Un seul clic, définitif.</li></ul></div>`;
     }
     if(type === 'run'){
-      return `<div class="rules-box"><div class="rules-title">Règles</div><ul class="rules-list">
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon run-icon">🚂</span>Règles</div><ul class="rules-list">
         <li>Conduis le train, évite les obstacles.</li>
         <li>3 impacts autorisés, le 4ᵉ met fin à la partie.</li>
         <li>La vitesse augmente sans arrêt. Le meilleur score gagne.</li></ul></div>`;
@@ -553,6 +683,9 @@
 
   // ==================== JEU : RUN ====================
   const LANES_Y = [42, 111, 180];
+  const mountainImg1 = new Image(); mountainImg1.src = 'assets/mountain1.png';
+  const mountainImg2 = new Image(); mountainImg2.src = 'assets/mountain3.png';
+  const cloudImg = new Image(); cloudImg.src = 'assets/cloud9.png';
   const TRAIN_X = 58, TRAIN_W = 52, TRAIN_H = 32, OBST_W = 30, OBST_H = 30, MAX_HITS = 3, MAX_ATTEMPTS = 3;
   let runCanvas, runCtx, runLane=1, runLaneY=LANES_Y[1], runObstacles=[], runSpeed=140, runElapsed=0, runHits=0, runScore=0;
   let runRunning=false, runLastSpawn=0, runSpawnInterval=1400, runRafId=null, runLastTs=null, runInited=false;
@@ -688,14 +821,24 @@
     runCtx.fillStyle = sky;
     runCtx.fillRect(0,0,W,H);
 
-    // Collines lointaines (parallaxe légère)
-    runCtx.fillStyle = 'rgba(226,161,60,0.05)';
-    const hillOffset = (runTrackOffset*0.2) % 60;
-    runCtx.beginPath();
-    runCtx.moveTo(-hillOffset, 30);
-    for(let x=-hillOffset; x<W+60; x+=60){ runCtx.quadraticCurveTo(x+30, 10, x+60, 30); }
-    runCtx.lineTo(W,0); runCtx.lineTo(0,0); runCtx.closePath();
-    runCtx.fill();
+    // Nuages et collines lointaines (Kenney, parallaxe)
+    const cloudOffset = (runTrackOffset*0.06) % 160;
+    if(cloudImg.complete && cloudImg.naturalWidth){
+      runCtx.globalAlpha = 0.4;
+      for(let x=-cloudOffset; x<W+80; x+=160){ runCtx.drawImage(cloudImg, x, 8, 60, 34); }
+      runCtx.globalAlpha = 1;
+    }
+    const hillOffset = (runTrackOffset*0.2) % 180;
+    if(mountainImg1.complete && mountainImg1.naturalWidth){
+      runCtx.globalAlpha = 0.55;
+      runCtx.filter = 'brightness(0.9) saturate(0.7)';
+      for(let x=-hillOffset; x<W+180; x+=180){
+        runCtx.drawImage(mountainImg2, x, 40, 130, 70);
+        runCtx.drawImage(mountainImg1, x+70, 45, 120, 65);
+      }
+      runCtx.filter = 'none';
+      runCtx.globalAlpha = 1;
+    }
 
     // Voies (3), avec traverses défilantes
     LANES_Y.forEach(y=>{
