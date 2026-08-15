@@ -767,11 +767,14 @@
   </div>
   <div id="bjIntroBox" class="board" style="display:none;">
     <div class="info-line"><span id="bjPlayerLabel">Joueur : </span><b id="bjIntroName"></b> <span class="tiebreak-tag" id="bjTiebreakTag"></span></div>
-    <div class="info-line" style="margin-top:8px;"><span id="bjAttemptText1">Essai </span><b id="bjAttemptNumber">1</b><span id="bjAttemptText2">/3 aujourd'hui.</span><span id="bjBestSoFar"></span></div>
-    <button class="btn-primary" id="bjStartBtn">Lancer la main</button>
+    <div class="info-line" style="margin-top:8px;" id="bjIntroInfo">Une seule session de 2 minutes maximum aujourd'hui. Joue autant de mains que possible, ton score cumulé compte.</div>
+    <button class="btn-primary" id="bjStartBtn">Lancer ma session</button>
   </div>
   <div id="bjPlayBox" class="board" style="display:none;">
-    <div class="hud"><span class="mono" id="bjAttemptTag">Essai 1/3</span></div>
+    <div class="hud">
+      <span class="mono" id="bjTimeLeft">02:00</span>
+      <span><span id="bjScoreText">Score : </span><span class="score" id="bjScoreLabel">0</span></span>
+    </div>
     <div class="bj-table">
       <div class="bj-hand-label" id="bjDealerLabel">Croupier</div>
       <div class="bj-cards" id="bjDealerCards"></div>
@@ -786,17 +789,9 @@
       <button class="lane-btn" id="bjStandBtn">Rester</button>
     </div>
   </div>
-  <div id="bjOverBox" style="display:none;">
-    <div class="winner-banner">
-      <div class="trophy" id="bjOverTrophy">🃏</div>
-      <div class="wname" id="bjOverResult"></div>
-      <div class="wsub" id="bjOverSub"></div>
-    </div>
-    <button class="btn-primary" id="bjRetryBtn">Essai suivant</button>
-  </div>
   <div id="bjDoneBox" class="board" style="display:none;">
-    <div class="info-line" id="bjDoneText1">Tes 3 essais du jour sont terminés.</div>
-    <div class="level-label" style="margin-top:10px;" id="bjDoneLabel">Ton meilleur score</div>
+    <div class="info-line" id="bjDoneText1">Ta session du jour est terminée.</div>
+    <div class="level-label" style="margin-top:10px;" id="bjDoneLabel">Score final</div>
     <div class="level-number" id="bjDoneBest" style="font-size:28px;">0</div>
     <div class="info-line" style="margin-top:10px;" id="bjDoneText2">Reviens demain pour retenter ta chance !</div>
   </div>
@@ -925,8 +920,10 @@
       slotPaytableTitle:"Table des gains (pour 3 identiques)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} ligne(s) gagnante(s) — total +{total} jetons",
       slotTierBig:"GROS GAIN", slotTierEpic:"GAIN ÉPIQUE", slotTierMega:"MÉGA JACKPOT",
       bonusChoose:"Choisis {n} caisse(s) !", bonusRunningTotal:"Total : +{total} jetons",
-      rulesBlackjack:["Toi contre le croupier. Le plus proche de 21 sans dépasser gagne.","As = 1 ou 11, figures = 10, autres cartes = leur valeur.","\"Tirer\" pour une carte de plus, \"Rester\" pour arrêter. Dépasser 21 = défaite immédiate.","Blackjack (21 avec 2 cartes) rapporte le plus de points. 3 mains par jour, meilleur score retenu."],
+      rulesBlackjack:["Toi contre le croupier. Le plus proche de 21 sans dépasser gagne.","As = 1 ou 11, figures = 10, autres cartes = leur valeur.","\"Tirer\" pour une carte de plus, \"Rester\" pour arrêter. Dépasser 21 = défaite immédiate.","Blackjack (21 avec 2 cartes) rapporte le plus de points (150), victoire = 100, égalité = 50, défaite = 0.","Une seule session de 2 minutes par jour. Joue autant de mains que possible, ton score cumulé compte."],
       bjTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      bjIntroInfo:"Une seule session de 2 minutes maximum aujourd'hui. Joue autant de mains que possible, ton score cumulé compte.",
+      bjScoreText:"Score : ", bjDoneLabel:"Score final",
       bjStartBtn:"Lancer la main", bjHitBtn:"Tirer", bjStandBtn:"Rester", bjDealerLabel:"Croupier", bjYouLabel:"Toi",
       bjResultBlackjack:"Blackjack !", bjResultWin:"Gagné !", bjResultPush:"Égalité", bjResultLose:"Perdu",
       bjOverSubScore:"+{score} points",
@@ -982,8 +979,10 @@
       slotPaytableTitle:"Payout table (for 3 matching)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winning line(s) — total +{total} tokens",
       slotTierBig:"BIG WIN", slotTierEpic:"EPIC WIN", slotTierMega:"MEGA JACKPOT",
       bonusChoose:"Pick {n} crate(s)!", bonusRunningTotal:"Total: +{total} tokens",
-      rulesBlackjack:["You against the dealer. Closest to 21 without going over wins.","Ace = 1 or 11, face cards = 10, other cards = their value.","\"Hit\" for another card, \"Stand\" to stop. Going over 21 = instant loss.","Blackjack (21 with 2 cards) scores the most points. 3 hands per day, best score kept."],
+      rulesBlackjack:["You against the dealer. Closest to 21 without going over wins.","Ace = 1 or 11, face cards = 10, other cards = their value.","\"Hit\" for another card, \"Stand\" to stop. Going over 21 = instant loss.","Blackjack (21 with 2 cards) scores the most points (150), win = 100, push = 50, loss = 0.","A single 2-minute session per day. Play as many hands as you can, your cumulative score counts."],
       bjTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      bjIntroInfo:"A single 2-minute session today. Play as many hands as you can, your cumulative score counts.",
+      bjScoreText:"Score: ", bjDoneLabel:"Final score",
       bjStartBtn:"Deal hand", bjHitBtn:"Hit", bjStandBtn:"Stand", bjDealerLabel:"Dealer", bjYouLabel:"You",
       bjResultBlackjack:"Blackjack!", bjResultWin:"You win!", bjResultPush:"Push", bjResultLose:"You lose",
       bjOverSubScore:"+{score} points",
@@ -1039,8 +1038,10 @@
       slotPaytableTitle:"Tabla de pagos (para 3 iguales)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} línea(s) ganadora(s) — total +{total} fichas",
       slotTierBig:"GRAN PREMIO", slotTierEpic:"PREMIO ÉPICO", slotTierMega:"MEGA JACKPOT",
       bonusChoose:"¡Elige {n} caja(s)!", bonusRunningTotal:"Total: +{total} fichas",
-      rulesBlackjack:["Tú contra el crupier. Quien se acerque más a 21 sin pasarse gana.","As = 1 o 11, figuras = 10, otras cartas = su valor.","\"Pedir\" para otra carta, \"Plantarse\" para parar. Pasarse de 21 = derrota inmediata.","El Blackjack (21 con 2 cartas) da más puntos. 3 manos al día, mejor puntaje retenido."],
+      rulesBlackjack:["Tú contra el crupier. Quien se acerque más a 21 sin pasarse gana.","As = 1 o 11, figuras = 10, otras cartas = su valor.","\"Pedir\" para otra carta, \"Plantarse\" para parar. Pasarse de 21 = derrota inmediata.","El Blackjack (21 con 2 cartas) da más puntos (150), victoria = 100, empate = 50, derrota = 0.","Una única sesión de 2 minutos al día. Juega tantas manos como puedas, tu puntaje acumulado cuenta."],
       bjTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      bjIntroInfo:"Una única sesión de 2 minutos máximo hoy. Juega tantas manos como puedas, tu puntaje acumulado cuenta.",
+      bjScoreText:"Puntaje: ", bjDoneLabel:"Puntaje final",
       bjStartBtn:"Repartir mano", bjHitBtn:"Pedir", bjStandBtn:"Plantarse", bjDealerLabel:"Crupier", bjYouLabel:"Tú",
       bjResultBlackjack:"¡Blackjack!", bjResultWin:"¡Ganaste!", bjResultPush:"Empate", bjResultLose:"Perdiste",
       bjOverSubScore:"+{score} puntos",
@@ -1096,8 +1097,10 @@
       slotPaytableTitle:"Tabella dei premi (per 3 uguali)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} linea/e vincente/i — totale +{total} gettoni",
       slotTierBig:"GRANDE VINCITA", slotTierEpic:"VINCITA EPICA", slotTierMega:"MEGA JACKPOT",
       bonusChoose:"Scegli {n} cassa/e!", bonusRunningTotal:"Totale: +{total} gettoni",
-      rulesBlackjack:["Tu contro il banco. Chi si avvicina di più a 21 senza superarlo vince.","Asso = 1 o 11, figure = 10, altre carte = il loro valore.","\"Carta\" per un'altra carta, \"Stai\" per fermarti. Superare 21 = sconfitta immediata.","Il Blackjack (21 con 2 carte) dà più punti. 3 mani al giorno, viene mantenuto il punteggio migliore."],
+      rulesBlackjack:["Tu contro il banco. Chi si avvicina di più a 21 senza superarlo vince.","Asso = 1 o 11, figure = 10, altre carte = il loro valore.","\"Carta\" per un'altra carta, \"Stai\" per fermarti. Superare 21 = sconfitta immediata.","Il Blackjack (21 con 2 carte) dà più punti (150), vittoria = 100, pareggio = 50, sconfitta = 0.","Un'unica sessione di 2 minuti al giorno. Gioca più mani possibili, il tuo punteggio cumulativo conta."],
       bjTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      bjIntroInfo:"Un'unica sessione di massimo 2 minuti oggi. Gioca più mani possibili, il tuo punteggio cumulativo conta.",
+      bjScoreText:"Punteggio: ", bjDoneLabel:"Punteggio finale",
       bjStartBtn:"Distribuisci mano", bjHitBtn:"Carta", bjStandBtn:"Stai", bjDealerLabel:"Banco", bjYouLabel:"Tu",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Hai vinto!", bjResultPush:"Pareggio", bjResultLose:"Hai perso",
       bjOverSubScore:"+{score} punti",
@@ -1153,8 +1156,10 @@
       slotPaytableTitle:"Ödeme tablosu (3 aynı için)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} kazanan hat — toplam +{total} jeton",
       slotTierBig:"BÜYÜK KAZANÇ", slotTierEpic:"EFSANEVİ KAZANÇ", slotTierMega:"MEGA JACKPOT",
       bonusChoose:"{n} sandık seç!", bonusRunningTotal:"Toplam: +{total} jeton",
-      rulesBlackjack:["Sen krupiyeye karşı. 21'i geçmeden en yakın olan kazanır.","As = 1 veya 11, resimli kartlar = 10, diğer kartlar = kendi değeri.","Başka bir kart için \"Kart Çek\", durmak için \"Dur\". 21'i geçmek = anında kaybetme.","Blackjack (2 kartla 21) en çok puanı verir. Günde 3 el, en iyi skor saklanır."],
+      rulesBlackjack:["Sen krupiyeye karşı. 21'i geçmeden en yakın olan kazanır.","As = 1 veya 11, resimli kartlar = 10, diğer kartlar = kendi değeri.","Başka bir kart için \"Kart Çek\", durmak için \"Dur\". 21'i geçmek = anında kaybetme.","Blackjack (2 kartla 21) en çok puanı verir (150), galibiyet = 100, berabere = 50, mağlubiyet = 0.","Günde en fazla 2 dakikalık tek bir oturum. Yapabildiğin kadar çok el oyna, toplam skorun sayılır."],
       bjTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      bjIntroInfo:"Bugün en fazla 2 dakikalık tek bir oturum. Yapabildiğin kadar çok el oyna, toplam skorun sayılır.",
+      bjScoreText:"Skor: ", bjDoneLabel:"Final skor",
       bjStartBtn:"Eli dağıt", bjHitBtn:"Kart Çek", bjStandBtn:"Dur", bjDealerLabel:"Krupiye", bjYouLabel:"Sen",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Kazandın!", bjResultPush:"Berabere", bjResultLose:"Kaybettin",
       bjOverSubScore:"+{score} puan",
@@ -1210,8 +1215,10 @@
       slotPaytableTitle:"Uitbetalingstabel (voor 3 gelijk)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winnende lijn(en) — totaal +{total} fiches",
       slotTierBig:"GROTE WINST", slotTierEpic:"EPISCHE WINST", slotTierMega:"MEGA JACKPOT",
       bonusChoose:"Kies {n} kist(en)!", bonusRunningTotal:"Totaal: +{total} fiches",
-      rulesBlackjack:["Jij tegen de dealer. Wie het dichtst bij 21 komt zonder erover te gaan wint.","Aas = 1 of 11, plaatjes = 10, andere kaarten = hun waarde.","\"Kaart\" voor nog een kaart, \"Passen\" om te stoppen. Boven de 21 = direct verlies.","Blackjack (21 met 2 kaarten) geeft de meeste punten. 3 handen per dag, beste score telt."],
+      rulesBlackjack:["Jij tegen de dealer. Wie het dichtst bij 21 komt zonder erover te gaan wint.","Aas = 1 of 11, plaatjes = 10, andere kaarten = hun waarde.","\"Kaart\" voor nog een kaart, \"Passen\" om te stoppen. Boven de 21 = direct verlies.","Blackjack (21 met 2 kaarten) geeft de meeste punten (150), winst = 100, gelijkspel = 50, verlies = 0.","Eén sessie van maximaal 2 minuten per dag. Speel zoveel mogelijk handen, jouw totaalscore telt."],
       bjTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      bjIntroInfo:"Eén sessie van maximaal 2 minuten vandaag. Speel zoveel mogelijk handen, jouw totaalscore telt.",
+      bjScoreText:"Score: ", bjDoneLabel:"Eindscore",
       bjStartBtn:"Deel kaarten uit", bjHitBtn:"Kaart", bjStandBtn:"Passen", bjDealerLabel:"Dealer", bjYouLabel:"Jij",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Gewonnen!", bjResultPush:"Gelijkspel", bjResultLose:"Verloren",
       bjOverSubScore:"+{score} punten",
@@ -1290,7 +1297,7 @@
      'seqTiebreakBox','seqIntroBox','seqPlayBox','seqOverBox','seqDoneBox','seqAfterBox',
      'chronoTiebreakBox','chronoIntroBox','chronoPlayBox','chronoOverBox','chronoDoneBox','chronoAfterBox',
      'slotTiebreakBox','slotIntroBox','slotPlayBox','slotDoneBox','slotAfterBox',
-     'bjTiebreakBox','bjIntroBox','bjPlayBox','bjOverBox','bjDoneBox','bjAfterBox',
+     'bjTiebreakBox','bjIntroBox','bjPlayBox','bjDoneBox','bjAfterBox',
      'invTiebreakBox','invIntroBox','invPlayBox','invOverBox','invDoneBox','invAfterBox'
     ].forEach(id => $(id).style.display = 'none');
   }
@@ -1368,16 +1375,15 @@
     $('slotTiebreakBtn').textContent = t('drawNumberBtn');
     $('slotWinnerSub').textContent = t('diceWinnerSub');
     $('bjPlayerLabel').textContent = t('playerLabel');
-    $('bjAttemptText1').textContent = t('runAttemptText1');
-    $('bjAttemptText2').textContent = t('runAttemptText2');
+    $('bjIntroInfo').textContent = t('bjIntroInfo');
     $('bjStartBtn').textContent = t('bjStartBtn');
+    $('bjScoreText').textContent = t('bjScoreText');
     $('bjHitBtn').textContent = t('bjHitBtn');
     $('bjStandBtn').textContent = t('bjStandBtn');
     $('bjDealerLabel').textContent = t('bjDealerLabel');
     $('bjPlayerLabel2').textContent = t('bjYouLabel');
-    $('bjRetryBtn').textContent = t('runNextAttemptBtn');
-    $('bjDoneText1').textContent = t('runDoneText1');
-    $('bjDoneLabel').textContent = t('runDoneLabel');
+    $('bjDoneText1').textContent = t('slotDoneText1');
+    $('bjDoneLabel').textContent = t('bjDoneLabel');
     $('bjDoneText2').textContent = t('runDoneText2');
     $('bjTiebreakLabel').textContent = t('playerLabel');
     $('bjTiebreakInfo').innerHTML = t('bjTiebreakInfo');
@@ -2689,10 +2695,10 @@
   // ==================== JEU : BLACKJACK ====================
   const BJ_RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
   const BJ_SUITS = ['♠','♥','♦','♣'];
+  const BJ_SESSION_MS = 2*60*1000;
   let bjScores = {};
-  let bjCurrentAttempt = 1;
-  let bjUiState = null; // null = calculer depuis les données ; 'playing' / 'over' = états transitoires
-  let bjPlayerCards = [], bjDealerCards = [], bjDealerHidden = true, bjResolving = false;
+  let bjUiState = null; // null = calculer depuis les données ; 'playing' = état transitoire
+  let bjPlayerCards = [], bjDealerCards = [], bjDealerHidden = true, bjResolving = false, bjTickInterval = null;
 
   function myBjRecord(){ return (bjScores && bjScores[myId]) || null; }
 
@@ -2722,28 +2728,54 @@
     $('bjPlayerTotal').textContent = String(bjHandTotal(bjPlayerCards));
   }
 
+  function bjTickTimer(){
+    const rec = myBjRecord();
+    if(!rec || !rec.sessionStartTs) return;
+    const elapsed = Date.now() - rec.sessionStartTs;
+    const remaining = Math.max(0, BJ_SESSION_MS - elapsed);
+    const mm = Math.floor(remaining/60000), ss = Math.floor((remaining%60000)/1000);
+    $('bjTimeLeft').textContent = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  }
+
   function renderBlackjack(){
     if(bjUiState === 'playing'){ $('bjPlayBox').style.display = 'block'; return; }
-    if(bjUiState === 'over'){ $('bjOverBox').style.display = 'block'; return; }
 
     const rec = myBjRecord();
-    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
-    if(attemptsUsed >= MAX_ATTEMPTS){
+
+    if(rec && rec.sessionEnded){
+      if(bjTickInterval){ clearInterval(bjTickInterval); bjTickInterval = null; }
       $('bjDoneBox').style.display = 'block';
-      $('bjDoneBest').textContent = rec.bestScore || 0;
+      $('bjDoneBest').textContent = rec.score || 0;
       return;
     }
+
     if(!rec || rec.tiebreak === undefined){
       $('bjTiebreakBox').style.display = 'block';
       $('bjTiebreakName').textContent = myName;
       return;
     }
-    bjCurrentAttempt = attemptsUsed + 1;
-    $('bjIntroBox').style.display = 'block';
-    $('bjIntroName').textContent = myName;
-    $('bjTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
-    $('bjAttemptNumber').textContent = bjCurrentAttempt;
-    $('bjBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+
+    if(!rec.sessionStartTs){
+      $('bjIntroBox').style.display = 'block';
+      $('bjIntroName').textContent = myName;
+      $('bjTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+      return;
+    }
+
+    const elapsed = Date.now() - rec.sessionStartTs;
+    if(elapsed >= BJ_SESSION_MS){
+      endBjSession();
+      return;
+    }
+
+    $('bjPlayBox').style.display = 'block';
+    bjUiState = 'playing';
+    $('bjScoreLabel').textContent = rec.score || 0;
+    if(!bjTickInterval){
+      bjTickTimer();
+      bjTickInterval = setInterval(bjTickTimer, 250);
+    }
+    dealBjHand();
   }
 
   async function rollBjTiebreak(){
@@ -2759,7 +2791,7 @@
     await new Promise(r=>setTimeout(r, 400));
     const path = 'blackjackGame/' + todayDateStr() + '/' + myId;
     await db.ref(path).transaction(current=>{
-      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      const rec = current || {name: myName, score: 0, handsPlayed: 0, sessionStartTs: null, sessionEnded: false};
       if(rec.tiebreak === undefined) rec.tiebreak = value;
       return rec;
     });
@@ -2767,21 +2799,30 @@
     render();
   }
 
+  async function startBjSession(){
+    const path = 'blackjackGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      if(!current || current.sessionStartTs) return current;
+      current.sessionStartTs = Date.now();
+      current.score = 0;
+      current.handsPlayed = 0;
+      current.sessionEnded = false;
+      return current;
+    });
+    render();
+  }
+
   function computeBjWinner(){
     const entries = Object.keys(bjScores).map(id => ({id, ...bjScores[id]}));
     if(entries.length === 0) return null;
-    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
-    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    const maxScore = Math.max(...entries.map(e => e.score || 0));
+    const top = entries.filter(e => (e.score||0) === maxScore);
     top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
     return top[0];
   }
 
-  function startBjHand(){
-    hideAllGameBoxes();
-    $('bjPlayBox').style.display = 'block';
-    bjUiState = 'playing';
+  function dealBjHand(){
     bjResolving = false;
-    $('bjAttemptTag').textContent = fmt(t('runAttemptTag'), {n: bjCurrentAttempt});
     $('bjStatusMsg').textContent = '';
     bjPlayerCards = [bjDrawCard(), bjDrawCard()];
     bjDealerCards = [bjDrawCard(), bjDrawCard()];
@@ -2853,30 +2894,39 @@
       outcome = 'push'; score = 50;
     }
 
-    await endBjHand(outcome, score);
-  }
-
-  async function endBjHand(outcome, score){
-    bjUiState = 'over';
-    $('bjPlayBox').style.display = 'none';
-    $('bjOverBox').style.display = 'block';
-
-    const trophies = { blackjack:'🃏✨', win:'🃏', push:'🤝', lose:'💥' };
-    $('bjOverTrophy').textContent = trophies[outcome] || '🃏';
     const resultKeys = { blackjack:'bjResultBlackjack', win:'bjResultWin', push:'bjResultPush', lose:'bjResultLose' };
-    $('bjOverResult').textContent = t(resultKeys[outcome]);
-    $('bjOverSub').textContent = fmt(t('bjOverSubScore'), {score});
+    $('bjStatusMsg').textContent = `${t(resultKeys[outcome])} ${fmt(t('bjOverSubScore'), {score})}`;
 
     const path = 'blackjackGame/' + todayDateStr() + '/' + myId;
     const result = await db.ref(path).transaction(current=>{
-      const rec = current || {name: myName, attempts: [], bestScore: 0};
-      rec.attempts = (rec.attempts || []).concat([score]);
-      rec.bestScore = Math.max(rec.bestScore || 0, score);
-      return rec;
+      if(!current) return current;
+      current.score = (current.score||0) + score;
+      current.handsPlayed = (current.handsPlayed||0) + 1;
+      return current;
     });
     const rec = result.snapshot.val();
-    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
-    $('bjRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+    if(rec) $('bjScoreLabel').textContent = rec.score;
+
+    const elapsed = rec && rec.sessionStartTs ? Date.now() - rec.sessionStartTs : BJ_SESSION_MS;
+    if(elapsed >= BJ_SESSION_MS){
+      await new Promise(r=>setTimeout(r, 900));
+      await endBjSession();
+    } else {
+      await new Promise(r=>setTimeout(r, 1300));
+      dealBjHand();
+    }
+  }
+
+  async function endBjSession(){
+    if(bjTickInterval){ clearInterval(bjTickInterval); bjTickInterval = null; }
+    bjUiState = null;
+    const path = 'blackjackGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      if(!current || current.sessionEnded) return current;
+      current.sessionEnded = true;
+      return current;
+    });
+    render();
   }
 
   // ==================== JEU : INVASION ====================
@@ -3100,12 +3150,21 @@
     const rightEdge = INV_GRID_X + maxCol*INV_CELL_W + 24 + invAlienOffsetX;
     if(rightEdge > INV_W - 6 || leftEdge < 6){
       invAlienDir *= -1;
-      invAlienOffsetY += 10;
+      invAlienOffsetY += 5;
     }
 
-    // vérifie si les envahisseurs ont atteint le joueur
-    const frontRowY = INV_GRID_Y + (INV_ROWS-1)*INV_CELL_H + invAlienOffsetY + 24;
-    if(frontRowY >= INV_H - 34){ invEndAttempt(); return; }
+    // vérifie si les envahisseurs (encore vivants) ont atteint le joueur
+    const aliveRows = aliveAliens.map(a=>a.row);
+    const maxAliveRow = aliveRows.length ? Math.max(...aliveRows) : -1;
+    if(maxAliveRow >= 0){
+      const frontRowY = INV_GRID_Y + maxAliveRow*INV_CELL_H + invAlienOffsetY + 24;
+      if(frontRowY >= INV_H - 34){
+        invLives--;
+        invUpdateLivesDisplay();
+        if(invLives <= 0){ invEndAttempt(); return; }
+        invSpawnWave();
+      }
+    }
 
     // tir des envahisseurs
     invUfoTimer -= dt;
@@ -3323,10 +3382,11 @@
     if(type === 'blackjack'){
       head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
       const entries = Object.keys(bjScores).map(id=>({id, ...bjScores[id]}))
-        .sort((a,b)=> (b.bestScore||0)-(a.bestScore||0) || (b.tiebreak||0)-(a.tiebreak||0));
+        .filter(e => e.sessionStartTs)
+        .sort((a,b)=> (b.score||0)-(a.score||0) || (b.tiebreak||0)-(a.tiebreak||0));
       body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
         const meCls = e.id===myId?'me':'';
-        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.score||0}</span><span></span></div>`;
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
@@ -3370,8 +3430,7 @@
     btn.addEventListener('click', ()=> onBonusCratePick(parseInt(btn.dataset.idx,10)));
   });
   $('bjTiebreakBtn').addEventListener('click', rollBjTiebreak);
-  $('bjStartBtn').addEventListener('click', startBjHand);
-  $('bjRetryBtn').addEventListener('click', startBjHand);
+  $('bjStartBtn').addEventListener('click', startBjSession);
   $('bjHitBtn').addEventListener('click', onBjHit);
   $('bjStandBtn').addEventListener('click', onBjStand);
   $('invTiebreakBtn').addEventListener('click', rollInvTiebreak);
