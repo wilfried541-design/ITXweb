@@ -176,26 +176,113 @@
   .pad-btn.disabled{opacity:0.55; pointer-events:none;}
   .pad-btn.wrong-flash{filter:brightness(1.8) saturate(2) hue-rotate(-20deg);}
 
-  .reel-row{display:flex; gap:10px; justify-content:center; margin:16px 0;}
-  .reel{
-    width:72px; height:72px; border-radius:12px; background:#0e120d; border:2px solid var(--border);
-    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  .slot-cabinet{
+    position:relative; margin:16px 0; padding:10px 12px 14px; border-radius:16px;
+    background:linear-gradient(155deg, #3a3324, #1c1810 55%, #0e0c08);
+    border:3px solid #4a4128; box-shadow:inset 0 2px 4px rgba(255,255,255,0.08), inset 0 -3px 8px rgba(0,0,0,0.6), 0 10px 24px rgba(0,0,0,0.5);
+    overflow:hidden;
   }
-  .reel svg{width:60%; height:60%;}
-  .reel.spinning{animation:reelBlur 0.1s linear infinite;}
-  @keyframes reelBlur{0%{opacity:1;} 50%{opacity:0.5;} 100%{opacity:1;}}
-  .reel.jackpot{border-color:var(--accent); box-shadow:0 0 18px 3px rgba(226,161,60,0.6);}
-  .reel.pair{border-color:var(--eligible); box-shadow:0 0 14px 2px rgba(111,156,95,0.5);}
+  .cabinet-marquee{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; letter-spacing:3px;
+    color:var(--accent); text-shadow:0 0 8px rgba(226,161,60,0.9), 0 0 16px rgba(226,161,60,0.5);
+    margin:2px 0 8px; animation:marqueeGlow 1.8s ease-in-out infinite;
+  }
+  @keyframes marqueeGlow{
+    0%,100%{opacity:1; text-shadow:0 0 8px rgba(226,161,60,0.9), 0 0 16px rgba(226,161,60,0.5);}
+    50%{opacity:0.75; text-shadow:0 0 4px rgba(226,161,60,0.6);}
+  }
+  .cabinet-lights{display:flex; justify-content:space-between; padding:0 2px;}
+  .light-dot{
+    width:6px; height:6px; border-radius:50%; background:#5a4e2e;
+    box-shadow:0 0 2px rgba(0,0,0,0.5); animation:lightChase 1.2s linear infinite;
+  }
+  .light-dot:nth-child(1){animation-delay:0.0s;} .light-dot:nth-child(2){animation-delay:0.086s;}
+  .light-dot:nth-child(3){animation-delay:0.171s;} .light-dot:nth-child(4){animation-delay:0.257s;}
+  .light-dot:nth-child(5){animation-delay:0.343s;} .light-dot:nth-child(6){animation-delay:0.429s;}
+  .light-dot:nth-child(7){animation-delay:0.514s;} .light-dot:nth-child(8){animation-delay:0.6s;}
+  .light-dot:nth-child(9){animation-delay:0.686s;} .light-dot:nth-child(10){animation-delay:0.771s;}
+  .light-dot:nth-child(11){animation-delay:0.857s;} .light-dot:nth-child(12){animation-delay:0.943s;}
+  .light-dot:nth-child(13){animation-delay:1.029s;} .light-dot:nth-child(14){animation-delay:1.114s;}
+  @keyframes lightChase{
+    0%,80%,100%{background:#5a4e2e; box-shadow:0 0 2px rgba(0,0,0,0.5);}
+    10%{background:#ffe08a; box-shadow:0 0 8px 2px rgba(255,224,138,0.9);}
+  }
+  .reel-window{
+    background:#050604; border-radius:10px; padding:10px; margin:6px 0;
+    box-shadow:inset 0 4px 10px rgba(0,0,0,0.8), inset 0 0 0 2px #2a2415;
+    position:relative;
+  }
+
+  .reel-grid{display:flex; gap:6px; justify-content:center;}
+  .reel-col{display:flex; flex-direction:column; gap:5px;}
+  .reel{
+    position:relative; width:64px; height:52px; border-radius:7px; background:#0e120d; border:2px solid #33301f;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,0.6);
+  }
+  .reel::before{
+    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 22%, transparent 78%, rgba(0,0,0,0.35) 100%);
+  }
+  .reel-strip{width:100%; height:100%; display:flex; align-items:center; justify-content:center;}
+  .reel svg{width:56%; height:56%;}
+  .reel.spinning .reel-strip{animation:reelSpin 0.09s linear infinite;}
+  @keyframes reelSpin{
+    0%{transform:translateY(-6px) scaleY(1.15); filter:blur(1.5px);}
+    50%{transform:translateY(6px) scaleY(1.15); filter:blur(1.5px);}
+    100%{transform:translateY(-6px) scaleY(1.15); filter:blur(1.5px);}
+  }
+  .reel.jackpot{border-color:var(--accent); box-shadow:0 0 20px 4px rgba(226,161,60,0.8), inset 0 3px 6px rgba(0,0,0,0.4); animation:reelWinPulse 0.5s ease-in-out infinite; z-index:3;}
+  .reel.pair{border-color:var(--eligible); box-shadow:0 0 14px 3px rgba(111,156,95,0.6); z-index:3;}
+  @keyframes reelWinPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.06);}}
+  .win-lines-count{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim);
+    margin-top:6px; min-height:14px;
+  }
+
+  .jackpot-flash{
+    position:absolute; inset:0; pointer-events:none; opacity:0; z-index:5;
+    background:radial-gradient(circle at 50% 50%, rgba(255,224,138,0.55), transparent 70%);
+  }
+  .jackpot-flash.flashing{animation:jackpotFlashAnim 0.6s ease-out 3;}
+  @keyframes jackpotFlashAnim{0%{opacity:0.9;} 100%{opacity:0;}}
+  .slot-cabinet.shaking{animation:cabinetShake 0.4s ease-in-out;}
+  @keyframes cabinetShake{
+    0%,100%{transform:translateX(0);} 20%{transform:translateX(-4px);} 40%{transform:translateX(4px);}
+    60%{transform:translateX(-3px);} 80%{transform:translateX(3px);}
+  }
+  .coin-float{
+    position:absolute; left:50%; top:40%; transform:translateX(-50%); z-index:6; pointer-events:none;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:var(--accent);
+    text-shadow:0 0 10px rgba(226,161,60,0.9); animation:coinFloat 1.1s ease-out forwards;
+  }
+  @keyframes coinFloat{
+    0%{opacity:0; transform:translate(-50%,10px) scale(0.7);}
+    20%{opacity:1; transform:translate(-50%,-6px) scale(1.1);}
+    100%{opacity:0; transform:translate(-50%,-46px) scale(1);}
+  }
 
   .bet-row{display:flex; gap:8px; margin-top:14px;}
   .bet-btn{
-    flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    flex:1; background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); color:var(--text);
     padding:12px 4px; border-radius:8px; font-family:'Oswald',sans-serif; font-weight:700; font-size:16px;
     cursor:pointer; margin-top:0; display:flex; flex-direction:column; align-items:center; gap:2px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
   }
   .bet-btn .bet-cost{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-dim); font-weight:400;}
-  .bet-btn:active{border-color:var(--accent); color:var(--accent);}
+  .bet-btn:active{border-color:var(--accent); color:var(--accent); transform:scale(0.96);}
   .bet-btn:disabled{opacity:0.4; cursor:not-allowed;}
+
+  .paytable{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-top:10px; text-align:left;}
+  .paytable-title{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); margin-bottom:8px;}
+  .paytable-row{display:flex; align-items:center; gap:8px; padding:5px 0; border-bottom:1px solid var(--border);}
+  .paytable-row:last-child{border-bottom:none;}
+  .paytable-row.jackpot-row{background:rgba(139,92,246,0.08); margin:0 -6px; padding:5px 6px; border-radius:6px; border-bottom:none;}
+  .paytable-icon{display:flex; gap:1px; flex-shrink:0;}
+  .paytable-icon svg{width:18px; height:18px;}
+  .paytable-name{flex:1; font-size:12px; color:var(--text-dim);}
+  .paytable-mult{font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--accent); text-align:right; display:flex; flex-direction:column; align-items:flex-end; line-height:1.3;}
+  .paytable-two{font-size:9px; color:var(--text-dim); font-weight:400;}
 
   .winner-banner{
     background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
@@ -508,6 +595,7 @@
   <div id="slotIntroBox" class="board" style="display:none;">
     <div class="info-line"><span id="slotPlayerLabel">Joueur : </span><b id="slotIntroName"></b> <span class="tiebreak-tag" id="slotTiebreakTag"></span></div>
     <div class="info-line" style="margin-top:8px;" id="slotIntroInfo">Une seule session de 5 minutes maximum aujourd'hui, 100 jetons de départ. Le plus de jetons à la fin gagne.</div>
+    <div id="slotIntroPaytable"></div>
     <button class="btn-primary" id="slotStartBtn">Lancer ma session</button>
   </div>
   <div id="slotPlayBox" class="board" style="display:none;">
@@ -515,16 +603,23 @@
       <span class="mono" id="slotTimeLeft">05:00</span>
       <span><span id="slotTokensText">Jetons : </span><span class="score" id="slotTokensLabel">100</span></span>
     </div>
-    <div class="reel-row">
-      <div class="reel" id="slotReel1"></div>
-      <div class="reel" id="slotReel2"></div>
-      <div class="reel" id="slotReel3"></div>
+    <div class="slot-cabinet" id="slotCabinet">
+      <div class="cabinet-lights" id="cabinetLightsTop"><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span></div>
+      <div class="cabinet-marquee">🎰 ITX SLOTS 🎰</div>
+      <div class="reel-window">
+        <div class="reel-grid">
+          <div class="reel-col"><div class="reel" id="slotCell00"><div class="reel-strip"></div></div><div class="reel" id="slotCell01"><div class="reel-strip"></div></div><div class="reel" id="slotCell02"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell10"><div class="reel-strip"></div></div><div class="reel" id="slotCell11"><div class="reel-strip"></div></div><div class="reel" id="slotCell12"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell20"><div class="reel-strip"></div></div><div class="reel" id="slotCell21"><div class="reel-strip"></div></div><div class="reel" id="slotCell22"><div class="reel-strip"></div></div></div>
+        </div>
+      </div>
+      <div class="win-lines-count" id="slotLinesCount"></div>
+      <div class="cabinet-lights" id="cabinetLightsBottom"><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span></div>
+      <div class="jackpot-flash" id="jackpotFlash"></div>
     </div>
     <div class="result-msg" id="slotResultMsg"></div>
     <div class="bet-row">
-      <button class="bet-btn" id="slotBetX1" data-mult="1">x1<span class="bet-cost" id="slotCostX1">10</span></button>
-      <button class="bet-btn" id="slotBetX3" data-mult="3">x3<span class="bet-cost" id="slotCostX3">30</span></button>
-      <button class="bet-btn" id="slotBetX5" data-mult="5">x5<span class="bet-cost" id="slotCostX5">50</span></button>
+      <button class="bet-btn" id="slotBetX1" data-mult="1">x1<span class="bet-cost" id="slotCostX1">1</span></button>
+      <button class="bet-btn" id="slotBetX3" data-mult="3">x3<span class="bet-cost" id="slotCostX3">3</span></button>
+      <button class="bet-btn" id="slotBetX5" data-mult="5">x5<span class="bet-cost" id="slotCostX5">5</span></button>
     </div>
   </div>
   <div id="slotDoneBox" class="board" style="display:none;">
@@ -596,17 +691,18 @@
       rulesSequence:["Une séquence de 4 ressources s'illumine dans un ordre précis.","Reproduis-la en tapant sur les cases dans le même ordre.","Chaque round réussi allonge la séquence d'un cran.","Une erreur met fin à l'essai — ton score = nombre de rounds réussis."],
       seqRoundText:"Round : ", seqWatching:"Regarde bien...", seqYourTurn:"À toi de jouer !", seqWrong:"Raté !",
       seqOverSub:"Rounds réussis lors de cet essai",
-      padFuel:"Carburant", padAmmo:"Munitions", padSteel:"Acier", padRations:"Rations",
+      padFuel:"Carburant", padAmmo:"Munitions", padSteel:"Acier", padRations:"Rations", padDiamond:"Diamant",
       seqTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       rulesChrono:["Un chrono boucle en continu de 0 à 10 secondes.","Valide au moment où tu penses être le plus proche de 5.00 secondes.","Plus tu es précis, plus le score est élevé.","3 essais par jour, meilleur score retenu."],
       chronoTargetText:"Valide au plus près de {target}s — le chrono boucle de 0 à 10s.",
       chronoOverSub:"Score de cet essai — écart : {diff} ms",
       chronoTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
-      rulesSlot:["Une seule session de 5 minutes maximum, une fois par jour.","100 jetons de départ. Mise x1 (10), x3 (30) ou x5 (50) à chaque tirage.","3 symboles identiques = jackpot. 2 identiques = mise remboursée. Sinon, mise perdue.","Le plus de jetons à la fin de la session gagne."],
+      rulesSlot:["Une seule session de 5 minutes maximum, une fois par jour.","100 jetons de départ. Mise x1 (1), x3 (3) ou x5 (5) jeton(s) à chaque tirage.","Grille de 3x3 symboles avec 5 lignes de paiement (3 horizontales + 2 diagonales), toutes évaluées à chaque tirage.","3 symboles identiques rapportent gros (jusqu'à x300 la mise sur le diamant, le vrai jackpot). 2 identiques rapportent aussi un petit gain. Sinon, mise perdue.","Le plus de jetons à la fin de la session gagne."],
       slotIntroInfo:"Une seule session de 5 minutes maximum aujourd'hui, 100 jetons de départ. Le plus de jetons à la fin gagne.",
       slotTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de jetons à la fin de la journée.",
       slotTokensText:"Jetons : ", slotStartBtn:"Lancer ma session",
-      slotResultJackpot:"Jackpot ! +{amount} jetons", slotResultPair:"Paire — mise remboursée", slotResultMiss:"Perdu — {amount} jetons",
+      slotResultJackpot:"💎 JACKPOT ! +{amount} jetons", slotResultWin:"{n}x {name} — +{amount} jetons", slotResultMiss:"Perdu — {amount} jetons",
+      slotPaytableTitle:"Table des gains (pour 3 identiques)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} ligne(s) gagnante(s) — total +{total} jetons",
       slotOutOfTokens:"Plus assez de jetons pour miser !",
       slotDoneText1:"Ta session du jour est terminée.", slotDoneLabel:"Jetons finaux", slotDoneText2:"Reviens demain pour retenter ta chance !",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
@@ -641,17 +737,18 @@
       rulesSequence:["A sequence of 4 resources lights up in a specific order.","Reproduce it by tapping the tiles in the same order.","Each successful round makes the sequence one longer.","A mistake ends the attempt — your score = number of rounds cleared."],
       seqRoundText:"Round: ", seqWatching:"Watch closely...", seqYourTurn:"Your turn!", seqWrong:"Wrong!",
       seqOverSub:"Rounds cleared this attempt",
-      padFuel:"Fuel", padAmmo:"Ammo", padSteel:"Steel", padRations:"Rations",
+      padFuel:"Fuel", padAmmo:"Ammo", padSteel:"Steel", padRations:"Rations", padDiamond:"Diamond",
       seqTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       rulesChrono:["A timer loops continuously from 0 to 10 seconds.","Confirm when you think you're closest to 5.00 seconds.","The more precise you are, the higher your score.","3 attempts per day, best score kept."],
       chronoTargetText:"Confirm as close as possible to {target}s — the timer loops from 0 to 10s.",
       chronoOverSub:"Score for this attempt — off by: {diff} ms",
       chronoTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
-      rulesSlot:["A single 5-minute session, once per day.","100 starting tokens. Bet x1 (10), x3 (30) or x5 (50) per spin.","3 matching symbols = jackpot. 2 matching = bet refunded. Otherwise, bet lost.","Most tokens at the end of the session wins."],
+      rulesSlot:["A single 5-minute session, once per day.","100 starting tokens. Bet x1 (1), x3 (3) or x5 (5) token(s) per spin.","A 3x3 symbol grid with 5 paylines (3 horizontal + 2 diagonal), all evaluated on every spin.","3 matching symbols pay big (up to x300 the bet on the diamond, the real jackpot). 2 matching also gives a small win. Otherwise, bet lost.","Most tokens at the end of the session wins."],
       slotIntroInfo:"A single 5-minute session today, 100 starting tokens. Most tokens at the end wins.",
       slotTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a token tie at the end of the day.",
       slotTokensText:"Tokens: ", slotStartBtn:"Start my session",
-      slotResultJackpot:"Jackpot! +{amount} tokens", slotResultPair:"Pair — bet refunded", slotResultMiss:"Lost — {amount} tokens",
+      slotResultJackpot:"💎 JACKPOT! +{amount} tokens", slotResultWin:"{n}x {name} — +{amount} tokens", slotResultMiss:"Lost — {amount} tokens",
+      slotPaytableTitle:"Payout table (for 3 matching)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winning line(s) — total +{total} tokens",
       slotOutOfTokens:"Not enough tokens left to bet!",
       slotDoneText1:"Your session for today is over.", slotDoneLabel:"Final tokens", slotDoneText2:"Come back tomorrow to try again!",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
@@ -686,17 +783,18 @@
       rulesSequence:["Una secuencia de 4 recursos se ilumina en un orden preciso.","Repítela tocando las casillas en el mismo orden.","Cada ronda superada alarga la secuencia un paso más.","Un error termina el intento — tu puntaje = número de rondas superadas."],
       seqRoundText:"Ronda: ", seqWatching:"Observa bien...", seqYourTurn:"¡Tu turno!", seqWrong:"¡Fallo!",
       seqOverSub:"Rondas superadas en este intento",
-      padFuel:"Combustible", padAmmo:"Munición", padSteel:"Acero", padRations:"Raciones",
+      padFuel:"Combustible", padAmmo:"Munición", padSteel:"Acero", padRations:"Raciones", padDiamond:"Diamante",
       seqTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       rulesChrono:["Un cronómetro se repite continuamente de 0 a 10 segundos.","Confirma cuando creas estar más cerca de 5.00 segundos.","Cuanto más preciso seas, mayor será tu puntaje.","3 intentos por día, mejor puntaje retenido."],
       chronoTargetText:"Confirma lo más cerca posible de {target}s — el cronómetro se repite de 0 a 10s.",
       chronoOverSub:"Puntaje de este intento — desviación: {diff} ms",
       chronoTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
-      rulesSlot:["Una única sesión de 5 minutos máximo, una vez al día.","100 fichas iniciales. Apuesta x1 (10), x3 (30) o x5 (50) por tirada.","3 símbolos iguales = premio mayor. 2 iguales = apuesta reembolsada. Si no, apuesta perdida.","Quien tenga más fichas al final de la sesión gana."],
+      rulesSlot:["Una única sesión de 5 minutos máximo, una vez al día.","100 fichas iniciales. Apuesta x1 (1), x3 (3) o x5 (5) ficha(s) por tirada.","Cuadrícula de 3x3 símbolos con 5 líneas de pago (3 horizontales + 2 diagonales), todas evaluadas en cada tirada.","3 símbolos iguales pagan mucho (hasta x300 la apuesta con el diamante, el verdadero premio mayor). 2 iguales también dan una pequeña ganancia. Si no, apuesta perdida.","Quien tenga más fichas al final de la sesión gana."],
       slotIntroInfo:"Una única sesión de 5 minutos máximo hoy, 100 fichas iniciales. Quien tenga más fichas al final gana.",
       slotTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de fichas al final del día.",
       slotTokensText:"Fichas: ", slotStartBtn:"Iniciar mi sesión",
-      slotResultJackpot:"¡Premio mayor! +{amount} fichas", slotResultPair:"Par — apuesta reembolsada", slotResultMiss:"Perdido — {amount} fichas",
+      slotResultJackpot:"💎 ¡PREMIO MAYOR! +{amount} fichas", slotResultWin:"{n}x {name} — +{amount} fichas", slotResultMiss:"Perdido — {amount} fichas",
+      slotPaytableTitle:"Tabla de pagos (para 3 iguales)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} línea(s) ganadora(s) — total +{total} fichas",
       slotOutOfTokens:"¡No quedan suficientes fichas para apostar!",
       slotDoneText1:"Tu sesión de hoy ha terminado.", slotDoneLabel:"Fichas finales", slotDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
@@ -731,17 +829,18 @@
       rulesSequence:["Una sequenza di 4 risorse si illumina in un ordine preciso.","Riproducila toccando le caselle nello stesso ordine.","Ogni round superato allunga la sequenza di uno.","Un errore termina il tentativo — il tuo punteggio = numero di round superati."],
       seqRoundText:"Round: ", seqWatching:"Guarda bene...", seqYourTurn:"Tocca a te!", seqWrong:"Sbagliato!",
       seqOverSub:"Round superati in questo tentativo",
-      padFuel:"Carburante", padAmmo:"Munizioni", padSteel:"Acciaio", padRations:"Razioni",
+      padFuel:"Carburante", padAmmo:"Munizioni", padSteel:"Acciaio", padRations:"Razioni", padDiamond:"Diamante",
       seqTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       rulesChrono:["Un cronometro scorre continuamente da 0 a 10 secondi.","Conferma quando pensi di essere più vicino a 5.00 secondi.","Più sei preciso, più alto è il punteggio.","3 tentativi al giorno, viene mantenuto il punteggio migliore."],
       chronoTargetText:"Conferma il più vicino possibile a {target}s — il cronometro scorre da 0 a 10s.",
       chronoOverSub:"Punteggio di questo tentativo — scarto: {diff} ms",
       chronoTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
-      rulesSlot:["Un'unica sessione di massimo 5 minuti, una volta al giorno.","100 gettoni iniziali. Puntata x1 (10), x3 (30) o x5 (50) per giro.","3 simboli uguali = jackpot. 2 uguali = puntata rimborsata. Altrimenti, puntata persa.","Chi ha più gettoni alla fine della sessione vince."],
+      rulesSlot:["Un'unica sessione di massimo 5 minuti, una volta al giorno.","100 gettoni iniziali. Puntata x1 (1), x3 (3) o x5 (5) gettone/i per giro.","Griglia di 3x3 simboli con 5 linee di pagamento (3 orizzontali + 2 diagonali), tutte valutate ad ogni giro.","3 simboli uguali pagano tanto (fino a x300 la puntata sul diamante, il vero jackpot). Anche 2 uguali danno una piccola vincita. Altrimenti, puntata persa.","Chi ha più gettoni alla fine della sessione vince."],
       slotIntroInfo:"Un'unica sessione di massimo 5 minuti oggi, 100 gettoni iniziali. Chi ha più gettoni alla fine vince.",
       slotTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di gettoni a fine giornata.",
       slotTokensText:"Gettoni: ", slotStartBtn:"Inizia la mia sessione",
-      slotResultJackpot:"Jackpot! +{amount} gettoni", slotResultPair:"Coppia — puntata rimborsata", slotResultMiss:"Perso — {amount} gettoni",
+      slotResultJackpot:"💎 JACKPOT! +{amount} gettoni", slotResultWin:"{n}x {name} — +{amount} gettoni", slotResultMiss:"Perso — {amount} gettoni",
+      slotPaytableTitle:"Tabella dei premi (per 3 uguali)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} linea/e vincente/i — totale +{total} gettoni",
       slotOutOfTokens:"Non hai più abbastanza gettoni per puntare!",
       slotDoneText1:"La tua sessione di oggi è terminata.", slotDoneLabel:"Gettoni finali", slotDoneText2:"Torna domani per riprovare!",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
@@ -776,17 +875,18 @@
       rulesSequence:["4 kaynaktan oluşan bir dizi belirli bir sırayla yanar.","Aynı sırayla karelere dokunarak tekrarla.","Başarılı her tur diziyi bir adım uzatır.","Bir hata denemeyi bitirir — skorun = tamamlanan tur sayısı."],
       seqRoundText:"Tur: ", seqWatching:"Dikkatlice izle...", seqYourTurn:"Sıra sende!", seqWrong:"Yanlış!",
       seqOverSub:"Bu denemede tamamlanan turlar",
-      padFuel:"Yakıt", padAmmo:"Mühimmat", padSteel:"Çelik", padRations:"Erzak",
+      padFuel:"Yakıt", padAmmo:"Mühimmat", padSteel:"Çelik", padRations:"Erzak", padDiamond:"Elmas",
       seqTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       rulesChrono:["Bir kronometre sürekli olarak 0'dan 10 saniyeye döngü halinde çalışır.","5.00 saniyeye en yakın olduğunu düşündüğün anda onayla.","Ne kadar hassas olursan, skorun o kadar yüksek olur.","Günde 3 deneme, en iyi skor saklanır."],
       chronoTargetText:"{target}s'ye en yakın anda onayla — kronometre 0'dan 10s'ye döngü halinde çalışır.",
       chronoOverSub:"Bu denemenin skoru — fark: {diff} ms",
       chronoTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
-      rulesSlot:["Günde bir kez, en fazla 5 dakikalık tek bir oturum.","100 başlangıç jetonu. Çevirme başına x1 (10), x3 (30) veya x5 (50) bahis.","3 aynı sembol = jackpot. 2 aynı = bahis iade edilir. Aksi halde bahis kaybedilir.","Oturum sonunda en çok jetona sahip olan kazanır."],
+      rulesSlot:["Günde bir kez, en fazla 5 dakikalık tek bir oturum.","100 başlangıç jetonu. Çevirme başına x1 (1), x3 (3) veya x5 (5) jeton bahis.","3x3 sembol ızgarası, her çevirmede değerlendirilen 5 kazanç hattı (3 yatay + 2 çapraz) ile.","3 aynı sembol büyük öder (elmasta bahsin 300 katına kadar, gerçek jackpot). 2 aynı da küçük bir kazanç verir. Aksi halde bahis kaybedilir.","Oturum sonunda en çok jetona sahip olan kazanır."],
       slotIntroInfo:"Bugün en fazla 5 dakikalık tek bir oturum, 100 başlangıç jetonu. Sonunda en çok jetona sahip olan kazanır.",
       slotTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda jeton eşitliği olursa kullanılır.",
       slotTokensText:"Jeton: ", slotStartBtn:"Oturumumu başlat",
-      slotResultJackpot:"Jackpot! +{amount} jeton", slotResultPair:"Çift — bahis iade edildi", slotResultMiss:"Kaybettin — {amount} jeton",
+      slotResultJackpot:"💎 JACKPOT! +{amount} jeton", slotResultWin:"{n}x {name} — +{amount} jeton", slotResultMiss:"Kaybettin — {amount} jeton",
+      slotPaytableTitle:"Ödeme tablosu (3 aynı için)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} kazanan hat — toplam +{total} jeton",
       slotOutOfTokens:"Bahis yapmak için yeterli jeton kalmadı!",
       slotDoneText1:"Bugünkü oturumun sona erdi.", slotDoneLabel:"Son jeton sayısı", slotDoneText2:"Tekrar denemek için yarın gel!",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
@@ -821,17 +921,18 @@
       rulesSequence:["Een reeks van 4 grondstoffen licht op in een vaste volgorde.","Herhaal ze door in dezelfde volgorde op de vakjes te tikken.","Elke geslaagde ronde maakt de reeks één stap langer.","Een fout beëindigt de poging — jouw score = aantal geslaagde rondes."],
       seqRoundText:"Ronde: ", seqWatching:"Kijk goed...", seqYourTurn:"Jouw beurt!", seqWrong:"Fout!",
       seqOverSub:"Geslaagde rondes in deze poging",
-      padFuel:"Brandstof", padAmmo:"Munitie", padSteel:"Staal", padRations:"Rantsoenen",
+      padFuel:"Brandstof", padAmmo:"Munitie", padSteel:"Staal", padRations:"Rantsoenen", padDiamond:"Diamant",
       seqTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       rulesChrono:["Een timer loopt continu van 0 naar 10 seconden.","Bevestig op het moment dat je denkt het dichtst bij 5.00 seconden te zijn.","Hoe preciezer je bent, hoe hoger je score.","3 pogingen per dag, beste score telt."],
       chronoTargetText:"Bevestig zo dicht mogelijk bij {target}s — de timer loopt van 0 naar 10s.",
       chronoOverSub:"Score voor deze poging — verschil: {diff} ms",
       chronoTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
-      rulesSlot:["Eén sessie van maximaal 5 minuten, één keer per dag.","100 startfiches. Inzet x1 (10), x3 (30) of x5 (50) per draai.","3 gelijke symbolen = jackpot. 2 gelijke = inzet terugbetaald. Anders, inzet verloren.","De meeste fiches aan het einde van de sessie wint."],
+      rulesSlot:["Eén sessie van maximaal 5 minuten, één keer per dag.","100 startfiches. Inzet x1 (1), x3 (3) of x5 (5) fiche(s) per draai.","Een 3x3 symbolenraster met 5 winlijnen (3 horizontaal + 2 diagonaal), allemaal geëvalueerd bij elke draai.","3 gelijke symbolen betalen veel uit (tot x300 de inzet op de diamant, de echte jackpot). 2 gelijke geeft ook een kleine winst. Anders, inzet verloren.","De meeste fiches aan het einde van de sessie wint."],
       slotIntroInfo:"Eén sessie van maximaal 5 minuten vandaag, 100 startfiches. De meeste fiches aan het einde wint.",
       slotTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijk aantal fiches aan het einde van de dag.",
       slotTokensText:"Fiches: ", slotStartBtn:"Start mijn sessie",
-      slotResultJackpot:"Jackpot! +{amount} fiches", slotResultPair:"Paar — inzet terugbetaald", slotResultMiss:"Verloren — {amount} fiches",
+      slotResultJackpot:"💎 JACKPOT! +{amount} fiches", slotResultWin:"{n}x {name} — +{amount} fiches", slotResultMiss:"Verloren — {amount} fiches",
+      slotPaytableTitle:"Uitbetalingstabel (voor 3 gelijk)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winnende lijn(en) — totaal +{total} fiches",
       slotOutOfTokens:"Niet genoeg fiches meer om in te zetten!",
       slotDoneText1:"Je sessie van vandaag is afgelopen.", slotDoneLabel:"Eindstand fiches", slotDoneText2:"Kom morgen terug om het nog eens te proberen!",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
@@ -1096,7 +1197,7 @@
     }
     if(type === 'slot'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon slot-icon">🎰</span>${t('rulesTitle')}</div><ul class="rules-list">
-        ${t('rulesSlot').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+        ${t('rulesSlot').map(r=>`<li>${r}</li>`).join('')}</ul>${slotPaytableHtml()}</div>`;
     }
     return '';
   }
@@ -1776,19 +1877,60 @@
 
   // ==================== JEU : SLOT ====================
   const SLOT_ICONS = {
-    fuel: '<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="30" rx="4" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="20" y="4" width="8" height="8" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><rect x="14" y="20" width="20" height="4" fill="#14170f" opacity="0.4"/><rect x="14" y="28" width="20" height="4" fill="#14170f" opacity="0.4"/></svg>',
-    ammo: '<svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="3" fill="#c1442f" stroke="#14170f" stroke-width="2"/><path d="M10 16 L24 8 L38 16 Z" fill="#8a2e1c" stroke="#14170f" stroke-width="2"/><rect x="18" y="24" width="12" height="6" fill="#14170f" opacity="0.5"/></svg>',
+    rations: '<svg viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="24" rx="3" fill="#6f9c5f" stroke="#14170f" stroke-width="2"/><rect x="9" y="14" width="30" height="8" fill="#4d7a41"/><path d="M24 24 v10 M19 29 h10" stroke="#eae7dd" stroke-width="3" stroke-linecap="round"/></svg>',
     steel: '<svg viewBox="0 0 48 48"><path d="M24 6 L28 12 L35 10 L35 18 L42 22 L35 26 L35 34 L28 32 L24 38 L20 32 L13 34 L13 26 L6 22 L13 18 L13 10 L20 12 Z" fill="#4fd6c9" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#14170f" opacity="0.5"/></svg>',
-    rations: '<svg viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="24" rx="3" fill="#6f9c5f" stroke="#14170f" stroke-width="2"/><rect x="9" y="14" width="30" height="8" fill="#4d7a41"/><path d="M24 24 v10 M19 29 h10" stroke="#eae7dd" stroke-width="3" stroke-linecap="round"/></svg>'
+    ammo: '<svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="3" fill="#c1442f" stroke="#14170f" stroke-width="2"/><path d="M10 16 L24 8 L38 16 Z" fill="#8a2e1c" stroke="#14170f" stroke-width="2"/><rect x="18" y="24" width="12" height="6" fill="#14170f" opacity="0.5"/></svg>',
+    fuel: '<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="30" rx="4" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="20" y="4" width="8" height="8" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><rect x="14" y="20" width="20" height="4" fill="#14170f" opacity="0.4"/><rect x="14" y="28" width="20" height="4" fill="#14170f" opacity="0.4"/></svg>',
+    diamond: '<svg viewBox="0 0 48 48"><path d="M12 18 L24 6 L36 18 L24 42 Z" fill="#8b5cf6" stroke="#14170f" stroke-width="2"/><path d="M12 18 L36 18 L24 42 Z" fill="#a78bfa"/><path d="M18 18 L24 6 L30 18 Z" fill="#c4b5fd"/><path d="M12 18 L18 18 L24 42 Z" fill="#8b5cf6" opacity="0.7"/><path d="M36 18 L30 18 L24 42 Z" fill="#8b5cf6" opacity="0.7"/></svg>'
   };
-  const SLOT_KEYS = ['fuel','ammo','steel','rations'];
-  const SLOT_START_TOKENS = 100, SLOT_BASE_BET = 10, SLOT_SESSION_MS = 5*60*1000;
-  const SLOT_JACKPOT_MULT = 5, SLOT_PAIR_MULT = 1;
+  // Table des gains : poids (rareté au tirage) + multiplicateur de la mise pour 3 identiques / 2 identiques.
+  // Pour ajouter un symbole : lui donner une icône ci-dessus et une entrée ici.
+  const SLOT_SYMBOLS = [
+    {key:'rations', weight:30, three:5,   two:0},
+    {key:'steel',   weight:25, three:8,   two:0},
+    {key:'ammo',    weight:20, three:15,  two:0},
+    {key:'fuel',    weight:15, three:30,  two:0},
+    {key:'diamond', weight:10, three:300, two:10}
+  ];
+  const SLOT_KEYS = SLOT_SYMBOLS.map(s=>s.key);
+  const SLOT_SYMBOL_BY_KEY = Object.fromEntries(SLOT_SYMBOLS.map(s=>[s.key,s]));
+  const SLOT_WEIGHT_TOTAL = SLOT_SYMBOLS.reduce((a,s)=>a+s.weight,0);
+  function slotRandomSymbol(){
+    let r = Math.random()*SLOT_WEIGHT_TOTAL;
+    for(const s of SLOT_SYMBOLS){ if(r < s.weight) return s.key; r -= s.weight; }
+    return SLOT_SYMBOLS[0].key;
+  }
+  const SLOT_START_TOKENS = 100, SLOT_BASE_BET = 1, SLOT_SESSION_MS = 5*60*1000;
+  const SLOT_PAIR_MULT = 2; // une paire générique (sans bonus dédié) rapporte un petit profit, pas juste un remboursement
+
+  // Grille 3 colonnes x 3 lignes. Chaque ligne de paiement liste la rangée (0=haut,1=milieu,2=bas) retenue par colonne.
+  const SLOT_PAYLINES = [
+    [0,0,0], // ligne du haut
+    [1,1,1], // ligne du milieu
+    [2,2,2], // ligne du bas
+    [0,1,2], // diagonale ↘
+    [2,1,0]  // diagonale ↗
+  ];
+  const SLOT_CELL_IDS = [0,1,2].map(c => [0,1,2].map(r => `slotCell${c}${r}`));
 
   let slotScores = {};
   let slotSpinning = false, slotTickInterval = null, slotLocalTokens = 0;
 
   function mySlotRecord(){ return (slotScores && slotScores[myId]) || null; }
+
+  function slotPaytableHtml(){
+    const sorted = [...SLOT_SYMBOLS].sort((a,b)=> b.three - a.three);
+    const rows = sorted.map(s=>{
+      const name = t('pad' + s.key.charAt(0).toUpperCase() + s.key.slice(1));
+      const twoLine = s.two ? `<span class="paytable-two">${fmt(t('slotPaytableTwo'), {mult: s.two})}</span>` : '';
+      return `<div class="paytable-row ${s.key==='diamond'?'jackpot-row':''}">
+        <span class="paytable-icon">${SLOT_ICONS[s.key]}${SLOT_ICONS[s.key]}${SLOT_ICONS[s.key]}</span>
+        <span class="paytable-name">${name}</span>
+        <span class="paytable-mult">×${s.three}${twoLine}</span>
+      </div>`;
+    }).join('');
+    return `<div class="paytable"><div class="paytable-title">${t('slotPaytableTitle')}</div>${rows}</div>`;
+  }
 
   function updateSlotBetButtons(){
     [1,3,5].forEach(m=>{
@@ -1798,7 +1940,7 @@
   }
 
   function renderSlot(){
-    if(slotSpinning) return; // ne pas interrompre un tirage en cours
+    if(slotSpinning){ $('slotPlayBox').style.display = 'block'; return; } // ne pas interrompre un tirage en cours
 
     const rec = mySlotRecord();
 
@@ -1819,6 +1961,7 @@
       $('slotIntroBox').style.display = 'block';
       $('slotIntroName').textContent = myName;
       $('slotTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+      $('slotIntroPaytable').innerHTML = slotPaytableHtml();
       return;
     }
 
@@ -1832,6 +1975,10 @@
     $('slotPlayBox').style.display = 'block';
     $('slotTokensLabel').textContent = slotLocalTokens;
     updateSlotBetButtons();
+    SLOT_CELL_IDS.flat().forEach(id=>{
+      const strip = $(id).querySelector('.reel-strip');
+      if(!strip.innerHTML) strip.innerHTML = SLOT_ICONS.rations;
+    });
     if(!slotTickInterval){
       slotTickTimer();
       slotTickInterval = setInterval(slotTickTimer, 250);
@@ -1908,42 +2055,88 @@
     slotSpinning = true;
     document.querySelectorAll('.bet-btn').forEach(b=> b.disabled = true);
     $('slotResultMsg').textContent = '';
-    ['slotReel1','slotReel2','slotReel3'].forEach(id=>{ $(id).classList.add('spinning'); $(id).classList.remove('jackpot','pair'); });
+    $('slotLinesCount').textContent = '';
+    const allCells = SLOT_CELL_IDS.flat();
+    allCells.forEach(id=>{ $(id).classList.add('spinning'); $(id).classList.remove('jackpot','pair'); });
 
     const spinAnim = setInterval(()=>{
-      ['slotReel1','slotReel2','slotReel3'].forEach(id=>{
-        $(id).innerHTML = SLOT_ICONS[SLOT_KEYS[Math.floor(Math.random()*4)]];
+      allCells.forEach(id=>{
+        $(id).querySelector('.reel-strip').innerHTML = SLOT_ICONS[slotRandomSymbol()];
       });
     }, 80);
     await new Promise(r=>setTimeout(r, 700));
     clearInterval(spinAnim);
 
-    const reels = [SLOT_KEYS[Math.floor(Math.random()*4)], SLOT_KEYS[Math.floor(Math.random()*4)], SLOT_KEYS[Math.floor(Math.random()*4)]];
-    ['slotReel1','slotReel2','slotReel3'].forEach((id,i)=>{
-      $(id).innerHTML = SLOT_ICONS[reels[i]];
-      $(id).classList.remove('spinning');
+    // grille finale : grid[colonne][ligne]
+    const grid = [0,1,2].map(()=> [0,1,2].map(()=> slotRandomSymbol()));
+    SLOT_CELL_IDS.forEach((col, c)=>{
+      col.forEach((id, r)=>{
+        $(id).querySelector('.reel-strip').innerHTML = SLOT_ICONS[grid[c][r]];
+        $(id).classList.remove('spinning');
+      });
     });
 
-    let payout = 0, resultKey = 'slotResultMiss', resultCls = '';
-    if(reels[0]===reels[1] && reels[1]===reels[2]){
-      payout = cost * SLOT_JACKPOT_MULT;
-      resultKey = 'slotResultJackpot'; resultCls = 'jackpot';
-    } else if(reels[0]===reels[1] || reels[1]===reels[2] || reels[0]===reels[2]){
-      payout = cost * SLOT_PAIR_MULT;
-      resultKey = 'slotResultPair'; resultCls = 'pair';
-    }
-    if(resultCls){
-      ['slotReel1','slotReel2','slotReel3'].forEach(id=> $(id).classList.add(resultCls));
-    }
+    let totalPayout = 0, hasJackpot = false;
+    const winningLines = [];
+    SLOT_PAYLINES.forEach(line=>{
+      const symbols = line.map((r,c)=> grid[c][r]);
+      const cellIds = line.map((r,c)=> SLOT_CELL_IDS[c][r]);
+      let payout = 0, matchedSymbol = null, kind = null;
+      if(symbols[0]===symbols[1] && symbols[1]===symbols[2]){
+        matchedSymbol = SLOT_SYMBOL_BY_KEY[symbols[0]];
+        payout = cost * matchedSymbol.three;
+        kind = 'three';
+      } else if(symbols[0]===symbols[1] || symbols[1]===symbols[2] || symbols[0]===symbols[2]){
+        const pairKey = symbols[0]===symbols[1] ? symbols[0] : (symbols[1]===symbols[2] ? symbols[1] : symbols[0]);
+        matchedSymbol = SLOT_SYMBOL_BY_KEY[pairKey];
+        payout = cost * (matchedSymbol.two || SLOT_PAIR_MULT);
+        kind = 'two';
+      }
+      if(kind){
+        totalPayout += payout;
+        if(matchedSymbol.key === 'diamond' && kind === 'three') hasJackpot = true;
+        winningLines.push({cellIds, symbol: matchedSymbol, kind, payout});
+      }
+    });
 
-    const net = payout - cost;
+    winningLines.forEach(w=>{
+      const cls = w.symbol.key === 'diamond' ? 'jackpot' : 'pair';
+      w.cellIds.forEach(id=> $(id).classList.add(cls));
+    });
+
+    const net = totalPayout - cost;
     slotLocalTokens += net;
     $('slotTokensLabel').textContent = slotLocalTokens;
 
-    const msg = resultKey === 'slotResultJackpot' ? fmt(t('slotResultJackpot'), {amount: payout})
-      : resultKey === 'slotResultPair' ? t('slotResultPair')
-      : fmt(t('slotResultMiss'), {amount: -cost});
+    let msg;
+    if(winningLines.length === 0){
+      msg = fmt(t('slotResultMiss'), {amount: -cost});
+    } else {
+      const best = winningLines.reduce((a,b)=> b.payout > a.payout ? b : a);
+      if(best.symbol.key === 'diamond' && best.kind === 'three'){
+        msg = fmt(t('slotResultJackpot'), {amount: best.payout});
+      } else {
+        const name = t('pad' + best.symbol.key.charAt(0).toUpperCase() + best.symbol.key.slice(1));
+        msg = fmt(t('slotResultWin'), {n: best.kind==='three'?3:2, name, amount: best.payout});
+      }
+      $('slotLinesCount').textContent = fmt(t('slotLinesWon'), {n: winningLines.length, total: totalPayout});
+    }
     $('slotResultMsg').textContent = msg;
+
+    if(totalPayout > 0){
+      const cabinet = $('slotCabinet');
+      const coin = document.createElement('div');
+      coin.className = 'coin-float';
+      coin.textContent = '+' + totalPayout;
+      cabinet.appendChild(coin);
+      setTimeout(()=> coin.remove(), 1150);
+    }
+    if(hasJackpot){
+      const cabinet = $('slotCabinet'), flash = $('jackpotFlash');
+      cabinet.classList.add('shaking');
+      flash.classList.add('flashing');
+      setTimeout(()=>{ cabinet.classList.remove('shaking'); flash.classList.remove('flashing'); }, 1900);
+    }
 
     const path = 'slotGame/' + todayDateStr() + '/' + myId;
     const result = await db.ref(path).transaction(current=>{
