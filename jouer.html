@@ -307,6 +307,39 @@
   .big-win-banner.tier-mega .big-win-text{font-size:27px;}
   .big-win-banner.tier-mega .big-win-amount{font-size:28px;}
 
+  .bonus-overlay{
+    position:absolute; inset:0; z-index:10; display:none; flex-direction:column; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, #241c0e, #14100a); padding:14px; text-align:center;
+  }
+  .bonus-overlay.showing{display:flex; animation:bonusFadeIn 0.4s ease-out;}
+  @keyframes bonusFadeIn{0%{opacity:0; transform:scale(0.92);} 100%{opacity:1; transform:scale(1);}}
+  .bonus-title{
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:20px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--accent); text-shadow:0 0 12px rgba(226,161,60,0.8); animation:marqueeGlow 1.8s ease-in-out infinite;
+  }
+  .bonus-sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim); margin:6px 0 14px;}
+  .bonus-crates{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:260px;}
+  .bonus-crate{
+    aspect-ratio:1; border-radius:10px; background:linear-gradient(180deg,#3a2e14,#1c1608); border:2px solid #5a4a2a;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:8px;
+    box-shadow:inset 0 2px 4px rgba(255,255,255,0.08), 0 4px 8px rgba(0,0,0,0.4); margin-top:0;
+    transition:transform 0.15s ease;
+  }
+  .bonus-crate svg{width:70%; height:70%;}
+  .bonus-crate:active:not(:disabled){transform:scale(0.93);}
+  .bonus-crate:disabled{cursor:default;}
+  .bonus-crate.revealed{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel)); border-color:var(--accent);
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--accent);
+    animation:bonusReveal 0.35s ease-out;
+  }
+  .bonus-crate.revealed.stop{border-color:var(--accent-2); color:var(--accent-2); font-size:11px;}
+  @keyframes bonusReveal{0%{transform:scale(0.7) rotateY(90deg);} 100%{transform:scale(1) rotateY(0);}}
+  .bonus-total{
+    font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; color:var(--accent);
+    margin-top:14px; min-height:20px;
+  }
+
   .bet-row{display:flex; gap:8px; margin-top:14px;}
   .bet-btn{
     flex:1; background:linear-gradient(180deg, var(--panel-2), var(--panel)); border:1px solid var(--border); color:var(--text);
@@ -666,6 +699,19 @@
         <div class="big-win-text" id="bigWinText"></div>
         <div class="big-win-amount" id="bigWinAmount"></div>
       </div>
+      <div class="bonus-overlay" id="bonusOverlay">
+        <div class="bonus-title" id="bonusTitle">🎁 BONUS</div>
+        <div class="bonus-sub" id="bonusSub">Choisis 3 caisses !</div>
+        <div class="bonus-crates">
+          <button class="bonus-crate" id="bonusCrate0" data-idx="0"></button>
+          <button class="bonus-crate" id="bonusCrate1" data-idx="1"></button>
+          <button class="bonus-crate" id="bonusCrate2" data-idx="2"></button>
+          <button class="bonus-crate" id="bonusCrate3" data-idx="3"></button>
+          <button class="bonus-crate" id="bonusCrate4" data-idx="4"></button>
+          <button class="bonus-crate" id="bonusCrate5" data-idx="5"></button>
+        </div>
+        <div class="bonus-total" id="bonusTotal"></div>
+      </div>
     </div>
     <div class="result-msg" id="slotResultMsg"></div>
     <div class="bet-row">
@@ -750,13 +796,14 @@
       chronoTargetText:"Valide au plus près de {target}s — le chrono boucle de 0 à 10s.",
       chronoOverSub:"Score de cet essai — écart : {diff} ms",
       chronoTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
-      rulesSlot:["Une seule session de 5 minutes maximum, une fois par jour.","100 jetons de départ. Mise x1 (1), x3 (3) ou x5 (5) jeton(s) à chaque tirage.","Grille de 3x3 symboles avec 5 lignes de paiement (3 horizontales + 2 diagonales), toutes évaluées à chaque tirage.","3 symboles identiques rapportent gros (jusqu'à x60 la mise sur le 7, le vrai jackpot). 2 identiques ne rapportent quelque chose que sur le 7. Sinon, mise perdue.","Le plus de jetons à la fin de la session gagne."],
+      rulesSlot:["Une seule session de 5 minutes maximum, une fois par jour.","100 jetons de départ. Mise x1 (1), x3 (3) ou x5 (5) jeton(s) à chaque tirage.","Grille de 3x3 symboles avec 5 lignes de paiement (3 horizontales + 2 diagonales), toutes évaluées à chaque tirage.","3 symboles identiques rapportent gros (jusqu'à x60 la mise sur le 7, le vrai jackpot). 2 identiques ne rapportent quelque chose que sur le 7. Sinon, mise perdue.","3 caisses de ravitaillement ou plus, n'importe où dans la grille, déclenchent un bonus : choisis des caisses pour gagner des jetons en plus, gratuitement.","Le plus de jetons à la fin de la session gagne."],
       slotIntroInfo:"Une seule session de 5 minutes maximum aujourd'hui, 100 jetons de départ. Le plus de jetons à la fin gagne.",
       slotTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de jetons à la fin de la journée.",
       slotTokensText:"Jetons : ", slotStartBtn:"Lancer ma session",
       slotResultJackpot:"💎 JACKPOT ! +{amount} jetons", slotResultWin:"{n}x {name} — +{amount} jetons", slotResultMiss:"Perdu — {amount} jetons",
       slotPaytableTitle:"Table des gains (pour 3 identiques)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} ligne(s) gagnante(s) — total +{total} jetons",
       slotTierBig:"GROS GAIN", slotTierEpic:"GAIN ÉPIQUE", slotTierMega:"MÉGA JACKPOT",
+      bonusChoose:"Choisis {n} caisse(s) !", bonusRunningTotal:"Total : +{total} jetons",
       slotOutOfTokens:"Plus assez de jetons pour miser !",
       slotDoneText1:"Ta session du jour est terminée.", slotDoneLabel:"Jetons finaux", slotDoneText2:"Reviens demain pour retenter ta chance !",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
@@ -798,13 +845,14 @@
       chronoTargetText:"Confirm as close as possible to {target}s — the timer loops from 0 to 10s.",
       chronoOverSub:"Score for this attempt — off by: {diff} ms",
       chronoTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
-      rulesSlot:["A single 5-minute session, once per day.","100 starting tokens. Bet x1 (1), x3 (3) or x5 (5) token(s) per spin.","A 3x3 symbol grid with 5 paylines (3 horizontal + 2 diagonal), all evaluated on every spin.","3 matching symbols pay big (up to x60 the bet on the 7, the real jackpot). 2 matching only pays on the 7. Otherwise, bet lost.","Most tokens at the end of the session wins."],
+      rulesSlot:["A single 5-minute session, once per day.","100 starting tokens. Bet x1 (1), x3 (3) or x5 (5) token(s) per spin.","A 3x3 symbol grid with 5 paylines (3 horizontal + 2 diagonal), all evaluated on every spin.","3 matching symbols pay big (up to x60 the bet on the 7, the real jackpot). 2 matching only pays on the 7. Otherwise, bet lost.","3 or more supply crates anywhere in the grid trigger a bonus: pick crates to win extra tokens, for free.","Most tokens at the end of the session wins."],
       slotIntroInfo:"A single 5-minute session today, 100 starting tokens. Most tokens at the end wins.",
       slotTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a token tie at the end of the day.",
       slotTokensText:"Tokens: ", slotStartBtn:"Start my session",
       slotResultJackpot:"💎 JACKPOT! +{amount} tokens", slotResultWin:"{n}x {name} — +{amount} tokens", slotResultMiss:"Lost — {amount} tokens",
       slotPaytableTitle:"Payout table (for 3 matching)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winning line(s) — total +{total} tokens",
       slotTierBig:"BIG WIN", slotTierEpic:"EPIC WIN", slotTierMega:"MEGA JACKPOT",
+      bonusChoose:"Pick {n} crate(s)!", bonusRunningTotal:"Total: +{total} tokens",
       slotOutOfTokens:"Not enough tokens left to bet!",
       slotDoneText1:"Your session for today is over.", slotDoneLabel:"Final tokens", slotDoneText2:"Come back tomorrow to try again!",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
@@ -846,13 +894,14 @@
       chronoTargetText:"Confirma lo más cerca posible de {target}s — el cronómetro se repite de 0 a 10s.",
       chronoOverSub:"Puntaje de este intento — desviación: {diff} ms",
       chronoTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
-      rulesSlot:["Una única sesión de 5 minutos máximo, una vez al día.","100 fichas iniciales. Apuesta x1 (1), x3 (3) o x5 (5) ficha(s) por tirada.","Cuadrícula de 3x3 símbolos con 5 líneas de pago (3 horizontales + 2 diagonales), todas evaluadas en cada tirada.","3 símbolos iguales pagan mucho (hasta x60 la apuesta con el 7, el verdadero premio mayor). 2 iguales solo dan algo con el 7. Si no, apuesta perdida.","Quien tenga más fichas al final de la sesión gana."],
+      rulesSlot:["Una única sesión de 5 minutos máximo, una vez al día.","100 fichas iniciales. Apuesta x1 (1), x3 (3) o x5 (5) ficha(s) por tirada.","Cuadrícula de 3x3 símbolos con 5 líneas de pago (3 horizontales + 2 diagonales), todas evaluadas en cada tirada.","3 símbolos iguales pagan mucho (hasta x60 la apuesta con el 7, el verdadero premio mayor). 2 iguales solo dan algo con el 7. Si no, apuesta perdida.","3 o más cajas de suministro en cualquier parte de la cuadrícula activan un bono: elige cajas para ganar fichas extra, gratis.","Quien tenga más fichas al final de la sesión gana."],
       slotIntroInfo:"Una única sesión de 5 minutos máximo hoy, 100 fichas iniciales. Quien tenga más fichas al final gana.",
       slotTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de fichas al final del día.",
       slotTokensText:"Fichas: ", slotStartBtn:"Iniciar mi sesión",
       slotResultJackpot:"💎 ¡PREMIO MAYOR! +{amount} fichas", slotResultWin:"{n}x {name} — +{amount} fichas", slotResultMiss:"Perdido — {amount} fichas",
       slotPaytableTitle:"Tabla de pagos (para 3 iguales)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} línea(s) ganadora(s) — total +{total} fichas",
       slotTierBig:"GRAN PREMIO", slotTierEpic:"PREMIO ÉPICO", slotTierMega:"MEGA JACKPOT",
+      bonusChoose:"¡Elige {n} caja(s)!", bonusRunningTotal:"Total: +{total} fichas",
       slotOutOfTokens:"¡No quedan suficientes fichas para apostar!",
       slotDoneText1:"Tu sesión de hoy ha terminado.", slotDoneLabel:"Fichas finales", slotDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
@@ -894,13 +943,14 @@
       chronoTargetText:"Conferma il più vicino possibile a {target}s — il cronometro scorre da 0 a 10s.",
       chronoOverSub:"Punteggio di questo tentativo — scarto: {diff} ms",
       chronoTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
-      rulesSlot:["Un'unica sessione di massimo 5 minuti, una volta al giorno.","100 gettoni iniziali. Puntata x1 (1), x3 (3) o x5 (5) gettone/i per giro.","Griglia di 3x3 simboli con 5 linee di pagamento (3 orizzontali + 2 diagonali), tutte valutate ad ogni giro.","3 simboli uguali pagano tanto (fino a x60 la puntata sul 7, il vero jackpot). 2 uguali danno qualcosa solo con il 7. Altrimenti, puntata persa.","Chi ha più gettoni alla fine della sessione vince."],
+      rulesSlot:["Un'unica sessione di massimo 5 minuti, una volta al giorno.","100 gettoni iniziali. Puntata x1 (1), x3 (3) o x5 (5) gettone/i per giro.","Griglia di 3x3 simboli con 5 linee di pagamento (3 orizzontali + 2 diagonali), tutte valutate ad ogni giro.","3 simboli uguali pagano tanto (fino a x60 la puntata sul 7, il vero jackpot). 2 uguali danno qualcosa solo con il 7. Altrimenti, puntata persa.","3 o più casse di rifornimento ovunque nella griglia attivano un bonus: scegli le casse per vincere gettoni extra, gratis.","Chi ha più gettoni alla fine della sessione vince."],
       slotIntroInfo:"Un'unica sessione di massimo 5 minuti oggi, 100 gettoni iniziali. Chi ha più gettoni alla fine vince.",
       slotTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di gettoni a fine giornata.",
       slotTokensText:"Gettoni: ", slotStartBtn:"Inizia la mia sessione",
       slotResultJackpot:"💎 JACKPOT! +{amount} gettoni", slotResultWin:"{n}x {name} — +{amount} gettoni", slotResultMiss:"Perso — {amount} gettoni",
       slotPaytableTitle:"Tabella dei premi (per 3 uguali)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} linea/e vincente/i — totale +{total} gettoni",
       slotTierBig:"GRANDE VINCITA", slotTierEpic:"VINCITA EPICA", slotTierMega:"MEGA JACKPOT",
+      bonusChoose:"Scegli {n} cassa/e!", bonusRunningTotal:"Totale: +{total} gettoni",
       slotOutOfTokens:"Non hai più abbastanza gettoni per puntare!",
       slotDoneText1:"La tua sessione di oggi è terminata.", slotDoneLabel:"Gettoni finali", slotDoneText2:"Torna domani per riprovare!",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
@@ -942,13 +992,14 @@
       chronoTargetText:"{target}s'ye en yakın anda onayla — kronometre 0'dan 10s'ye döngü halinde çalışır.",
       chronoOverSub:"Bu denemenin skoru — fark: {diff} ms",
       chronoTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
-      rulesSlot:["Günde bir kez, en fazla 5 dakikalık tek bir oturum.","100 başlangıç jetonu. Çevirme başına x1 (1), x3 (3) veya x5 (5) jeton bahis.","3x3 sembol ızgarası, her çevirmede değerlendirilen 5 kazanç hattı (3 yatay + 2 çapraz) ile.","3 aynı sembol büyük öder (7'de bahsin 60 katına kadar, gerçek jackpot). 2 aynı sadece 7 ile bir şey kazandırır. Aksi halde bahis kaybedilir.","Oturum sonunda en çok jetona sahip olan kazanır."],
+      rulesSlot:["Günde bir kez, en fazla 5 dakikalık tek bir oturum.","100 başlangıç jetonu. Çevirme başına x1 (1), x3 (3) veya x5 (5) jeton bahis.","3x3 sembol ızgarası, her çevirmede değerlendirilen 5 kazanç hattı (3 yatay + 2 çapraz) ile.","3 aynı sembol büyük öder (7'de bahsin 60 katına kadar, gerçek jackpot). 2 aynı sadece 7 ile bir şey kazandırır. Aksi halde bahis kaybedilir.","Izgarada herhangi bir yerde 3 veya daha fazla erzak sandığı bir bonusu tetikler: ekstra jeton kazanmak için ücretsiz sandık seç.","Oturum sonunda en çok jetona sahip olan kazanır."],
       slotIntroInfo:"Bugün en fazla 5 dakikalık tek bir oturum, 100 başlangıç jetonu. Sonunda en çok jetona sahip olan kazanır.",
       slotTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda jeton eşitliği olursa kullanılır.",
       slotTokensText:"Jeton: ", slotStartBtn:"Oturumumu başlat",
       slotResultJackpot:"💎 JACKPOT! +{amount} jeton", slotResultWin:"{n}x {name} — +{amount} jeton", slotResultMiss:"Kaybettin — {amount} jeton",
       slotPaytableTitle:"Ödeme tablosu (3 aynı için)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} kazanan hat — toplam +{total} jeton",
       slotTierBig:"BÜYÜK KAZANÇ", slotTierEpic:"EFSANEVİ KAZANÇ", slotTierMega:"MEGA JACKPOT",
+      bonusChoose:"{n} sandık seç!", bonusRunningTotal:"Toplam: +{total} jeton",
       slotOutOfTokens:"Bahis yapmak için yeterli jeton kalmadı!",
       slotDoneText1:"Bugünkü oturumun sona erdi.", slotDoneLabel:"Son jeton sayısı", slotDoneText2:"Tekrar denemek için yarın gel!",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
@@ -990,13 +1041,14 @@
       chronoTargetText:"Bevestig zo dicht mogelijk bij {target}s — de timer loopt van 0 naar 10s.",
       chronoOverSub:"Score voor deze poging — verschil: {diff} ms",
       chronoTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
-      rulesSlot:["Eén sessie van maximaal 5 minuten, één keer per dag.","100 startfiches. Inzet x1 (1), x3 (3) of x5 (5) fiche(s) per draai.","Een 3x3 symbolenraster met 5 winlijnen (3 horizontaal + 2 diagonaal), allemaal geëvalueerd bij elke draai.","3 gelijke symbolen betalen veel uit (tot x60 de inzet op de 7, de echte jackpot). 2 gelijke geeft alleen iets bij de 7. Anders, inzet verloren.","De meeste fiches aan het einde van de sessie wint."],
+      rulesSlot:["Eén sessie van maximaal 5 minuten, één keer per dag.","100 startfiches. Inzet x1 (1), x3 (3) of x5 (5) fiche(s) per draai.","Een 3x3 symbolenraster met 5 winlijnen (3 horizontaal + 2 diagonaal), allemaal geëvalueerd bij elke draai.","3 gelijke symbolen betalen veel uit (tot x60 de inzet op de 7, de echte jackpot). 2 gelijke geeft alleen iets bij de 7. Anders, inzet verloren.","3 of meer voorraadkisten, ergens in het raster, activeren een bonus: kies kisten om gratis extra fiches te winnen.","De meeste fiches aan het einde van de sessie wint."],
       slotIntroInfo:"Eén sessie van maximaal 5 minuten vandaag, 100 startfiches. De meeste fiches aan het einde wint.",
       slotTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijk aantal fiches aan het einde van de dag.",
       slotTokensText:"Fiches: ", slotStartBtn:"Start mijn sessie",
       slotResultJackpot:"💎 JACKPOT! +{amount} fiches", slotResultWin:"{n}x {name} — +{amount} fiches", slotResultMiss:"Verloren — {amount} fiches",
       slotPaytableTitle:"Uitbetalingstabel (voor 3 gelijk)", slotPaytableTwo:"2 = x{mult}", slotLinesWon:"{n} winnende lijn(en) — totaal +{total} fiches",
       slotTierBig:"GROTE WINST", slotTierEpic:"EPISCHE WINST", slotTierMega:"MEGA JACKPOT",
+      bonusChoose:"Kies {n} kist(en)!", bonusRunningTotal:"Totaal: +{total} fiches",
       slotOutOfTokens:"Niet genoeg fiches meer om in te zetten!",
       slotDoneText1:"Je sessie van vandaag is afgelopen.", slotDoneLabel:"Eindstand fiches", slotDoneText2:"Kom morgen terug om het nog eens te proberen!",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
@@ -1945,7 +1997,8 @@
     lemon: '<svg viewBox="0 0 48 48"><path d="M24 8 C34 8 40 17 40 24 C40 33 33 40 24 40 C15 40 8 33 8 24 C8 17 14 8 24 8 Z" fill="#e2c93c" stroke="#14170f" stroke-width="2"/><path d="M24 8 L27 4 M24 40 L21 44" stroke="#8a7a1c" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="17" cy="17" rx="4.5" ry="2.5" fill="#fff" opacity="0.4" transform="rotate(-30 17 17)"/></svg>',
     bell: '<svg viewBox="0 0 48 48"><path d="M24 6 a3 3 0 0 1 3 3 v2 c6 2 9 8 9 15 v3 h-24 v-3 c0-7 3-13 9-15 v-2 a3 3 0 0 1 3-3 Z" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="9" y="29" width="30" height="4.5" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="39" r="3.2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><ellipse cx="18" cy="16" rx="2.5" ry="4" fill="#fff" opacity="0.35"/></svg>',
     bar: '<svg viewBox="0 0 48 48"><rect x="3" y="15" width="42" height="18" rx="3" fill="#14170f" stroke="#e2a13c" stroke-width="2.5"/><text x="24" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="14" fill="#e2a13c">BAR</text></svg>',
-    seven: '<svg viewBox="0 0 48 48"><text x="24" y="37" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="36" fill="#c1442f" stroke="#8b1f10" stroke-width="1">7</text></svg>'
+    seven: '<svg viewBox="0 0 48 48"><text x="24" y="37" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="36" fill="#c1442f" stroke="#8b1f10" stroke-width="1">7</text></svg>',
+    crate: '<svg viewBox="0 0 48 48"><rect x="6" y="16" width="36" height="24" rx="2" fill="#8a7040" stroke="#14170f" stroke-width="2"/><rect x="6" y="16" width="36" height="24" rx="2" fill="none" stroke="#5a4a2a" stroke-width="1" opacity="0.6"/><path d="M6 16 L24 8 L42 16" fill="#a68a52" stroke="#14170f" stroke-width="2"/><path d="M6 40 L6 16 M42 40 L42 16" stroke="#5a4a2a" stroke-width="1.5"/><path d="M12 16 L12 40 M36 16 L36 40" stroke="#5a4a2a" stroke-width="2"/><circle cx="24" cy="27" r="6" fill="#e2a13c" opacity="0.9"/><path d="M24 23 v8 M20 27 h8" stroke="#14170f" stroke-width="2" stroke-linecap="round"/></svg>'
   };
   // Table des gains : poids (rareté au tirage) + multiplicateur de la mise pour 3 identiques / 2 identiques.
   // Pour ajouter un symbole : lui donner une icône ci-dessus et une entrée ici.
@@ -1958,13 +2011,18 @@
     {key:'bar',    weight:15, three:12, two:0},
     {key:'seven',  weight:10, three:60, two:3}
   ];
+  // Symbole "scatter" : la caisse de ravitaillement. Compte partout dans la grille (pas besoin d'être aligné) ;
+  // 3 caisses ou plus déclenchent le bonus. N'entre pas dans la table des gains par ligne ci-dessus.
+  const SLOT_SCATTER_KEY = 'crate';
+  const SLOT_SCATTER_WEIGHT = 8;
+  const SLOT_SCATTER_MIN_COUNT = 3;
   const SLOT_KEYS = SLOT_SYMBOLS.map(s=>s.key);
   const SLOT_SYMBOL_BY_KEY = Object.fromEntries(SLOT_SYMBOLS.map(s=>[s.key,s]));
-  const SLOT_WEIGHT_TOTAL = SLOT_SYMBOLS.reduce((a,s)=>a+s.weight,0);
+  const SLOT_WEIGHT_TOTAL = SLOT_SYMBOLS.reduce((a,s)=>a+s.weight,0) + SLOT_SCATTER_WEIGHT;
   function slotRandomSymbol(){
     let r = Math.random()*SLOT_WEIGHT_TOTAL;
     for(const s of SLOT_SYMBOLS){ if(r < s.weight) return s.key; r -= s.weight; }
-    return SLOT_SYMBOLS[0].key;
+    return SLOT_SCATTER_KEY;
   }
   const SLOT_START_TOKENS = 100, SLOT_BASE_BET = 1, SLOT_SESSION_MS = 5*60*1000;
   const SLOT_PAIR_MULT = 0; // une paire générique (symbole autre que 7) ne rapporte rien — seul le 7 récompense un "presque"
@@ -2040,6 +2098,11 @@
     [349,440,554,659,880,1109,1319,1568,1319,1568].forEach((f,i)=> slotPlayTone(f, 0.16, 'triangle', i*0.075, 0.18));
   }
   function slotSoundLose(){ slotPlayTone(160, 0.18, 'sawtooth', 0, 0.06); }
+  function slotSoundBonusTrigger(){
+    [392,494,587,784].forEach((f,i)=> slotPlayTone(f, 0.18, 'square', i*0.1, 0.14));
+  }
+  function slotSoundCrateOpen(){ slotPlayTone(700, 0.09, 'square', 0, 0.1); slotPlayTone(1046, 0.12, 'triangle', 0.06, 0.13); }
+  function slotSoundCrateStop(){ slotPlayTone(220, 0.3, 'sawtooth', 0, 0.09); }
 
   // ---- Tracé des lignes de paiement gagnantes, façon vraie machine à sous ----
   function slotLinePoints(line){
@@ -2179,6 +2242,83 @@
     return top[0];
   }
 
+  // ---- Bonus "Caisse de ravitaillement" (déclenché par 3+ caisses n'importe où dans la grille) ----
+  const BONUS_CRATE_COUNT = 6, BONUS_PICKS = 3, BONUS_VALUES = [10, 20, 30, 50, 100];
+  let slotBonusActive = false, slotBonusOrder = [], slotBonusPicksLeft = BONUS_PICKS, slotBonusTotal = 0, slotBonusResolve = null;
+
+  function countScatters(grid){
+    let n = 0;
+    grid.forEach(col => col.forEach(sym => { if(sym === SLOT_SCATTER_KEY) n++; }));
+    return n;
+  }
+
+  function startBonusRound(){
+    return new Promise(resolve=>{
+      slotBonusResolve = resolve;
+      slotBonusActive = true;
+      slotBonusPicksLeft = BONUS_PICKS;
+      slotBonusTotal = 0;
+      // 5 valeurs + 1 caisse "STOP", mélangées sur les 6 caisses
+      const pool = [...BONUS_VALUES, 'stop'];
+      for(let i = pool.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      slotBonusOrder = pool;
+      for(let i=0;i<BONUS_CRATE_COUNT;i++){
+        const btn = $('bonusCrate'+i);
+        btn.className = 'bonus-crate';
+        btn.disabled = false;
+        btn.innerHTML = SLOT_ICONS.crate;
+      }
+      $('bonusSub').textContent = fmt(t('bonusChoose'), {n: BONUS_PICKS});
+      $('bonusTotal').textContent = '';
+      $('bonusOverlay').classList.add('showing');
+      slotSoundBonusTrigger();
+    });
+  }
+
+  function onBonusCratePick(idx){
+    if(!slotBonusActive) return;
+    const btn = $('bonusCrate'+idx);
+    if(btn.disabled) return;
+    const value = slotBonusOrder[idx];
+    document.querySelectorAll('.bonus-crate').forEach(b=> b.disabled = true);
+
+    if(value === 'stop'){
+      btn.classList.add('revealed','stop');
+      btn.textContent = '✕';
+      slotSoundCrateStop();
+      setTimeout(()=> endBonusRound(), 900);
+      return;
+    }
+
+    btn.classList.add('revealed');
+    btn.textContent = '+' + value;
+    slotBonusTotal += value;
+    slotBonusPicksLeft--;
+    slotSoundCrateOpen();
+    $('bonusTotal').textContent = fmt(t('bonusRunningTotal'), {total: slotBonusTotal});
+
+    if(slotBonusPicksLeft <= 0){
+      setTimeout(()=> endBonusRound(), 900);
+    } else {
+      setTimeout(()=>{
+        for(let i=0;i<BONUS_CRATE_COUNT;i++){
+          const b = $('bonusCrate'+i);
+          if(!b.classList.contains('revealed')) b.disabled = false;
+        }
+        $('bonusSub').textContent = fmt(t('bonusChoose'), {n: slotBonusPicksLeft});
+      }, 500);
+    }
+  }
+
+  function endBonusRound(){
+    $('bonusOverlay').classList.remove('showing');
+    slotBonusActive = false;
+    if(slotBonusResolve){ const r = slotBonusResolve; slotBonusResolve = null; r(slotBonusTotal); }
+  }
+
   async function doSlotSpin(mult){
     if(slotSpinning) return;
     const cost = SLOT_BASE_BET * mult;
@@ -2293,10 +2433,27 @@
       setTimeout(()=>{ cabinet.classList.remove('shaking'); flash.classList.remove('flashing'); }, 1900);
     }
 
+    let bonusWon = 0;
+    const scatterCount = countScatters(grid);
+    if(scatterCount >= SLOT_SCATTER_MIN_COUNT){
+      await new Promise(r=>setTimeout(r, 600));
+      bonusWon = await startBonusRound();
+      if(bonusWon > 0){
+        slotLocalTokens += bonusWon;
+        $('slotTokensLabel').textContent = slotLocalTokens;
+        const cabinet = $('slotCabinet');
+        const coin = document.createElement('div');
+        coin.className = 'coin-float';
+        coin.textContent = '+' + bonusWon;
+        cabinet.appendChild(coin);
+        setTimeout(()=> coin.remove(), 1150);
+      }
+    }
+
     const path = 'slotGame/' + todayDateStr() + '/' + myId;
     const result = await db.ref(path).transaction(current=>{
       if(!current) return current;
-      current.tokens = (current.tokens||0) + net;
+      current.tokens = (current.tokens||0) + net + bonusWon;
       return current;
     });
     const rec2 = result.snapshot.val();
@@ -2408,6 +2565,9 @@
   $('slotBetX1').addEventListener('click', ()=> doSlotSpin(1));
   $('slotBetX3').addEventListener('click', ()=> doSlotSpin(3));
   $('slotBetX5').addEventListener('click', ()=> doSlotSpin(5));
+  document.querySelectorAll('.bonus-crate').forEach(btn=>{
+    btn.addEventListener('click', ()=> onBonusCratePick(parseInt(btn.dataset.idx,10)));
+  });
   $('seqRetryBtn').addEventListener('click', startSeqAttempt);
   document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));
