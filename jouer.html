@@ -210,10 +210,20 @@
   .reel-window{
     background:#050604; border-radius:10px; padding:10px; margin:6px 0;
     box-shadow:inset 0 4px 10px rgba(0,0,0,0.8), inset 0 0 0 2px #2a2415;
-    position:relative;
+    position:relative; text-align:center;
   }
 
+  .reel-grid-wrap{position:relative; display:inline-block;}
   .reel-grid{display:flex; gap:6px; justify-content:center;}
+  .payline-overlay{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:4;}
+  .payline-trace{fill:none; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; opacity:0; filter:drop-shadow(0 0 3px currentColor);}
+  .payline-trace.showing{animation:paylineShow 1.7s ease-in-out;}
+  @keyframes paylineShow{
+    0%{opacity:0; stroke-dasharray:300; stroke-dashoffset:300;}
+    18%{opacity:1; stroke-dashoffset:0;}
+    75%{opacity:1;}
+    100%{opacity:0;}
+  }
   .reel-col{display:flex; flex-direction:column; gap:5px;}
   .reel{
     position:relative; width:64px; height:52px; border-radius:7px; background:#0e120d; border:2px solid #33301f;
@@ -607,8 +617,11 @@
       <div class="cabinet-lights" id="cabinetLightsTop"><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span><span class="light-dot"></span></div>
       <div class="cabinet-marquee">🎰 ITX SLOTS 🎰</div>
       <div class="reel-window">
-        <div class="reel-grid">
-          <div class="reel-col"><div class="reel" id="slotCell00"><div class="reel-strip"></div></div><div class="reel" id="slotCell01"><div class="reel-strip"></div></div><div class="reel" id="slotCell02"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell10"><div class="reel-strip"></div></div><div class="reel" id="slotCell11"><div class="reel-strip"></div></div><div class="reel" id="slotCell12"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell20"><div class="reel-strip"></div></div><div class="reel" id="slotCell21"><div class="reel-strip"></div></div><div class="reel" id="slotCell22"><div class="reel-strip"></div></div></div>
+        <div class="reel-grid-wrap">
+          <div class="reel-grid">
+            <div class="reel-col"><div class="reel" id="slotCell00"><div class="reel-strip"></div></div><div class="reel" id="slotCell01"><div class="reel-strip"></div></div><div class="reel" id="slotCell02"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell10"><div class="reel-strip"></div></div><div class="reel" id="slotCell11"><div class="reel-strip"></div></div><div class="reel" id="slotCell12"><div class="reel-strip"></div></div></div><div class="reel-col"><div class="reel" id="slotCell20"><div class="reel-strip"></div></div><div class="reel" id="slotCell21"><div class="reel-strip"></div></div><div class="reel" id="slotCell22"><div class="reel-strip"></div></div></div>
+          </div>
+          <svg class="payline-overlay" id="paylineOverlay" viewBox="0 0 204 166" preserveAspectRatio="none"></svg>
         </div>
       </div>
       <div class="win-lines-count" id="slotLinesCount"></div>
@@ -692,6 +705,7 @@
       seqRoundText:"Round : ", seqWatching:"Regarde bien...", seqYourTurn:"À toi de jouer !", seqWrong:"Raté !",
       seqOverSub:"Rounds réussis lors de cet essai",
       padFuel:"Carburant", padAmmo:"Munitions", padSteel:"Acier", padRations:"Rations", padDiamond:"Diamant",
+      padCherry:"Cerises", padLemon:"Citron", padBell:"Cloche", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       rulesChrono:["Un chrono boucle en continu de 0 à 10 secondes.","Valide au moment où tu penses être le plus proche de 5.00 secondes.","Plus tu es précis, plus le score est élevé.","3 essais par jour, meilleur score retenu."],
       chronoTargetText:"Valide au plus près de {target}s — le chrono boucle de 0 à 10s.",
@@ -738,6 +752,7 @@
       seqRoundText:"Round: ", seqWatching:"Watch closely...", seqYourTurn:"Your turn!", seqWrong:"Wrong!",
       seqOverSub:"Rounds cleared this attempt",
       padFuel:"Fuel", padAmmo:"Ammo", padSteel:"Steel", padRations:"Rations", padDiamond:"Diamond",
+      padCherry:"Cherries", padLemon:"Lemon", padBell:"Bell", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       rulesChrono:["A timer loops continuously from 0 to 10 seconds.","Confirm when you think you're closest to 5.00 seconds.","The more precise you are, the higher your score.","3 attempts per day, best score kept."],
       chronoTargetText:"Confirm as close as possible to {target}s — the timer loops from 0 to 10s.",
@@ -784,6 +799,7 @@
       seqRoundText:"Ronda: ", seqWatching:"Observa bien...", seqYourTurn:"¡Tu turno!", seqWrong:"¡Fallo!",
       seqOverSub:"Rondas superadas en este intento",
       padFuel:"Combustible", padAmmo:"Munición", padSteel:"Acero", padRations:"Raciones", padDiamond:"Diamante",
+      padCherry:"Cerezas", padLemon:"Limón", padBell:"Campana", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       rulesChrono:["Un cronómetro se repite continuamente de 0 a 10 segundos.","Confirma cuando creas estar más cerca de 5.00 segundos.","Cuanto más preciso seas, mayor será tu puntaje.","3 intentos por día, mejor puntaje retenido."],
       chronoTargetText:"Confirma lo más cerca posible de {target}s — el cronómetro se repite de 0 a 10s.",
@@ -830,6 +846,7 @@
       seqRoundText:"Round: ", seqWatching:"Guarda bene...", seqYourTurn:"Tocca a te!", seqWrong:"Sbagliato!",
       seqOverSub:"Round superati in questo tentativo",
       padFuel:"Carburante", padAmmo:"Munizioni", padSteel:"Acciaio", padRations:"Razioni", padDiamond:"Diamante",
+      padCherry:"Ciliegie", padLemon:"Limone", padBell:"Campana", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       rulesChrono:["Un cronometro scorre continuamente da 0 a 10 secondi.","Conferma quando pensi di essere più vicino a 5.00 secondi.","Più sei preciso, più alto è il punteggio.","3 tentativi al giorno, viene mantenuto il punteggio migliore."],
       chronoTargetText:"Conferma il più vicino possibile a {target}s — il cronometro scorre da 0 a 10s.",
@@ -876,6 +893,7 @@
       seqRoundText:"Tur: ", seqWatching:"Dikkatlice izle...", seqYourTurn:"Sıra sende!", seqWrong:"Yanlış!",
       seqOverSub:"Bu denemede tamamlanan turlar",
       padFuel:"Yakıt", padAmmo:"Mühimmat", padSteel:"Çelik", padRations:"Erzak", padDiamond:"Elmas",
+      padCherry:"Kiraz", padLemon:"Limon", padBell:"Çan", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       rulesChrono:["Bir kronometre sürekli olarak 0'dan 10 saniyeye döngü halinde çalışır.","5.00 saniyeye en yakın olduğunu düşündüğün anda onayla.","Ne kadar hassas olursan, skorun o kadar yüksek olur.","Günde 3 deneme, en iyi skor saklanır."],
       chronoTargetText:"{target}s'ye en yakın anda onayla — kronometre 0'dan 10s'ye döngü halinde çalışır.",
@@ -922,6 +940,7 @@
       seqRoundText:"Ronde: ", seqWatching:"Kijk goed...", seqYourTurn:"Jouw beurt!", seqWrong:"Fout!",
       seqOverSub:"Geslaagde rondes in deze poging",
       padFuel:"Brandstof", padAmmo:"Munitie", padSteel:"Staal", padRations:"Rantsoenen", padDiamond:"Diamant",
+      padCherry:"Kersen", padLemon:"Citroen", padBell:"Bel", padBar:"BAR", padSeven:"7",
       seqTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       rulesChrono:["Een timer loopt continu van 0 naar 10 seconden.","Bevestig op het moment dat je denkt het dichtst bij 5.00 seconden te zijn.","Hoe preciezer je bent, hoe hoger je score.","3 pogingen per dag, beste score telt."],
       chronoTargetText:"Bevestig zo dicht mogelijk bij {target}s — de timer loopt van 0 naar 10s.",
@@ -1877,20 +1896,20 @@
 
   // ==================== JEU : SLOT ====================
   const SLOT_ICONS = {
-    rations: '<svg viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="24" rx="3" fill="#6f9c5f" stroke="#14170f" stroke-width="2"/><rect x="9" y="14" width="30" height="8" fill="#4d7a41"/><path d="M24 24 v10 M19 29 h10" stroke="#eae7dd" stroke-width="3" stroke-linecap="round"/></svg>',
-    steel: '<svg viewBox="0 0 48 48"><path d="M24 6 L28 12 L35 10 L35 18 L42 22 L35 26 L35 34 L28 32 L24 38 L20 32 L13 34 L13 26 L6 22 L13 18 L13 10 L20 12 Z" fill="#4fd6c9" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#14170f" opacity="0.5"/></svg>',
-    ammo: '<svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="3" fill="#c1442f" stroke="#14170f" stroke-width="2"/><path d="M10 16 L24 8 L38 16 Z" fill="#8a2e1c" stroke="#14170f" stroke-width="2"/><rect x="18" y="24" width="12" height="6" fill="#14170f" opacity="0.5"/></svg>',
-    fuel: '<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="30" rx="4" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="20" y="4" width="8" height="8" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><rect x="14" y="20" width="20" height="4" fill="#14170f" opacity="0.4"/><rect x="14" y="28" width="20" height="4" fill="#14170f" opacity="0.4"/></svg>',
-    diamond: '<svg viewBox="0 0 48 48"><path d="M12 18 L24 6 L36 18 L24 42 Z" fill="#8b5cf6" stroke="#14170f" stroke-width="2"/><path d="M12 18 L36 18 L24 42 Z" fill="#a78bfa"/><path d="M18 18 L24 6 L30 18 Z" fill="#c4b5fd"/><path d="M12 18 L18 18 L24 42 Z" fill="#8b5cf6" opacity="0.7"/><path d="M36 18 L30 18 L24 42 Z" fill="#8b5cf6" opacity="0.7"/></svg>'
+    cherry: '<svg viewBox="0 0 48 48"><path d="M23 8 Q25 14 22 19" stroke="#4d7a41" stroke-width="2.5" fill="none"/><path d="M23 9 Q29 5 33 9" stroke="#4d7a41" stroke-width="2.5" fill="none"/><ellipse cx="33" cy="9" rx="5" ry="4" fill="#4d9e4d" stroke="#14170f" stroke-width="1.5"/><circle cx="16" cy="30" r="9" fill="#c1442f" stroke="#14170f" stroke-width="2"/><circle cx="30" cy="30" r="9" fill="#e2503a" stroke="#14170f" stroke-width="2"/><ellipse cx="13" cy="27" rx="2" ry="1.3" fill="#fff" opacity="0.45"/><ellipse cx="27" cy="27" rx="2" ry="1.3" fill="#fff" opacity="0.45"/></svg>',
+    lemon: '<svg viewBox="0 0 48 48"><path d="M24 8 C34 8 40 17 40 24 C40 33 33 40 24 40 C15 40 8 33 8 24 C8 17 14 8 24 8 Z" fill="#e2c93c" stroke="#14170f" stroke-width="2"/><path d="M24 8 L27 4 M24 40 L21 44" stroke="#8a7a1c" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="17" cy="17" rx="4.5" ry="2.5" fill="#fff" opacity="0.4" transform="rotate(-30 17 17)"/></svg>',
+    bell: '<svg viewBox="0 0 48 48"><path d="M24 6 a3 3 0 0 1 3 3 v2 c6 2 9 8 9 15 v3 h-24 v-3 c0-7 3-13 9-15 v-2 a3 3 0 0 1 3-3 Z" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="9" y="29" width="30" height="4.5" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="39" r="3.2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><ellipse cx="18" cy="16" rx="2.5" ry="4" fill="#fff" opacity="0.35"/></svg>',
+    bar: '<svg viewBox="0 0 48 48"><rect x="3" y="15" width="42" height="18" rx="3" fill="#14170f" stroke="#e2a13c" stroke-width="2.5"/><text x="24" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="14" fill="#e2a13c">BAR</text></svg>',
+    seven: '<svg viewBox="0 0 48 48"><text x="24" y="37" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="36" fill="#c1442f" stroke="#8b1f10" stroke-width="1">7</text></svg>'
   };
   // Table des gains : poids (rareté au tirage) + multiplicateur de la mise pour 3 identiques / 2 identiques.
   // Pour ajouter un symbole : lui donner une icône ci-dessus et une entrée ici.
   const SLOT_SYMBOLS = [
-    {key:'rations', weight:30, three:5,   two:0},
-    {key:'steel',   weight:25, three:8,   two:0},
-    {key:'ammo',    weight:20, three:15,  two:0},
-    {key:'fuel',    weight:15, three:30,  two:0},
-    {key:'diamond', weight:10, three:300, two:10}
+    {key:'cherry', weight:30, three:5,   two:0},
+    {key:'lemon',  weight:25, three:8,   two:0},
+    {key:'bell',   weight:20, three:15,  two:0},
+    {key:'bar',    weight:15, three:30,  two:0},
+    {key:'seven',  weight:10, three:300, two:10}
   ];
   const SLOT_KEYS = SLOT_SYMBOLS.map(s=>s.key);
   const SLOT_SYMBOL_BY_KEY = Object.fromEntries(SLOT_SYMBOLS.map(s=>[s.key,s]));
@@ -1923,13 +1942,69 @@
     const rows = sorted.map(s=>{
       const name = t('pad' + s.key.charAt(0).toUpperCase() + s.key.slice(1));
       const twoLine = s.two ? `<span class="paytable-two">${fmt(t('slotPaytableTwo'), {mult: s.two})}</span>` : '';
-      return `<div class="paytable-row ${s.key==='diamond'?'jackpot-row':''}">
+      return `<div class="paytable-row ${s.key==='seven'?'jackpot-row':''}">
         <span class="paytable-icon">${SLOT_ICONS[s.key]}${SLOT_ICONS[s.key]}${SLOT_ICONS[s.key]}</span>
         <span class="paytable-name">${name}</span>
         <span class="paytable-mult">×${s.three}${twoLine}</span>
       </div>`;
     }).join('');
     return `<div class="paytable"><div class="paytable-title">${t('slotPaytableTitle')}</div>${rows}</div>`;
+  }
+
+  // ---- Petits sons synthétisés (pas de fichier audio nécessaire) ----
+  let slotAudioCtx = null;
+  function slotGetAudioCtx(){
+    if(!slotAudioCtx){
+      try{ slotAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+    }
+    if(slotAudioCtx.state === 'suspended') slotAudioCtx.resume();
+    return slotAudioCtx;
+  }
+  function slotPlayTone(freq, duration, type, delay, volume){
+    const ctx = slotGetAudioCtx();
+    if(!ctx) return;
+    try{
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      const t0 = ctx.currentTime + (delay||0);
+      gain.gain.setValueAtTime(volume||0.12, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t0); osc.stop(t0 + duration + 0.02);
+    }catch(e){}
+  }
+  function slotSoundTick(){ slotPlayTone(320, 0.045, 'square', 0, 0.05); }
+  function slotSoundWin(){
+    slotPlayTone(523, 0.12, 'triangle', 0, 0.13);
+    slotPlayTone(659, 0.12, 'triangle', 0.09, 0.13);
+    slotPlayTone(784, 0.2, 'triangle', 0.18, 0.15);
+  }
+  function slotSoundJackpot(){
+    [523,659,784,1047,784,1047,1319].forEach((f,i)=> slotPlayTone(f, 0.16, 'triangle', i*0.09, 0.16));
+  }
+  function slotSoundLose(){ slotPlayTone(160, 0.18, 'sawtooth', 0, 0.06); }
+
+  // ---- Tracé des lignes de paiement gagnantes, façon vraie machine à sous ----
+  function slotLinePoints(line){
+    return line.map((r,c)=> [c*70+32, r*57+26]);
+  }
+  function slotDrawWinningLines(winningLines){
+    const overlay = $('paylineOverlay');
+    overlay.innerHTML = '';
+    winningLines.forEach(w=>{
+      const pts = slotLinePoints(w.line).map(p=>p.join(',')).join(' ');
+      const color = w.symbol.key === 'seven' ? '#e2a13c' : '#6f9c5f';
+      const el = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      el.setAttribute('points', pts);
+      el.setAttribute('class', 'payline-trace showing');
+      el.style.stroke = color;
+      el.style.color = color;
+      overlay.appendChild(el);
+    });
+    if(winningLines.length){
+      setTimeout(()=>{ overlay.innerHTML = ''; }, 1750);
+    }
   }
 
   function updateSlotBetButtons(){
@@ -1977,7 +2052,7 @@
     updateSlotBetButtons();
     SLOT_CELL_IDS.flat().forEach(id=>{
       const strip = $(id).querySelector('.reel-strip');
-      if(!strip.innerHTML) strip.innerHTML = SLOT_ICONS.rations;
+      if(!strip.innerHTML) strip.innerHTML = SLOT_ICONS.cherry;
     });
     if(!slotTickInterval){
       slotTickTimer();
@@ -2053,16 +2128,21 @@
     const cost = SLOT_BASE_BET * mult;
     if(slotLocalTokens < cost) return;
     slotSpinning = true;
+    slotGetAudioCtx(); // débloque l'audio dans le même geste utilisateur que le clic
     document.querySelectorAll('.bet-btn').forEach(b=> b.disabled = true);
     $('slotResultMsg').textContent = '';
     $('slotLinesCount').textContent = '';
+    $('paylineOverlay').innerHTML = '';
     const allCells = SLOT_CELL_IDS.flat();
     allCells.forEach(id=>{ $(id).classList.add('spinning'); $(id).classList.remove('jackpot','pair'); });
 
+    let tickCount = 0;
     const spinAnim = setInterval(()=>{
       allCells.forEach(id=>{
         $(id).querySelector('.reel-strip').innerHTML = SLOT_ICONS[slotRandomSymbol()];
       });
+      tickCount++;
+      if(tickCount % 2 === 0) slotSoundTick();
     }, 80);
     await new Promise(r=>setTimeout(r, 700));
     clearInterval(spinAnim);
@@ -2094,15 +2174,16 @@
       }
       if(kind){
         totalPayout += payout;
-        if(matchedSymbol.key === 'diamond' && kind === 'three') hasJackpot = true;
-        winningLines.push({cellIds, symbol: matchedSymbol, kind, payout});
+        if(matchedSymbol.key === 'seven' && kind === 'three') hasJackpot = true;
+        winningLines.push({cellIds, symbol: matchedSymbol, kind, payout, line});
       }
     });
 
     winningLines.forEach(w=>{
-      const cls = w.symbol.key === 'diamond' ? 'jackpot' : 'pair';
+      const cls = w.symbol.key === 'seven' ? 'jackpot' : 'pair';
       w.cellIds.forEach(id=> $(id).classList.add(cls));
     });
+    slotDrawWinningLines(winningLines);
 
     const net = totalPayout - cost;
     slotLocalTokens += net;
@@ -2111,15 +2192,17 @@
     let msg;
     if(winningLines.length === 0){
       msg = fmt(t('slotResultMiss'), {amount: -cost});
+      slotSoundLose();
     } else {
       const best = winningLines.reduce((a,b)=> b.payout > a.payout ? b : a);
-      if(best.symbol.key === 'diamond' && best.kind === 'three'){
+      if(best.symbol.key === 'seven' && best.kind === 'three'){
         msg = fmt(t('slotResultJackpot'), {amount: best.payout});
       } else {
         const name = t('pad' + best.symbol.key.charAt(0).toUpperCase() + best.symbol.key.slice(1));
         msg = fmt(t('slotResultWin'), {n: best.kind==='three'?3:2, name, amount: best.payout});
       }
       $('slotLinesCount').textContent = fmt(t('slotLinesWon'), {n: winningLines.length, total: totalPayout});
+      if(hasJackpot) slotSoundJackpot(); else slotSoundWin();
     }
     $('slotResultMsg').textContent = msg;
 
