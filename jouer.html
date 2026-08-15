@@ -97,6 +97,7 @@
   .dice-icon{border-color:var(--accent); box-shadow:0 0 8px rgba(226,161,60,0.35);}
   .target-icon{border-color:var(--accent-2); box-shadow:0 0 8px rgba(193,68,47,0.35);}
   .run-icon{border-color:var(--cyan); box-shadow:0 0 8px rgba(79,214,201,0.35);}
+  .seq-icon{border-color:var(--purple); box-shadow:0 0 8px rgba(139,92,246,0.35);}
   .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6; text-align:left;}
   .rules-list li{margin-bottom:4px;}
   .rules-list b{color:var(--text);}
@@ -150,6 +151,28 @@
     padding:14px 0; border-radius:8px; font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; cursor:pointer;
   }
   .lane-btn:active{border-color:var(--accent); color:var(--accent);}
+
+  .status-msg{font-size:14px; min-height:20px; margin-bottom:12px; color:var(--text-dim);}
+  .status-msg.your-turn{color:var(--eligible);}
+  .status-msg.watching{color:var(--accent);}
+  .status-msg.wrong{color:var(--accent-2);}
+  .pad-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:280px; margin:0 auto;}
+  .pad-btn{
+    aspect-ratio:1; border-radius:16px; border:2px solid var(--border); cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    background:var(--panel-2); transition:transform 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    margin-top:0; padding:0;
+  }
+  .pad-btn svg{width:44%; height:44%;}
+  .pad-btn .pad-label{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim);}
+  .pad-btn:active{transform:scale(0.95);}
+  .pad-btn.lit{filter:brightness(1.6) saturate(1.3); box-shadow:0 0 22px 4px var(--glow);}
+  .pad-btn.fuel{--glow:rgba(226,161,60,0.7);}
+  .pad-btn.ammo{--glow:rgba(193,68,47,0.7);}
+  .pad-btn.steel{--glow:rgba(79,214,201,0.7);}
+  .pad-btn.rations{--glow:rgba(111,156,95,0.7);}
+  .pad-btn.disabled{opacity:0.55; pointer-events:none;}
+  .pad-btn.wrong-flash{filter:brightness(1.8) saturate(2) hue-rotate(-20deg);}
 
   .winner-banner{
     background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
@@ -351,6 +374,52 @@
     <div class="info-line" style="margin-top:10px;" id="runDoneText2">Reviens demain pour retenter ta chance !</div>
   </div>
 
+  <!-- ==================== JEU : SEQUENCE ==================== -->
+  <div id="seqIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="seqPlayerLabel">Joueur : </span><b id="seqIntroName"></b></div>
+    <div class="info-line" style="margin-top:8px;"><span id="seqAttemptText1">Essai </span><b id="seqAttemptNumber">1</b><span id="seqAttemptText2">/3 aujourd'hui.</span><span id="seqBestSoFar"></span></div>
+    <button class="btn-primary" id="seqStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="seqPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="seqAttemptTag">Essai 1/3</span>
+      <span><span id="seqRoundText">Round : </span><span class="score" id="seqRoundLabel">1</span></span>
+    </div>
+    <div class="status-msg" id="seqStatusMsg">Regarde bien...</div>
+    <div class="pad-grid">
+      <button class="pad-btn fuel" data-key="fuel">
+        <svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="30" rx="4" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="20" y="4" width="8" height="8" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><rect x="14" y="20" width="20" height="4" fill="#14170f" opacity="0.4"/><rect x="14" y="28" width="20" height="4" fill="#14170f" opacity="0.4"/></svg>
+        <div class="pad-label" id="seqLabelFuel">Carburant</div>
+      </button>
+      <button class="pad-btn ammo" data-key="ammo">
+        <svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="3" fill="#c1442f" stroke="#14170f" stroke-width="2"/><path d="M10 16 L24 8 L38 16 Z" fill="#8a2e1c" stroke="#14170f" stroke-width="2"/><rect x="18" y="24" width="12" height="6" fill="#14170f" opacity="0.5"/></svg>
+        <div class="pad-label" id="seqLabelAmmo">Munitions</div>
+      </button>
+      <button class="pad-btn steel" data-key="steel">
+        <svg viewBox="0 0 48 48"><path d="M24 6 L28 12 L35 10 L35 18 L42 22 L35 26 L35 34 L28 32 L24 38 L20 32 L13 34 L13 26 L6 22 L13 18 L13 10 L20 12 Z" fill="#4fd6c9" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#14170f" opacity="0.5"/></svg>
+        <div class="pad-label" id="seqLabelSteel">Acier</div>
+      </button>
+      <button class="pad-btn rations" data-key="rations">
+        <svg viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="24" rx="3" fill="#6f9c5f" stroke="#14170f" stroke-width="2"/><rect x="9" y="14" width="30" height="8" fill="#4d7a41"/><path d="M24 24 v10 M19 29 h10" stroke="#eae7dd" stroke-width="3" stroke-linecap="round"/></svg>
+        <div class="pad-label" id="seqLabelRations">Rations</div>
+      </button>
+    </div>
+  </div>
+  <div id="seqOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">📡</div>
+      <div class="wname" id="seqFinalScore">0</div>
+      <div class="wsub" id="seqOverSub">Rounds réussis lors de cet essai</div>
+    </div>
+    <button class="btn-primary" id="seqRetryBtn">Essai suivant</button>
+  </div>
+  <div id="seqDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="seqDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="seqDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="seqDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="seqDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
        lui donner ses propres ids, et ajouter sa logique dans renderGame() / handlers plus bas. ==================== -->
 
@@ -403,6 +472,10 @@
       rulesDice:["Fais <b>6</b> pour continuer, sinon tu es éliminé.","Enchaîne les tours sans attendre les autres.","Le plus grand nombre de tours passés gagne."],
       rulesTarget:["Une heure secrète a été tirée dans la fenêtre actuelle.","Clique au moment où tu penses en être le plus proche, à la seconde près.","Un seul clic, définitif."],
       rulesRun:["Conduis le train, évite les obstacles.","3 impacts autorisés, le 4ᵉ met fin à la partie.","La vitesse augmente sans arrêt. Le meilleur score gagne."],
+      rulesSequence:["Une séquence de 4 ressources s'illumine dans un ordre précis.","Reproduis-la en tapant sur les cases dans le même ordre.","Chaque round réussi allonge la séquence d'un cran.","Une erreur met fin à l'essai — ton score = nombre de rounds réussis."],
+      seqRoundText:"Round : ", seqWatching:"Regarde bien...", seqYourTurn:"À toi de jouer !", seqWrong:"Raté !",
+      seqOverSub:"Rounds réussis lors de cet essai",
+      padFuel:"Carburant", padAmmo:"Munitions", padSteel:"Acier", padRations:"Rations",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
       drawNumberBtn:"Tirer mon nombre", diceLevelLabel:"Niveau atteint", rollDiceBtn:"Lancer le dé",
       diceWinnerSub:"A gagné le droit de conduire le train !",
@@ -432,6 +505,10 @@
       rulesDice:["Roll a <b>6</b> to continue, otherwise you're eliminated.","Chain rounds without waiting for others.","The most rounds passed wins."],
       rulesTarget:["A secret time was drawn within the current window.","Click when you think you're closest to it, to the second.","One click only, final."],
       rulesRun:["Drive the train, avoid the obstacles.","3 hits allowed, the 4th ends the run.","Speed keeps increasing. Best score wins."],
+      rulesSequence:["A sequence of 4 resources lights up in a specific order.","Reproduce it by tapping the tiles in the same order.","Each successful round makes the sequence one longer.","A mistake ends the attempt — your score = number of rounds cleared."],
+      seqRoundText:"Round: ", seqWatching:"Watch closely...", seqYourTurn:"Your turn!", seqWrong:"Wrong!",
+      seqOverSub:"Rounds cleared this attempt",
+      padFuel:"Fuel", padAmmo:"Ammo", padSteel:"Steel", padRations:"Rations",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
       drawNumberBtn:"Draw my number", diceLevelLabel:"Level reached", rollDiceBtn:"Roll the die",
       diceWinnerSub:"Won the right to drive the train!",
@@ -461,6 +538,10 @@
       rulesDice:["Saca un <b>6</b> para continuar, si no quedas eliminado.","Encadena rondas sin esperar a los demás.","Quien pase más rondas gana."],
       rulesTarget:["Se ha sorteado una hora secreta dentro de la ventana actual.","Haz clic cuando creas estar más cerca, al segundo exacto.","Un solo clic, definitivo."],
       rulesRun:["Conduce el tren, esquiva los obstáculos.","3 impactos permitidos, el 4º termina la partida.","La velocidad aumenta sin parar. Gana el mejor puntaje."],
+      rulesSequence:["Una secuencia de 4 recursos se ilumina en un orden preciso.","Repítela tocando las casillas en el mismo orden.","Cada ronda superada alarga la secuencia un paso más.","Un error termina el intento — tu puntaje = número de rondas superadas."],
+      seqRoundText:"Ronda: ", seqWatching:"Observa bien...", seqYourTurn:"¡Tu turno!", seqWrong:"¡Fallo!",
+      seqOverSub:"Rondas superadas en este intento",
+      padFuel:"Combustible", padAmmo:"Munición", padSteel:"Acero", padRations:"Raciones",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
       drawNumberBtn:"Sacar mi número", diceLevelLabel:"Nivel alcanzado", rollDiceBtn:"Lanzar el dado",
       diceWinnerSub:"¡Ha ganado el derecho a conducir el tren!",
@@ -490,6 +571,10 @@
       rulesDice:["Fai <b>6</b> per continuare, altrimenti sei eliminato.","Concatena i turni senza aspettare gli altri.","Chi supera più turni vince."],
       rulesTarget:["Un orario segreto è stato estratto nella finestra attuale.","Clicca quando pensi di essere più vicino, al secondo esatto.","Un solo clic, definitivo."],
       rulesRun:["Guida il treno, evita gli ostacoli.","3 impatti consentiti, il 4° termina la partita.","La velocità aumenta senza sosta. Vince il punteggio migliore."],
+      rulesSequence:["Una sequenza di 4 risorse si illumina in un ordine preciso.","Riproducila toccando le caselle nello stesso ordine.","Ogni round superato allunga la sequenza di uno.","Un errore termina il tentativo — il tuo punteggio = numero di round superati."],
+      seqRoundText:"Round: ", seqWatching:"Guarda bene...", seqYourTurn:"Tocca a te!", seqWrong:"Sbagliato!",
+      seqOverSub:"Round superati in questo tentativo",
+      padFuel:"Carburante", padAmmo:"Munizioni", padSteel:"Acciaio", padRations:"Razioni",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
       drawNumberBtn:"Estrai il mio numero", diceLevelLabel:"Livello raggiunto", rollDiceBtn:"Lancia il dado",
       diceWinnerSub:"Ha vinto il diritto di guidare il treno!",
@@ -519,6 +604,10 @@
       rulesDice:["Devam etmek için <b>6</b> at, aksi halde elenirsin.","Diğerlerini beklemeden turları art arda oyna.","En çok turu geçen kazanır."],
       rulesTarget:["Mevcut zaman aralığında gizli bir saat belirlendi.","En yakın olduğunu düşündüğün anda, saniyesi saniyesine tıkla.","Sadece bir tık, kesin."],
       rulesRun:["Treni sür, engellerden kaçın.","3 çarpışmaya izin var, 4. çarpışma oyunu bitirir.","Hız durmadan artar. En yüksek skor kazanır."],
+      rulesSequence:["4 kaynaktan oluşan bir dizi belirli bir sırayla yanar.","Aynı sırayla karelere dokunarak tekrarla.","Başarılı her tur diziyi bir adım uzatır.","Bir hata denemeyi bitirir — skorun = tamamlanan tur sayısı."],
+      seqRoundText:"Tur: ", seqWatching:"Dikkatlice izle...", seqYourTurn:"Sıra sende!", seqWrong:"Yanlış!",
+      seqOverSub:"Bu denemede tamamlanan turlar",
+      padFuel:"Yakıt", padAmmo:"Mühimmat", padSteel:"Çelik", padRations:"Erzak",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
       drawNumberBtn:"Sayımı çek", diceLevelLabel:"Ulaşılan seviye", rollDiceBtn:"Zarı at",
       diceWinnerSub:"Treni sürme hakkını kazandı!",
@@ -548,6 +637,10 @@
       rulesDice:["Gooi een <b>6</b> om door te gaan, anders ben je uitgeschakeld.","Speel rondes achter elkaar zonder op anderen te wachten.","Wie de meeste rondes haalt wint."],
       rulesTarget:["Er is een geheim tijdstip getrokken binnen het huidige venster.","Klik op het moment dat je denkt er het dichtst bij te zijn, tot op de seconde.","Slechts één klik, definitief."],
       rulesRun:["Bestuur de trein, ontwijk de obstakels.","3 treffers toegestaan, de 4e beëindigt de poging.","De snelheid blijft toenemen. Beste score wint."],
+      rulesSequence:["Een reeks van 4 grondstoffen licht op in een vaste volgorde.","Herhaal ze door in dezelfde volgorde op de vakjes te tikken.","Elke geslaagde ronde maakt de reeks één stap langer.","Een fout beëindigt de poging — jouw score = aantal geslaagde rondes."],
+      seqRoundText:"Ronde: ", seqWatching:"Kijk goed...", seqYourTurn:"Jouw beurt!", seqWrong:"Fout!",
+      seqOverSub:"Geslaagde rondes in deze poging",
+      padFuel:"Brandstof", padAmmo:"Munitie", padSteel:"Staal", padRations:"Rantsoenen",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
       drawNumberBtn:"Trek mijn nummer", diceLevelLabel:"Bereikt niveau", rollDiceBtn:"Gooi de dobbelsteen",
       diceWinnerSub:"Heeft het recht gewonnen om de trein te besturen!",
@@ -594,6 +687,7 @@
     db.ref('sundayGame/' + todayDateStr()).on('value', snap=>{ diceGame = snap.val() || null; render(); });
     db.ref('targetGame/' + todayDateStr()).on('value', snap=>{ targetGame = snap.val() || null; render(); });
     db.ref('trainRunGame/' + todayDateStr()).on('value', snap=>{ runScores = snap.val() || {}; render(); });
+    db.ref('sequenceAllianceGame/' + todayDateStr()).on('value', snap=>{ seqScores = snap.val() || {}; render(); });
 
     setInterval(render, 1000);
   }
@@ -609,7 +703,8 @@
     ['closedBox','playerSelectBox',
      'diceTiebreakBox','dicePlayBox','diceAfterBox',
      'targetBeforeBox','targetPlayBox','targetAfterBox',
-     'runIntroBox','runPlayBox','runOverBox','runDoneBox'
+     'runIntroBox','runPlayBox','runOverBox','runDoneBox',
+     'seqIntroBox','seqPlayBox','seqOverBox','seqDoneBox'
     ].forEach(id => $(id).style.display = 'none');
   }
 
@@ -642,6 +737,20 @@
     $('runDoneText1').textContent = t('runDoneText1');
     $('runDoneLabel').textContent = t('runDoneLabel');
     $('runDoneText2').textContent = t('runDoneText2');
+    $('seqPlayerLabel').textContent = t('playerLabel');
+    $('seqAttemptText1').textContent = t('runAttemptText1');
+    $('seqAttemptText2').textContent = t('runAttemptText2');
+    $('seqStartBtn').textContent = t('runStartBtn');
+    $('seqRetryBtn').textContent = t('runNextAttemptBtn');
+    $('seqRoundText').textContent = t('seqRoundText');
+    $('seqOverSub').textContent = t('seqOverSub');
+    $('seqDoneText1').textContent = t('runDoneText1');
+    $('seqDoneLabel').textContent = t('runDoneLabel');
+    $('seqDoneText2').textContent = t('runDoneText2');
+    $('seqLabelFuel').textContent = t('padFuel');
+    $('seqLabelAmmo').textContent = t('padAmmo');
+    $('seqLabelSteel').textContent = t('padSteel');
+    $('seqLabelRations').textContent = t('padRations');
     document.querySelectorAll('.lang-btn').forEach(b=>{
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -719,6 +828,7 @@
     if(type === 'dice') renderDice();
     else if(type === 'target') renderTarget();
     else if(type === 'run') renderRun();
+    else if(type === 'sequence') renderSequence();
 
     renderLeaderboard(type);
   }
@@ -735,6 +845,10 @@
     if(type === 'run'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon run-icon">🚂</span>${t('rulesTitle')}</div><ul class="rules-list">
         ${t('rulesRun').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'sequence'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon seq-icon">🧠</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesSequence').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -1153,6 +1267,122 @@
     $('runRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
   }
 
+  // ==================== JEU : SEQUENCE ====================
+  const SEQ_KEYS = ['fuel','ammo','steel','rations'];
+  const SEQ_FLASH_MS = 500, SEQ_GAP_MS = 220;
+  let seqScores = {};
+  let seqSequence = [], seqPlayerStep = 0, seqAccepting = false, seqRound = 1, seqCurrentAttempt = 1;
+  let seqUiState = null; // null = calculer depuis les données ; 'playing' / 'over' = états transitoires
+
+  function mySeqRecord(){ return (seqScores && seqScores[myId]) || null; }
+  function seqPadEl(key){ return document.querySelector(`#seqPlayBox .pad-btn[data-key="${key}"]`); }
+  function seqSleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  function renderSequence(){
+    if(seqUiState === 'playing'){ $('seqPlayBox').style.display = 'block'; return; }
+    if(seqUiState === 'over'){ $('seqOverBox').style.display = 'block'; return; }
+
+    const rec = mySeqRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('seqDoneBox').style.display = 'block';
+      $('seqDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    seqCurrentAttempt = attemptsUsed + 1;
+    $('seqIntroBox').style.display = 'block';
+    $('seqIntroName').textContent = myName;
+    $('seqAttemptNumber').textContent = seqCurrentAttempt;
+    $('seqBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  function seqSetStatus(text, cls){
+    const el = $('seqStatusMsg');
+    el.textContent = text;
+    el.className = 'status-msg' + (cls ? ' ' + cls : '');
+  }
+  function seqSetPadsDisabled(disabled){
+    SEQ_KEYS.forEach(k => seqPadEl(k).classList.toggle('disabled', disabled));
+  }
+  async function seqFlashPad(key, ms){
+    const el = seqPadEl(key);
+    el.classList.add('lit');
+    await seqSleep(ms);
+    el.classList.remove('lit');
+  }
+  async function seqPlaySequence(){
+    seqAccepting = false;
+    seqSetPadsDisabled(true);
+    seqSetStatus(t('seqWatching'), 'watching');
+    await seqSleep(500);
+    for(let i=0;i<seqSequence.length;i++){
+      await seqFlashPad(seqSequence[i], SEQ_FLASH_MS);
+      await seqSleep(SEQ_GAP_MS);
+    }
+    seqPlayerStep = 0;
+    seqAccepting = true;
+    seqSetPadsDisabled(false);
+    seqSetStatus(t('seqYourTurn'), 'your-turn');
+  }
+  function seqExtendSequence(){
+    seqSequence.push(SEQ_KEYS[Math.floor(Math.random()*4)]);
+  }
+
+  function startSeqAttempt(){
+    hideAllGameBoxes();
+    $('seqPlayBox').style.display = 'block';
+    seqUiState = 'playing';
+    seqSequence = []; seqPlayerStep = 0; seqRound = 1;
+    $('seqAttemptTag').textContent = fmt(t('runAttemptTag'), {n: seqCurrentAttempt});
+    $('seqRoundLabel').textContent = seqRound;
+    seqExtendSequence();
+    seqPlaySequence();
+  }
+
+  function onSeqPadClick(key){
+    if(!seqAccepting) return;
+    if(key === seqSequence[seqPlayerStep]){
+      seqFlashPad(key, 220);
+      seqPlayerStep++;
+      if(seqPlayerStep === seqSequence.length){
+        seqAccepting = false;
+        seqSetPadsDisabled(true);
+        seqRound++;
+        $('seqRoundLabel').textContent = seqRound;
+        setTimeout(()=>{ seqExtendSequence(); seqPlaySequence(); }, 650);
+      }
+    } else {
+      seqAccepting = false;
+      seqSetPadsDisabled(true);
+      const el = seqPadEl(key);
+      el.classList.add('wrong-flash');
+      seqSetStatus(t('seqWrong'), 'wrong');
+      setTimeout(()=>{ el.classList.remove('wrong-flash'); endSeqAttempt(); }, 500);
+    }
+  }
+
+  async function endSeqAttempt(){
+    const finalScore = seqRound - 1;
+    seqUiState = 'over';
+    $('seqPlayBox').style.display = 'none';
+    $('seqOverBox').style.display = 'block';
+    $('seqFinalScore').textContent = finalScore;
+
+    const path = 'sequenceAllianceGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.attempts = (rec.attempts || []).concat([finalScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, finalScore);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('seqOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
+    $('seqRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
   // ==================== LEADERBOARD (par jeu) ====================
   function renderLeaderboard(type){
     const body = $('leaderboardBody');
@@ -1195,6 +1425,15 @@
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
+    if(type === 'sequence'){
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
+      const entries = Object.keys(seqScores).map(id=>({id, ...seqScores[id]})).sort((a,b)=>(b.bestScore||0)-(a.bestScore||0));
+      body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
+        const meCls = e.id===myId?'me':'';
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
+      return;
+    }
     head.innerHTML = `<span>${t('lbPlayer')}</span><span></span><span></span>`;
     body.innerHTML = `<div class="empty-state">${t('lbEmptyGeneric')}</div>`;
   }
@@ -1210,6 +1449,11 @@
   $('tiebreakBtn').addEventListener('click', rollTiebreak);
   $('diceRollBtn').addEventListener('click', rollDice);
   $('clickTargetBtn').addEventListener('click', submitClick);
+  $('seqStartBtn').addEventListener('click', startSeqAttempt);
+  $('seqRetryBtn').addEventListener('click', startSeqAttempt);
+  document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));
+  });
   document.querySelectorAll('.lang-btn').forEach(b=>{
     b.addEventListener('click', ()=> setLang(b.dataset.lang));
   });
