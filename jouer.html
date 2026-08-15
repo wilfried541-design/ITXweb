@@ -875,6 +875,7 @@
   let db = null;
   let members = [];
   let control = null;
+  let scheduledSessions = {};
   let myId = null, myName = null;
 
   // état par jeu (rechargés en direct via Firebase)
@@ -1273,6 +1274,7 @@
 
     db.ref('members').on('value', snap=>{ members = snap.val() || []; populatePlayerSelect(); render(); });
     db.ref('gameControl').on('value', snap=>{ control = snap.val() || null; render(); });
+    db.ref('scheduledSessions').on('value', snap=>{ scheduledSessions = snap.val() || {}; render(); });
 
     db.ref('sundayGame/' + todayDateStr()).on('value', snap=>{ diceGame = snap.val() || null; render(); });
     db.ref('targetGame/' + todayDateStr()).on('value', snap=>{ targetGame = snap.val() || null; render(); });
@@ -1416,32 +1418,47 @@
   function setLang(l){
     lang = l;
     applyI18n();
+    render();
   }
 
-  // Calcule si l'accès est ouvert, en tenant compte d'une éventuelle programmation à l'avance.
-  function getAccessPhase(){
-    if(!control || !control.activeGame) return 'none';
-    if(control.status === 'closed') return 'closed';
-    if(control.status === 'open') return 'open';
-    if(control.status === 'scheduled'){
-      const r = nowInRome();
-      const today = `${r.year}-${r.month}-${r.day}`;
-      if(today < control.scheduledDate) return 'before';
-      if(today > control.scheduledDate) return 'after';
-      const nowSec = hmsToSeconds(`${r.hour}:${r.minute}:${r.second}`);
-      const startSec = hmsToSeconds(control.windowStart + ':00');
-      const endSec = hmsToSeconds(control.windowEnd + ':00');
-      if(nowSec < startSec) return 'before';
-      if(nowSec >= endSec) return 'after';
-      return 'open';
+  // Détermine quelle session est active/à venir/passée, en tenant compte :
+  // 1. d'un éventuel forçage manuel (gameControl : ouvert ou fermé) — prioritaire
+  // 2. sinon, de la liste des sessions programmées à l'avance (scheduledSessions)
+  function resolveSession(){
+    if(control && control.status === 'closed') return {type:null, phase:'closed', session:null};
+    if(control && control.status === 'open' && control.activeGame){
+      return {type: control.activeGame, phase:'open', session:{config: control.config || {}}};
     }
-    return 'closed';
+
+    const r = nowInRome();
+    const today = `${r.year}-${r.month}-${r.day}`;
+    const nowSec = hmsToSeconds(`${r.hour}:${r.minute}:${r.second}`);
+    const list = Object.keys(scheduledSessions || {}).map(id => ({id, ...scheduledSessions[id]}));
+
+    const active = list.find(s => s.date === today
+      && nowSec >= hmsToSeconds(s.windowStart + ':00')
+      && nowSec < hmsToSeconds(s.windowEnd + ':00'));
+    if(active) return {type: active.type, phase:'open', session: active};
+
+    const upcoming = list
+      .filter(s => s.date > today || (s.date === today && nowSec < hmsToSeconds(s.windowStart + ':00')))
+      .sort((a,b)=> (a.date+a.windowStart).localeCompare(b.date+b.windowStart))[0];
+
+    const endedToday = list
+      .filter(s => s.date === today && nowSec >= hmsToSeconds(s.windowEnd + ':00'))
+      .sort((a,b)=> b.windowEnd.localeCompare(a.windowEnd))[0];
+
+    if(endedToday) return {type: endedToday.type, phase:'after', session: endedToday};
+    if(upcoming) return {type: upcoming.type, phase:'before', session: upcoming};
+    return {type:null, phase:'none', session:null};
   }
 
   function render(){
     hideAllGameBoxes();
-    const type = control && control.activeGame;
-    const phase = getAccessPhase();
+    const resolved = resolveSession();
+    const type = resolved.type;
+    const phase = resolved.phase;
+    const session = resolved.session;
 
     if(phase === 'none'){
       $('closedBox').style.display = 'block';
@@ -1452,7 +1469,7 @@
 
     if(phase === 'before'){
       $('closedBox').style.display = 'block';
-      $('closedText').innerHTML = fmt(t('scheduledBefore'), {date: control.scheduledDate, start: control.windowStart, end: control.windowEnd});
+      $('closedText').innerHTML = fmt(t('scheduledBefore'), {date: session.date, start: session.windowStart, end: session.windowEnd});
       renderLeaderboard(type);
       return;
     }
