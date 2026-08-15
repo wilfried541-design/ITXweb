@@ -98,6 +98,8 @@
   .target-icon{border-color:var(--accent-2); box-shadow:0 0 8px rgba(193,68,47,0.35);}
   .run-icon{border-color:var(--cyan); box-shadow:0 0 8px rgba(79,214,201,0.35);}
   .seq-icon{border-color:var(--purple); box-shadow:0 0 8px rgba(139,92,246,0.35);}
+  .chrono-icon{border-color:var(--accent); box-shadow:0 0 8px rgba(226,161,60,0.35);}
+  .slot-icon{border-color:var(--accent-2); box-shadow:0 0 8px rgba(193,68,47,0.35);}
   .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6; text-align:left;}
   .rules-list li{margin-bottom:4px;}
   .rules-list b{color:var(--text);}
@@ -173,6 +175,27 @@
   .pad-btn.rations{--glow:rgba(111,156,95,0.7);}
   .pad-btn.disabled{opacity:0.55; pointer-events:none;}
   .pad-btn.wrong-flash{filter:brightness(1.8) saturate(2) hue-rotate(-20deg);}
+
+  .reel-row{display:flex; gap:10px; justify-content:center; margin:16px 0;}
+  .reel{
+    width:72px; height:72px; border-radius:12px; background:#0e120d; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .reel svg{width:60%; height:60%;}
+  .reel.spinning{animation:reelBlur 0.1s linear infinite;}
+  @keyframes reelBlur{0%{opacity:1;} 50%{opacity:0.5;} 100%{opacity:1;}}
+  .reel.jackpot{border-color:var(--accent); box-shadow:0 0 18px 3px rgba(226,161,60,0.6);}
+  .reel.pair{border-color:var(--eligible); box-shadow:0 0 14px 2px rgba(111,156,95,0.5);}
+
+  .bet-row{display:flex; gap:8px; margin-top:14px;}
+  .bet-btn{
+    flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    padding:12px 4px; border-radius:8px; font-family:'Oswald',sans-serif; font-weight:700; font-size:16px;
+    cursor:pointer; margin-top:0; display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .bet-btn .bet-cost{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-dim); font-weight:400;}
+  .bet-btn:active{border-color:var(--accent); color:var(--accent);}
+  .bet-btn:disabled{opacity:0.4; cursor:not-allowed;}
 
   .winner-banner{
     background:linear-gradient(180deg, rgba(226,161,60,0.18), rgba(226,161,60,0.05));
@@ -375,8 +398,14 @@
   </div>
 
   <!-- ==================== JEU : SEQUENCE ==================== -->
+  <div id="seqTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="seqTiebreakLabel">Joueur : </span><b id="seqTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="seqTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="seqTiebreakFace">?</div></div>
+    <button class="btn-primary" id="seqTiebreakBtn">Tirer mon nombre</button>
+  </div>
   <div id="seqIntroBox" class="board" style="display:none;">
-    <div class="info-line"><span id="seqPlayerLabel">Joueur : </span><b id="seqIntroName"></b></div>
+    <div class="info-line"><span id="seqPlayerLabel">Joueur : </span><b id="seqIntroName"></b> <span class="tiebreak-tag" id="seqTiebreakTag"></span></div>
     <div class="info-line" style="margin-top:8px;"><span id="seqAttemptText1">Essai </span><b id="seqAttemptNumber">1</b><span id="seqAttemptText2">/3 aujourd'hui.</span><span id="seqBestSoFar"></span></div>
     <button class="btn-primary" id="seqStartBtn">Lancer l'essai</button>
   </div>
@@ -418,6 +447,98 @@
     <div class="level-label" style="margin-top:10px;" id="seqDoneLabel">Ton meilleur score</div>
     <div class="level-number" id="seqDoneBest" style="font-size:28px;">0</div>
     <div class="info-line" style="margin-top:10px;" id="seqDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="seqAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="seqWinnerName"></div>
+      <div class="wsub" id="seqWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU : CHRONO ==================== -->
+  <div id="chronoTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="chronoTiebreakLabel">Joueur : </span><b id="chronoTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="chronoTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="chronoTiebreakFace">?</div></div>
+    <button class="btn-primary" id="chronoTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="chronoIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="chronoPlayerLabel">Joueur : </span><b id="chronoIntroName"></b> <span class="tiebreak-tag" id="chronoTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;"><span id="chronoAttemptText1">Essai </span><b id="chronoAttemptNumber">1</b><span id="chronoAttemptText2">/3 aujourd'hui.</span><span id="chronoBestSoFar"></span></div>
+    <button class="btn-primary" id="chronoStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="chronoPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="chronoAttemptTag">Essai 1/3</span>
+    </div>
+    <div class="info-line" id="chronoTargetText">Valide au plus près de <b>5.00s</b> — le chrono boucle de 0 à 10s.</div>
+    <div class="clock" id="chronoClock">0.00</div>
+    <button class="big-target-btn" id="chronoValidateBtn">Valider maintenant</button>
+  </div>
+  <div id="chronoOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">⏱️</div>
+      <div class="wname" id="chronoFinalScore">0</div>
+      <div class="wsub" id="chronoOverSub">Score de cet essai</div>
+    </div>
+    <button class="btn-primary" id="chronoRetryBtn">Essai suivant</button>
+  </div>
+  <div id="chronoDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="chronoDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="chronoDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="chronoDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="chronoDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="chronoAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="chronoWinnerName"></div>
+      <div class="wsub" id="chronoWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU : SLOT ==================== -->
+  <div id="slotTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="slotTiebreakLabel">Joueur : </span><b id="slotTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="slotTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de jetons à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="slotTiebreakFace">?</div></div>
+    <button class="btn-primary" id="slotTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="slotIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="slotPlayerLabel">Joueur : </span><b id="slotIntroName"></b> <span class="tiebreak-tag" id="slotTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;" id="slotIntroInfo">Une seule session de 5 minutes maximum aujourd'hui, 100 jetons de départ. Le plus de jetons à la fin gagne.</div>
+    <button class="btn-primary" id="slotStartBtn">Lancer ma session</button>
+  </div>
+  <div id="slotPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="slotTimeLeft">05:00</span>
+      <span><span id="slotTokensText">Jetons : </span><span class="score" id="slotTokensLabel">100</span></span>
+    </div>
+    <div class="reel-row">
+      <div class="reel" id="slotReel1"></div>
+      <div class="reel" id="slotReel2"></div>
+      <div class="reel" id="slotReel3"></div>
+    </div>
+    <div class="result-msg" id="slotResultMsg"></div>
+    <div class="bet-row">
+      <button class="bet-btn" id="slotBetX1" data-mult="1">x1<span class="bet-cost" id="slotCostX1">10</span></button>
+      <button class="bet-btn" id="slotBetX3" data-mult="3">x3<span class="bet-cost" id="slotCostX3">30</span></button>
+      <button class="bet-btn" id="slotBetX5" data-mult="5">x5<span class="bet-cost" id="slotCostX5">50</span></button>
+    </div>
+  </div>
+  <div id="slotDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="slotDoneText1">Ta session du jour est terminée.</div>
+    <div class="level-label" style="margin-top:10px;" id="slotDoneLabel">Jetons finaux</div>
+    <div class="level-number" id="slotDoneTokens" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="slotDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="slotAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="slotWinnerName"></div>
+      <div class="wsub" id="slotWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
   </div>
 
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
@@ -476,6 +597,18 @@
       seqRoundText:"Round : ", seqWatching:"Regarde bien...", seqYourTurn:"À toi de jouer !", seqWrong:"Raté !",
       seqOverSub:"Rounds réussis lors de cet essai",
       padFuel:"Carburant", padAmmo:"Munitions", padSteel:"Acier", padRations:"Rations",
+      seqTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      rulesChrono:["Un chrono boucle en continu de 0 à 10 secondes.","Valide au moment où tu penses être le plus proche de 5.00 secondes.","Plus tu es précis, plus le score est élevé.","3 essais par jour, meilleur score retenu."],
+      chronoTargetText:"Valide au plus près de {target}s — le chrono boucle de 0 à 10s.",
+      chronoOverSub:"Score de cet essai — écart : {diff} ms",
+      chronoTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      rulesSlot:["Une seule session de 5 minutes maximum, une fois par jour.","100 jetons de départ. Mise x1 (10), x3 (30) ou x5 (50) à chaque tirage.","3 symboles identiques = jackpot. 2 identiques = mise remboursée. Sinon, mise perdue.","Le plus de jetons à la fin de la session gagne."],
+      slotIntroInfo:"Une seule session de 5 minutes maximum aujourd'hui, 100 jetons de départ. Le plus de jetons à la fin gagne.",
+      slotTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de jetons à la fin de la journée.",
+      slotTokensText:"Jetons : ", slotStartBtn:"Lancer ma session",
+      slotResultJackpot:"Jackpot ! +{amount} jetons", slotResultPair:"Paire — mise remboursée", slotResultMiss:"Perdu — {amount} jetons",
+      slotOutOfTokens:"Plus assez de jetons pour miser !",
+      slotDoneText1:"Ta session du jour est terminée.", slotDoneLabel:"Jetons finaux", slotDoneText2:"Reviens demain pour retenter ta chance !",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
       drawNumberBtn:"Tirer mon nombre", diceLevelLabel:"Niveau atteint", rollDiceBtn:"Lancer le dé",
       diceWinnerSub:"A gagné le droit de conduire le train !",
@@ -509,6 +642,18 @@
       seqRoundText:"Round: ", seqWatching:"Watch closely...", seqYourTurn:"Your turn!", seqWrong:"Wrong!",
       seqOverSub:"Rounds cleared this attempt",
       padFuel:"Fuel", padAmmo:"Ammo", padSteel:"Steel", padRations:"Rations",
+      seqTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      rulesChrono:["A timer loops continuously from 0 to 10 seconds.","Confirm when you think you're closest to 5.00 seconds.","The more precise you are, the higher your score.","3 attempts per day, best score kept."],
+      chronoTargetText:"Confirm as close as possible to {target}s — the timer loops from 0 to 10s.",
+      chronoOverSub:"Score for this attempt — off by: {diff} ms",
+      chronoTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      rulesSlot:["A single 5-minute session, once per day.","100 starting tokens. Bet x1 (10), x3 (30) or x5 (50) per spin.","3 matching symbols = jackpot. 2 matching = bet refunded. Otherwise, bet lost.","Most tokens at the end of the session wins."],
+      slotIntroInfo:"A single 5-minute session today, 100 starting tokens. Most tokens at the end wins.",
+      slotTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a token tie at the end of the day.",
+      slotTokensText:"Tokens: ", slotStartBtn:"Start my session",
+      slotResultJackpot:"Jackpot! +{amount} tokens", slotResultPair:"Pair — bet refunded", slotResultMiss:"Lost — {amount} tokens",
+      slotOutOfTokens:"Not enough tokens left to bet!",
+      slotDoneText1:"Your session for today is over.", slotDoneLabel:"Final tokens", slotDoneText2:"Come back tomorrow to try again!",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
       drawNumberBtn:"Draw my number", diceLevelLabel:"Level reached", rollDiceBtn:"Roll the die",
       diceWinnerSub:"Won the right to drive the train!",
@@ -542,6 +687,18 @@
       seqRoundText:"Ronda: ", seqWatching:"Observa bien...", seqYourTurn:"¡Tu turno!", seqWrong:"¡Fallo!",
       seqOverSub:"Rondas superadas en este intento",
       padFuel:"Combustible", padAmmo:"Munición", padSteel:"Acero", padRations:"Raciones",
+      seqTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      rulesChrono:["Un cronómetro se repite continuamente de 0 a 10 segundos.","Confirma cuando creas estar más cerca de 5.00 segundos.","Cuanto más preciso seas, mayor será tu puntaje.","3 intentos por día, mejor puntaje retenido."],
+      chronoTargetText:"Confirma lo más cerca posible de {target}s — el cronómetro se repite de 0 a 10s.",
+      chronoOverSub:"Puntaje de este intento — desviación: {diff} ms",
+      chronoTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      rulesSlot:["Una única sesión de 5 minutos máximo, una vez al día.","100 fichas iniciales. Apuesta x1 (10), x3 (30) o x5 (50) por tirada.","3 símbolos iguales = premio mayor. 2 iguales = apuesta reembolsada. Si no, apuesta perdida.","Quien tenga más fichas al final de la sesión gana."],
+      slotIntroInfo:"Una única sesión de 5 minutos máximo hoy, 100 fichas iniciales. Quien tenga más fichas al final gana.",
+      slotTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de fichas al final del día.",
+      slotTokensText:"Fichas: ", slotStartBtn:"Iniciar mi sesión",
+      slotResultJackpot:"¡Premio mayor! +{amount} fichas", slotResultPair:"Par — apuesta reembolsada", slotResultMiss:"Perdido — {amount} fichas",
+      slotOutOfTokens:"¡No quedan suficientes fichas para apostar!",
+      slotDoneText1:"Tu sesión de hoy ha terminado.", slotDoneLabel:"Fichas finales", slotDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
       drawNumberBtn:"Sacar mi número", diceLevelLabel:"Nivel alcanzado", rollDiceBtn:"Lanzar el dado",
       diceWinnerSub:"¡Ha ganado el derecho a conducir el tren!",
@@ -575,6 +732,18 @@
       seqRoundText:"Round: ", seqWatching:"Guarda bene...", seqYourTurn:"Tocca a te!", seqWrong:"Sbagliato!",
       seqOverSub:"Round superati in questo tentativo",
       padFuel:"Carburante", padAmmo:"Munizioni", padSteel:"Acciaio", padRations:"Razioni",
+      seqTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      rulesChrono:["Un cronometro scorre continuamente da 0 a 10 secondi.","Conferma quando pensi di essere più vicino a 5.00 secondi.","Più sei preciso, più alto è il punteggio.","3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      chronoTargetText:"Conferma il più vicino possibile a {target}s — il cronometro scorre da 0 a 10s.",
+      chronoOverSub:"Punteggio di questo tentativo — scarto: {diff} ms",
+      chronoTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      rulesSlot:["Un'unica sessione di massimo 5 minuti, una volta al giorno.","100 gettoni iniziali. Puntata x1 (10), x3 (30) o x5 (50) per giro.","3 simboli uguali = jackpot. 2 uguali = puntata rimborsata. Altrimenti, puntata persa.","Chi ha più gettoni alla fine della sessione vince."],
+      slotIntroInfo:"Un'unica sessione di massimo 5 minuti oggi, 100 gettoni iniziali. Chi ha più gettoni alla fine vince.",
+      slotTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di gettoni a fine giornata.",
+      slotTokensText:"Gettoni: ", slotStartBtn:"Inizia la mia sessione",
+      slotResultJackpot:"Jackpot! +{amount} gettoni", slotResultPair:"Coppia — puntata rimborsata", slotResultMiss:"Perso — {amount} gettoni",
+      slotOutOfTokens:"Non hai più abbastanza gettoni per puntare!",
+      slotDoneText1:"La tua sessione di oggi è terminata.", slotDoneLabel:"Gettoni finali", slotDoneText2:"Torna domani per riprovare!",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
       drawNumberBtn:"Estrai il mio numero", diceLevelLabel:"Livello raggiunto", rollDiceBtn:"Lancia il dado",
       diceWinnerSub:"Ha vinto il diritto di guidare il treno!",
@@ -608,6 +777,18 @@
       seqRoundText:"Tur: ", seqWatching:"Dikkatlice izle...", seqYourTurn:"Sıra sende!", seqWrong:"Yanlış!",
       seqOverSub:"Bu denemede tamamlanan turlar",
       padFuel:"Yakıt", padAmmo:"Mühimmat", padSteel:"Çelik", padRations:"Erzak",
+      seqTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      rulesChrono:["Bir kronometre sürekli olarak 0'dan 10 saniyeye döngü halinde çalışır.","5.00 saniyeye en yakın olduğunu düşündüğün anda onayla.","Ne kadar hassas olursan, skorun o kadar yüksek olur.","Günde 3 deneme, en iyi skor saklanır."],
+      chronoTargetText:"{target}s'ye en yakın anda onayla — kronometre 0'dan 10s'ye döngü halinde çalışır.",
+      chronoOverSub:"Bu denemenin skoru — fark: {diff} ms",
+      chronoTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      rulesSlot:["Günde bir kez, en fazla 5 dakikalık tek bir oturum.","100 başlangıç jetonu. Çevirme başına x1 (10), x3 (30) veya x5 (50) bahis.","3 aynı sembol = jackpot. 2 aynı = bahis iade edilir. Aksi halde bahis kaybedilir.","Oturum sonunda en çok jetona sahip olan kazanır."],
+      slotIntroInfo:"Bugün en fazla 5 dakikalık tek bir oturum, 100 başlangıç jetonu. Sonunda en çok jetona sahip olan kazanır.",
+      slotTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda jeton eşitliği olursa kullanılır.",
+      slotTokensText:"Jeton: ", slotStartBtn:"Oturumumu başlat",
+      slotResultJackpot:"Jackpot! +{amount} jeton", slotResultPair:"Çift — bahis iade edildi", slotResultMiss:"Kaybettin — {amount} jeton",
+      slotOutOfTokens:"Bahis yapmak için yeterli jeton kalmadı!",
+      slotDoneText1:"Bugünkü oturumun sona erdi.", slotDoneLabel:"Son jeton sayısı", slotDoneText2:"Tekrar denemek için yarın gel!",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
       drawNumberBtn:"Sayımı çek", diceLevelLabel:"Ulaşılan seviye", rollDiceBtn:"Zarı at",
       diceWinnerSub:"Treni sürme hakkını kazandı!",
@@ -641,6 +822,18 @@
       seqRoundText:"Ronde: ", seqWatching:"Kijk goed...", seqYourTurn:"Jouw beurt!", seqWrong:"Fout!",
       seqOverSub:"Geslaagde rondes in deze poging",
       padFuel:"Brandstof", padAmmo:"Munitie", padSteel:"Staal", padRations:"Rantsoenen",
+      seqTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      rulesChrono:["Een timer loopt continu van 0 naar 10 seconden.","Bevestig op het moment dat je denkt het dichtst bij 5.00 seconden te zijn.","Hoe preciezer je bent, hoe hoger je score.","3 pogingen per dag, beste score telt."],
+      chronoTargetText:"Bevestig zo dicht mogelijk bij {target}s — de timer loopt van 0 naar 10s.",
+      chronoOverSub:"Score voor deze poging — verschil: {diff} ms",
+      chronoTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      rulesSlot:["Eén sessie van maximaal 5 minuten, één keer per dag.","100 startfiches. Inzet x1 (10), x3 (30) of x5 (50) per draai.","3 gelijke symbolen = jackpot. 2 gelijke = inzet terugbetaald. Anders, inzet verloren.","De meeste fiches aan het einde van de sessie wint."],
+      slotIntroInfo:"Eén sessie van maximaal 5 minuten vandaag, 100 startfiches. De meeste fiches aan het einde wint.",
+      slotTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijk aantal fiches aan het einde van de dag.",
+      slotTokensText:"Fiches: ", slotStartBtn:"Start mijn sessie",
+      slotResultJackpot:"Jackpot! +{amount} fiches", slotResultPair:"Paar — inzet terugbetaald", slotResultMiss:"Verloren — {amount} fiches",
+      slotOutOfTokens:"Niet genoeg fiches meer om in te zetten!",
+      slotDoneText1:"Je sessie van vandaag is afgelopen.", slotDoneLabel:"Eindstand fiches", slotDoneText2:"Kom morgen terug om het nog eens te proberen!",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
       drawNumberBtn:"Trek mijn nummer", diceLevelLabel:"Bereikt niveau", rollDiceBtn:"Gooi de dobbelsteen",
       diceWinnerSub:"Heeft het recht gewonnen om de trein te besturen!",
@@ -688,6 +881,8 @@
     db.ref('targetGame/' + todayDateStr()).on('value', snap=>{ targetGame = snap.val() || null; render(); });
     db.ref('trainRunGame/' + todayDateStr()).on('value', snap=>{ runScores = snap.val() || {}; render(); });
     db.ref('sequenceAllianceGame/' + todayDateStr()).on('value', snap=>{ seqScores = snap.val() || {}; render(); });
+    db.ref('chronoGame/' + todayDateStr()).on('value', snap=>{ chronoScores = snap.val() || {}; render(); });
+    db.ref('slotGame/' + todayDateStr()).on('value', snap=>{ slotScores = snap.val() || {}; render(); });
 
     setInterval(render, 1000);
   }
@@ -704,7 +899,9 @@
      'diceTiebreakBox','dicePlayBox','diceAfterBox',
      'targetBeforeBox','targetPlayBox','targetAfterBox',
      'runIntroBox','runPlayBox','runOverBox','runDoneBox',
-     'seqIntroBox','seqPlayBox','seqOverBox','seqDoneBox'
+     'seqTiebreakBox','seqIntroBox','seqPlayBox','seqOverBox','seqDoneBox','seqAfterBox',
+     'chronoTiebreakBox','chronoIntroBox','chronoPlayBox','chronoOverBox','chronoDoneBox','chronoAfterBox',
+     'slotTiebreakBox','slotIntroBox','slotPlayBox','slotDoneBox','slotAfterBox'
     ].forEach(id => $(id).style.display = 'none');
   }
 
@@ -751,6 +948,35 @@
     $('seqLabelAmmo').textContent = t('padAmmo');
     $('seqLabelSteel').textContent = t('padSteel');
     $('seqLabelRations').textContent = t('padRations');
+    $('seqTiebreakLabel').textContent = t('playerLabel');
+    $('seqTiebreakInfo').innerHTML = t('seqTiebreakInfo');
+    $('seqTiebreakBtn').textContent = t('drawNumberBtn');
+    $('seqWinnerSub').textContent = t('diceWinnerSub');
+    $('chronoPlayerLabel').textContent = t('playerLabel');
+    $('chronoAttemptText1').textContent = t('runAttemptText1');
+    $('chronoAttemptText2').textContent = t('runAttemptText2');
+    $('chronoStartBtn').textContent = t('runStartBtn');
+    $('chronoRetryBtn').textContent = t('runNextAttemptBtn');
+    $('chronoDoneText1').textContent = t('runDoneText1');
+    $('chronoDoneLabel').textContent = t('runDoneLabel');
+    $('chronoDoneText2').textContent = t('runDoneText2');
+    $('chronoTargetText').innerHTML = fmt(t('chronoTargetText'), {target: '5.00'});
+    $('chronoValidateBtn').textContent = t('targetValidateBtn');
+    $('chronoTiebreakLabel').textContent = t('playerLabel');
+    $('chronoTiebreakInfo').innerHTML = t('chronoTiebreakInfo');
+    $('chronoTiebreakBtn').textContent = t('drawNumberBtn');
+    $('chronoWinnerSub').textContent = t('diceWinnerSub');
+    $('slotPlayerLabel').textContent = t('playerLabel');
+    $('slotIntroInfo').textContent = t('slotIntroInfo');
+    $('slotStartBtn').textContent = t('slotStartBtn');
+    $('slotTokensText').textContent = t('slotTokensText');
+    $('slotDoneText1').textContent = t('slotDoneText1');
+    $('slotDoneLabel').textContent = t('slotDoneLabel');
+    $('slotDoneText2').textContent = t('slotDoneText2');
+    $('slotTiebreakLabel').textContent = t('playerLabel');
+    $('slotTiebreakInfo').innerHTML = t('slotTiebreakInfo');
+    $('slotTiebreakBtn').textContent = t('drawNumberBtn');
+    $('slotWinnerSub').textContent = t('diceWinnerSub');
     document.querySelectorAll('.lang-btn').forEach(b=>{
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -809,6 +1035,18 @@
         $('diceWinnerName').textContent = winner ? winner.name : '—';
       } else if(type === 'target'){
         renderTarget();
+      } else if(type === 'sequence'){
+        const winner = computeSeqWinner();
+        $('seqAfterBox').style.display = 'block';
+        $('seqWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'chrono'){
+        const winner = computeChronoWinner();
+        $('chronoAfterBox').style.display = 'block';
+        $('chronoWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'slot'){
+        const winner = computeSlotWinner();
+        $('slotAfterBox').style.display = 'block';
+        $('slotWinnerName').textContent = winner ? winner.name : '—';
       } else {
         $('closedBox').style.display = 'block';
         $('closedText').innerHTML = t('closedAccess');
@@ -829,6 +1067,8 @@
     else if(type === 'target') renderTarget();
     else if(type === 'run') renderRun();
     else if(type === 'sequence') renderSequence();
+    else if(type === 'chrono') renderChrono();
+    else if(type === 'slot') renderSlot();
 
     renderLeaderboard(type);
   }
@@ -849,6 +1089,14 @@
     if(type === 'sequence'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon seq-icon">🧠</span>${t('rulesTitle')}</div><ul class="rules-list">
         ${t('rulesSequence').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'chrono'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon chrono-icon">⏱️</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesChrono').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'slot'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon slot-icon">🎰</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesSlot').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -1289,11 +1537,47 @@
       $('seqDoneBest').textContent = rec.bestScore || 0;
       return;
     }
+    if(!rec || rec.tiebreak === undefined){
+      $('seqTiebreakBox').style.display = 'block';
+      $('seqTiebreakName').textContent = myName;
+      return;
+    }
     seqCurrentAttempt = attemptsUsed + 1;
     $('seqIntroBox').style.display = 'block';
     $('seqIntroName').textContent = myName;
+    $('seqTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
     $('seqAttemptNumber').textContent = seqCurrentAttempt;
     $('seqBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollSeqTiebreak(){
+    const btn = $('seqTiebreakBtn'), face = $('seqTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'sequenceAllianceGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeSeqWinner(){
+    const entries = Object.keys(seqScores).map(id => ({id, ...seqScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
   }
 
   function seqSetStatus(text, cls){
@@ -1383,6 +1667,300 @@
     $('seqRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
   }
 
+  // ==================== JEU : CHRONO ====================
+  let chronoScores = {};
+  let chronoCurrentAttempt = 1;
+  let chronoUiState = null; // null = calculer depuis les données ; 'playing' / 'over' = états transitoires
+  let chronoStartTs = null, chronoRafId = null, chronoRunning = false;
+  const CHRONO_LOOP_MS = 10000, CHRONO_TARGET_MS = 5000;
+
+  function myChronoRecord(){ return (chronoScores && chronoScores[myId]) || null; }
+
+  function renderChrono(){
+    if(chronoUiState === 'playing'){ $('chronoPlayBox').style.display = 'block'; return; }
+    if(chronoUiState === 'over'){ $('chronoOverBox').style.display = 'block'; return; }
+
+    const rec = myChronoRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('chronoDoneBox').style.display = 'block';
+      $('chronoDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    if(!rec || rec.tiebreak === undefined){
+      $('chronoTiebreakBox').style.display = 'block';
+      $('chronoTiebreakName').textContent = myName;
+      return;
+    }
+    chronoCurrentAttempt = attemptsUsed + 1;
+    $('chronoIntroBox').style.display = 'block';
+    $('chronoIntroName').textContent = myName;
+    $('chronoTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+    $('chronoAttemptNumber').textContent = chronoCurrentAttempt;
+    $('chronoBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollChronoTiebreak(){
+    const btn = $('chronoTiebreakBtn'), face = $('chronoTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'chronoGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeChronoWinner(){
+    const entries = Object.keys(chronoScores).map(id => ({id, ...chronoScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  function startChronoAttempt(){
+    hideAllGameBoxes();
+    $('chronoPlayBox').style.display = 'block';
+    chronoUiState = 'playing';
+    $('chronoAttemptTag').textContent = fmt(t('runAttemptTag'), {n: chronoCurrentAttempt});
+    $('chronoClock').textContent = '0.00';
+    chronoStartTs = performance.now();
+    chronoRunning = true;
+    chronoLoop();
+  }
+
+  function chronoLoop(){
+    if(!chronoRunning) return;
+    const elapsed = (performance.now() - chronoStartTs) % CHRONO_LOOP_MS;
+    $('chronoClock').textContent = (elapsed/1000).toFixed(2);
+    chronoRafId = requestAnimationFrame(chronoLoop);
+  }
+
+  async function validateChrono(){
+    if(!chronoRunning) return;
+    chronoRunning = false;
+    if(chronoRafId) cancelAnimationFrame(chronoRafId);
+    const elapsed = (performance.now() - chronoStartTs) % CHRONO_LOOP_MS;
+    const diffMs = Math.round(Math.abs(elapsed - CHRONO_TARGET_MS));
+    const score = Math.max(0, Math.round(5000 - diffMs));
+
+    chronoUiState = 'over';
+    $('chronoPlayBox').style.display = 'none';
+    $('chronoOverBox').style.display = 'block';
+    $('chronoFinalScore').textContent = score;
+    $('chronoOverSub').textContent = fmt(t('chronoOverSub'), {diff: diffMs});
+
+    const path = 'chronoGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.attempts = (rec.attempts || []).concat([score]);
+      rec.bestScore = Math.max(rec.bestScore || 0, score);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('chronoRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
+  // ==================== JEU : SLOT ====================
+  const SLOT_ICONS = {
+    fuel: '<svg viewBox="0 0 48 48"><rect x="14" y="10" width="20" height="30" rx="4" fill="#e2a13c" stroke="#14170f" stroke-width="2"/><rect x="20" y="4" width="8" height="8" rx="2" fill="#c9821f" stroke="#14170f" stroke-width="2"/><rect x="14" y="20" width="20" height="4" fill="#14170f" opacity="0.4"/><rect x="14" y="28" width="20" height="4" fill="#14170f" opacity="0.4"/></svg>',
+    ammo: '<svg viewBox="0 0 48 48"><rect x="10" y="16" width="28" height="22" rx="3" fill="#c1442f" stroke="#14170f" stroke-width="2"/><path d="M10 16 L24 8 L38 16 Z" fill="#8a2e1c" stroke="#14170f" stroke-width="2"/><rect x="18" y="24" width="12" height="6" fill="#14170f" opacity="0.5"/></svg>',
+    steel: '<svg viewBox="0 0 48 48"><path d="M24 6 L28 12 L35 10 L35 18 L42 22 L35 26 L35 34 L28 32 L24 38 L20 32 L13 34 L13 26 L6 22 L13 18 L13 10 L20 12 Z" fill="#4fd6c9" stroke="#14170f" stroke-width="2"/><circle cx="24" cy="22" r="6" fill="#14170f" opacity="0.5"/></svg>',
+    rations: '<svg viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="24" rx="3" fill="#6f9c5f" stroke="#14170f" stroke-width="2"/><rect x="9" y="14" width="30" height="8" fill="#4d7a41"/><path d="M24 24 v10 M19 29 h10" stroke="#eae7dd" stroke-width="3" stroke-linecap="round"/></svg>'
+  };
+  const SLOT_KEYS = ['fuel','ammo','steel','rations'];
+  const SLOT_START_TOKENS = 100, SLOT_BASE_BET = 10, SLOT_SESSION_MS = 5*60*1000;
+  const SLOT_JACKPOT_MULT = 5, SLOT_PAIR_MULT = 1;
+
+  let slotScores = {};
+  let slotSpinning = false, slotTickInterval = null, slotLocalTokens = 0;
+
+  function mySlotRecord(){ return (slotScores && slotScores[myId]) || null; }
+
+  function updateSlotBetButtons(){
+    [1,3,5].forEach(m=>{
+      const btn = $('slotBetX'+m);
+      if(btn) btn.disabled = slotLocalTokens < SLOT_BASE_BET*m;
+    });
+  }
+
+  function renderSlot(){
+    if(slotSpinning) return; // ne pas interrompre un tirage en cours
+
+    const rec = mySlotRecord();
+
+    if(rec && rec.sessionEnded){
+      if(slotTickInterval){ clearInterval(slotTickInterval); slotTickInterval = null; }
+      $('slotDoneBox').style.display = 'block';
+      $('slotDoneTokens').textContent = rec.tokens;
+      return;
+    }
+
+    if(!rec || rec.tiebreak === undefined){
+      $('slotTiebreakBox').style.display = 'block';
+      $('slotTiebreakName').textContent = myName;
+      return;
+    }
+
+    if(!rec.sessionStartTs){
+      $('slotIntroBox').style.display = 'block';
+      $('slotIntroName').textContent = myName;
+      $('slotTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+      return;
+    }
+
+    const elapsed = Date.now() - rec.sessionStartTs;
+    if(elapsed >= SLOT_SESSION_MS || rec.tokens < SLOT_BASE_BET){
+      endSlotSession();
+      return;
+    }
+
+    slotLocalTokens = rec.tokens;
+    $('slotPlayBox').style.display = 'block';
+    $('slotTokensLabel').textContent = slotLocalTokens;
+    updateSlotBetButtons();
+    if(!slotTickInterval){
+      slotTickTimer();
+      slotTickInterval = setInterval(slotTickTimer, 250);
+    }
+  }
+
+  function slotTickTimer(){
+    const rec = mySlotRecord();
+    if(!rec || !rec.sessionStartTs) return;
+    const elapsed = Date.now() - rec.sessionStartTs;
+    const remaining = Math.max(0, SLOT_SESSION_MS - elapsed);
+    const mm = Math.floor(remaining/60000), ss = Math.floor((remaining%60000)/1000);
+    $('slotTimeLeft').textContent = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+    if(remaining <= 0) endSlotSession();
+  }
+
+  async function endSlotSession(){
+    if(slotTickInterval){ clearInterval(slotTickInterval); slotTickInterval = null; }
+    const path = 'slotGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      if(!current || current.sessionEnded) return current;
+      current.sessionEnded = true;
+      return current;
+    });
+    render();
+  }
+
+  async function rollSlotTiebreak(){
+    const btn = $('slotTiebreakBtn'), face = $('slotTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'slotGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, tokens: SLOT_START_TOKENS, sessionStartTs: null, sessionEnded: false};
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  async function startSlotSession(){
+    const path = 'slotGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      if(!current || current.sessionStartTs) return current;
+      current.sessionStartTs = Date.now();
+      current.tokens = SLOT_START_TOKENS;
+      current.sessionEnded = false;
+      return current;
+    });
+    render();
+  }
+
+  function computeSlotWinner(){
+    const entries = Object.keys(slotScores).map(id => ({id, ...slotScores[id]}));
+    if(entries.length === 0) return null;
+    const maxTokens = Math.max(...entries.map(e => e.tokens || 0));
+    const top = entries.filter(e => (e.tokens||0) === maxTokens);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  async function doSlotSpin(mult){
+    if(slotSpinning) return;
+    const cost = SLOT_BASE_BET * mult;
+    if(slotLocalTokens < cost) return;
+    slotSpinning = true;
+    document.querySelectorAll('.bet-btn').forEach(b=> b.disabled = true);
+    $('slotResultMsg').textContent = '';
+    ['slotReel1','slotReel2','slotReel3'].forEach(id=>{ $(id).classList.add('spinning'); $(id).classList.remove('jackpot','pair'); });
+
+    const spinAnim = setInterval(()=>{
+      ['slotReel1','slotReel2','slotReel3'].forEach(id=>{
+        $(id).innerHTML = SLOT_ICONS[SLOT_KEYS[Math.floor(Math.random()*4)]];
+      });
+    }, 80);
+    await new Promise(r=>setTimeout(r, 700));
+    clearInterval(spinAnim);
+
+    const reels = [SLOT_KEYS[Math.floor(Math.random()*4)], SLOT_KEYS[Math.floor(Math.random()*4)], SLOT_KEYS[Math.floor(Math.random()*4)]];
+    ['slotReel1','slotReel2','slotReel3'].forEach((id,i)=>{
+      $(id).innerHTML = SLOT_ICONS[reels[i]];
+      $(id).classList.remove('spinning');
+    });
+
+    let payout = 0, resultKey = 'slotResultMiss', resultCls = '';
+    if(reels[0]===reels[1] && reels[1]===reels[2]){
+      payout = cost * SLOT_JACKPOT_MULT;
+      resultKey = 'slotResultJackpot'; resultCls = 'jackpot';
+    } else if(reels[0]===reels[1] || reels[1]===reels[2] || reels[0]===reels[2]){
+      payout = cost * SLOT_PAIR_MULT;
+      resultKey = 'slotResultPair'; resultCls = 'pair';
+    }
+    if(resultCls){
+      ['slotReel1','slotReel2','slotReel3'].forEach(id=> $(id).classList.add(resultCls));
+    }
+
+    const net = payout - cost;
+    slotLocalTokens += net;
+    $('slotTokensLabel').textContent = slotLocalTokens;
+
+    const msg = resultKey === 'slotResultJackpot' ? fmt(t('slotResultJackpot'), {amount: payout})
+      : resultKey === 'slotResultPair' ? t('slotResultPair')
+      : fmt(t('slotResultMiss'), {amount: -cost});
+    $('slotResultMsg').textContent = msg;
+
+    const path = 'slotGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      if(!current) return current;
+      current.tokens = (current.tokens||0) + net;
+      return current;
+    });
+    const rec2 = result.snapshot.val();
+
+    slotSpinning = false;
+    updateSlotBetButtons();
+
+    if(rec2 && rec2.tokens < SLOT_BASE_BET){
+      setTimeout(()=>{ endSlotSession(); }, 900);
+    }
+  }
+
   // ==================== LEADERBOARD (par jeu) ====================
   function renderLeaderboard(type){
     const body = $('leaderboardBody');
@@ -1427,10 +2005,32 @@
     }
     if(type === 'sequence'){
       head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
-      const entries = Object.keys(seqScores).map(id=>({id, ...seqScores[id]})).sort((a,b)=>(b.bestScore||0)-(a.bestScore||0));
+      const entries = Object.keys(seqScores).map(id=>({id, ...seqScores[id]}))
+        .sort((a,b)=> (b.bestScore||0)-(a.bestScore||0) || (b.tiebreak||0)-(a.tiebreak||0));
       body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
         const meCls = e.id===myId?'me':'';
         return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
+      return;
+    }
+    if(type === 'chrono'){
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
+      const entries = Object.keys(chronoScores).map(id=>({id, ...chronoScores[id]}))
+        .sort((a,b)=> (b.bestScore||0)-(a.bestScore||0) || (b.tiebreak||0)-(a.tiebreak||0));
+      body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
+        const meCls = e.id===myId?'me':'';
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
+      return;
+    }
+    if(type === 'slot'){
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
+      const entries = Object.keys(slotScores).map(id=>({id, ...slotScores[id]}))
+        .filter(e => e.sessionStartTs)
+        .sort((a,b)=> (b.tokens||0)-(a.tokens||0) || (b.tiebreak||0)-(a.tiebreak||0));
+      body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
+        const meCls = e.id===myId?'me':'';
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.tokens||0}</span><span></span></div>`;
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
@@ -1450,6 +2050,16 @@
   $('diceRollBtn').addEventListener('click', rollDice);
   $('clickTargetBtn').addEventListener('click', submitClick);
   $('seqStartBtn').addEventListener('click', startSeqAttempt);
+  $('seqTiebreakBtn').addEventListener('click', rollSeqTiebreak);
+  $('chronoTiebreakBtn').addEventListener('click', rollChronoTiebreak);
+  $('chronoStartBtn').addEventListener('click', startChronoAttempt);
+  $('chronoRetryBtn').addEventListener('click', startChronoAttempt);
+  $('chronoValidateBtn').addEventListener('click', validateChrono);
+  $('slotTiebreakBtn').addEventListener('click', rollSlotTiebreak);
+  $('slotStartBtn').addEventListener('click', startSlotSession);
+  $('slotBetX1').addEventListener('click', ()=> doSlotSpin(1));
+  $('slotBetX3').addEventListener('click', ()=> doSlotSpin(3));
+  $('slotBetX5').addEventListener('click', ()=> doSlotSpin(5));
   $('seqRetryBtn').addEventListener('click', startSeqAttempt);
   document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));

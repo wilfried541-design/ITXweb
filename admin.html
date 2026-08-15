@@ -125,6 +125,8 @@
         <option value="target">🎯 Précision horaire</option>
         <option value="run">🚂 Course du train</option>
         <option value="sequence">🧠 Séquence d'alliance</option>
+        <option value="chrono">⏱️ Chrono pile-poil</option>
+        <option value="slot">🎰 Machine à sous ITX</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -147,6 +149,16 @@
       <!-- Config spécifique : sequence -->
       <div id="cfgSequence" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Jeu de mémoire (séquence à reproduire). Chaque joueur a 3 essais dans la journée du créneau, son meilleur score compte. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : chrono -->
+      <div id="cfgChrono" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Un chrono boucle de 0 à 10 secondes, il faut valider au plus près de 5.00s. Chaque joueur a 3 essais dans la journée du créneau, son meilleur score compte. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : slot -->
+      <div id="cfgSlot" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Chaque joueur a une seule session de 5 minutes maximum par jour, avec 100 jetons de départ. Mise x1/x3/x5 par tirage. Le plus de jetons à la fin gagne. Aucun réglage supplémentaire.</div>
       </div>
 
       <!-- Pour ajouter un futur jeu : ajouter une <option> ci-dessus, un bloc #cfgXxx ici, -->
@@ -214,7 +226,7 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance" };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX' };
 
   let db = null, auth = null;
   let r4Unlocked = false, currentR4Name = null;
@@ -359,7 +371,7 @@
   function onGameTypeChange(){
     const type = $('gameTypeSelect').value;
     document.querySelectorAll('.game-config').forEach(el => el.style.display = 'none');
-    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence'};
+    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot'};
     if(map[type]) $(map[type]).style.display = 'block';
   }
 
