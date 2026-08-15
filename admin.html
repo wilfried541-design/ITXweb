@@ -128,6 +128,7 @@
         <option value="chrono">⏱️ Chrono pile-poil</option>
         <option value="slot">🎰 Machine à sous ITX</option>
         <option value="blackjack">🃏 Blackjack ITX</option>
+        <option value="invasion">👾 Invasion ITX</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -165,6 +166,11 @@
       <!-- Config spécifique : blackjack -->
       <div id="cfgBlackjack" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Chaque joueur a 3 mains dans la journée du créneau, contre un croupier virtuel. Meilleur score retenu (Blackjack > Victoire > Égalité > Défaite). Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : invasion -->
+      <div id="cfgInvasion" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Chaque joueur a 3 parties dans la journée du créneau, façon défense contre vagues d'envahisseurs. Meilleur score retenu. Aucun réglage supplémentaire.</div>
       </div>
 
       <!-- Pour ajouter un futur jeu : ajouter une <option> ci-dessus, un bloc #cfgXxx ici, -->
@@ -232,7 +238,7 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX' };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX' };
 
   let db = null, auth = null;
   let r4Unlocked = false, currentR4Name = null;
@@ -377,7 +383,7 @@
   function onGameTypeChange(){
     const type = $('gameTypeSelect').value;
     document.querySelectorAll('.game-config').forEach(el => el.style.display = 'none');
-    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack'};
+    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion'};
     if(map[type]) $(map[type]).style.display = 'block';
   }
 

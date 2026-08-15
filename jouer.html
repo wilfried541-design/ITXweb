@@ -101,6 +101,7 @@
   .chrono-icon{border-color:var(--accent); box-shadow:0 0 8px rgba(226,161,60,0.35);}
   .slot-icon{border-color:var(--accent-2); box-shadow:0 0 8px rgba(193,68,47,0.35);}
   .bj-icon{border-color:var(--eligible); box-shadow:0 0 8px rgba(111,156,95,0.35);}
+  .inv-icon{border-color:var(--cyan); box-shadow:0 0 8px rgba(79,214,201,0.35);}
   .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6; text-align:left;}
   .rules-list li{margin-bottom:4px;}
   .rules-list b{color:var(--text);}
@@ -807,6 +808,53 @@
     </div>
   </div>
 
+  <!-- ==================== JEU : INVASION ==================== -->
+  <div id="invTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="invTiebreakLabel">Joueur : </span><b id="invTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="invTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="invTiebreakFace">?</div></div>
+    <button class="btn-primary" id="invTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="invIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="invPlayerLabel">Joueur : </span><b id="invIntroName"></b> <span class="tiebreak-tag" id="invTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;"><span id="invAttemptText1">Essai </span><b id="invAttemptNumber">1</b><span id="invAttemptText2">/3 aujourd'hui.</span><span id="invBestSoFar"></span></div>
+    <button class="btn-primary" id="invStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="invPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="invAttemptTag">Essai 1/3</span>
+      <span><span id="invScoreText">Score : </span><span class="score" id="invScoreLabel">0</span></span>
+      <span class="hits" id="invLivesDisplay"></span>
+    </div>
+    <canvas id="invCanvas" width="300" height="260"></canvas>
+    <div class="lane-controls">
+      <button class="lane-btn" id="invLeftBtn">◀</button>
+      <button class="lane-btn" id="invFireBtn">🔫</button>
+      <button class="lane-btn" id="invRightBtn">▶</button>
+    </div>
+  </div>
+  <div id="invOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">👾💥</div>
+      <div class="wname" id="invFinalScore">0</div>
+      <div class="wsub" id="invOverSub">Score de cet essai</div>
+    </div>
+    <button class="btn-primary" id="invRetryBtn">Essai suivant</button>
+  </div>
+  <div id="invDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="invDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="invDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="invDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="invDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="invAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="invWinnerName"></div>
+      <div class="wsub" id="invWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
        lui donner ses propres ids, et ajouter sa logique dans renderGame() / handlers plus bas. ==================== -->
 
@@ -882,6 +930,9 @@
       bjStartBtn:"Lancer la main", bjHitBtn:"Tirer", bjStandBtn:"Rester", bjDealerLabel:"Croupier", bjYouLabel:"Toi",
       bjResultBlackjack:"Blackjack !", bjResultWin:"Gagné !", bjResultPush:"Égalité", bjResultLose:"Perdu",
       bjOverSubScore:"+{score} points",
+      rulesInvasion:["Déplace ton vaisseau et tire sur les vagues d'envahisseurs qui avancent.","Détruis-les avant qu'ils n'atteignent le bas de l'écran, ou qu'ils te touchent.","3 vies. Chaque envahisseur détruit rapporte des points, les vagues s'enchaînent et accélèrent.","Un OVNI bonus traverse parfois l'écran pour des points supplémentaires.","3 essais par jour, meilleur score retenu."],
+      invTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      invScoreText:"Score : ",
       slotOutOfTokens:"Plus assez de jetons pour miser !",
       slotDoneText1:"Ta session du jour est terminée.", slotDoneLabel:"Jetons finaux", slotDoneText2:"Reviens demain pour retenter ta chance !",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
@@ -936,6 +987,9 @@
       bjStartBtn:"Deal hand", bjHitBtn:"Hit", bjStandBtn:"Stand", bjDealerLabel:"Dealer", bjYouLabel:"You",
       bjResultBlackjack:"Blackjack!", bjResultWin:"You win!", bjResultPush:"Push", bjResultLose:"You lose",
       bjOverSubScore:"+{score} points",
+      rulesInvasion:["Move your ship and shoot the waves of invaders marching forward.","Destroy them before they reach the bottom of the screen, or before they hit you.","3 lives. Each destroyed invader scores points, waves keep coming and speed up.","A bonus UFO occasionally crosses the screen for extra points.","3 attempts per day, best score kept."],
+      invTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      invScoreText:"Score: ",
       slotOutOfTokens:"Not enough tokens left to bet!",
       slotDoneText1:"Your session for today is over.", slotDoneLabel:"Final tokens", slotDoneText2:"Come back tomorrow to try again!",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
@@ -990,6 +1044,9 @@
       bjStartBtn:"Repartir mano", bjHitBtn:"Pedir", bjStandBtn:"Plantarse", bjDealerLabel:"Crupier", bjYouLabel:"Tú",
       bjResultBlackjack:"¡Blackjack!", bjResultWin:"¡Ganaste!", bjResultPush:"Empate", bjResultLose:"Perdiste",
       bjOverSubScore:"+{score} puntos",
+      rulesInvasion:["Mueve tu nave y dispara a las oleadas de invasores que avanzan.","Destrúyelos antes de que lleguen abajo, o antes de que te toquen.","3 vidas. Cada invasor destruido da puntos, las oleadas se encadenan y aceleran.","Un OVNI bonus a veces cruza la pantalla dando puntos extra.","3 intentos por día, mejor puntaje retenido."],
+      invTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      invScoreText:"Puntaje: ",
       slotOutOfTokens:"¡No quedan suficientes fichas para apostar!",
       slotDoneText1:"Tu sesión de hoy ha terminado.", slotDoneLabel:"Fichas finales", slotDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
@@ -1044,6 +1101,9 @@
       bjStartBtn:"Distribuisci mano", bjHitBtn:"Carta", bjStandBtn:"Stai", bjDealerLabel:"Banco", bjYouLabel:"Tu",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Hai vinto!", bjResultPush:"Pareggio", bjResultLose:"Hai perso",
       bjOverSubScore:"+{score} punti",
+      rulesInvasion:["Muovi la tua nave e spara alle ondate di invasori che avanzano.","Distruggili prima che raggiungano il fondo dello schermo, o prima che ti colpiscano.","3 vite. Ogni invasore distrutto dà punti, le ondate si susseguono e accelerano.","Un UFO bonus attraversa a volte lo schermo per punti extra.","3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      invTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      invScoreText:"Punteggio: ",
       slotOutOfTokens:"Non hai più abbastanza gettoni per puntare!",
       slotDoneText1:"La tua sessione di oggi è terminata.", slotDoneLabel:"Gettoni finali", slotDoneText2:"Torna domani per riprovare!",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
@@ -1098,6 +1158,9 @@
       bjStartBtn:"Eli dağıt", bjHitBtn:"Kart Çek", bjStandBtn:"Dur", bjDealerLabel:"Krupiye", bjYouLabel:"Sen",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Kazandın!", bjResultPush:"Berabere", bjResultLose:"Kaybettin",
       bjOverSubScore:"+{score} puan",
+      rulesInvasion:["Gemini hareket ettir ve ilerleyen istilacı dalgalarına ateş et.","Ekranın altına ulaşmadan veya sana çarpmadan önce onları yok et.","3 can. Yok edilen her istilacı puan kazandırır, dalgalar birbirini izler ve hızlanır.","Bonus bir UFO bazen ekranı geçer, ekstra puan verir.","Günde 3 deneme, en iyi skor saklanır."],
+      invTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      invScoreText:"Skor: ",
       slotOutOfTokens:"Bahis yapmak için yeterli jeton kalmadı!",
       slotDoneText1:"Bugünkü oturumun sona erdi.", slotDoneLabel:"Son jeton sayısı", slotDoneText2:"Tekrar denemek için yarın gel!",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
@@ -1152,6 +1215,9 @@
       bjStartBtn:"Deel kaarten uit", bjHitBtn:"Kaart", bjStandBtn:"Passen", bjDealerLabel:"Dealer", bjYouLabel:"Jij",
       bjResultBlackjack:"Blackjack!", bjResultWin:"Gewonnen!", bjResultPush:"Gelijkspel", bjResultLose:"Verloren",
       bjOverSubScore:"+{score} punten",
+      rulesInvasion:["Beweeg je schip en schiet op de golven binnendringers die oprukken.","Vernietig ze voordat ze de onderkant van het scherm bereiken, of voordat ze jou raken.","3 levens. Elke vernietigde indringer geeft punten, golven volgen elkaar op en versnellen.","Een bonus-UFO steekt soms het scherm over voor extra punten.","3 pogingen per dag, beste score telt."],
+      invTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      invScoreText:"Score: ",
       slotOutOfTokens:"Niet genoeg fiches meer om in te zetten!",
       slotDoneText1:"Je sessie van vandaag is afgelopen.", slotDoneLabel:"Eindstand fiches", slotDoneText2:"Kom morgen terug om het nog eens te proberen!",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
@@ -1204,6 +1270,7 @@
     db.ref('chronoGame/' + todayDateStr()).on('value', snap=>{ chronoScores = snap.val() || {}; render(); });
     db.ref('slotGame/' + todayDateStr()).on('value', snap=>{ slotScores = snap.val() || {}; render(); });
     db.ref('blackjackGame/' + todayDateStr()).on('value', snap=>{ bjScores = snap.val() || {}; render(); });
+    db.ref('invasionGame/' + todayDateStr()).on('value', snap=>{ invScores = snap.val() || {}; render(); });
 
     setInterval(render, 1000);
   }
@@ -1223,7 +1290,8 @@
      'seqTiebreakBox','seqIntroBox','seqPlayBox','seqOverBox','seqDoneBox','seqAfterBox',
      'chronoTiebreakBox','chronoIntroBox','chronoPlayBox','chronoOverBox','chronoDoneBox','chronoAfterBox',
      'slotTiebreakBox','slotIntroBox','slotPlayBox','slotDoneBox','slotAfterBox',
-     'bjTiebreakBox','bjIntroBox','bjPlayBox','bjOverBox','bjDoneBox','bjAfterBox'
+     'bjTiebreakBox','bjIntroBox','bjPlayBox','bjOverBox','bjDoneBox','bjAfterBox',
+     'invTiebreakBox','invIntroBox','invPlayBox','invOverBox','invDoneBox','invAfterBox'
     ].forEach(id => $(id).style.display = 'none');
   }
 
@@ -1315,6 +1383,19 @@
     $('bjTiebreakInfo').innerHTML = t('bjTiebreakInfo');
     $('bjTiebreakBtn').textContent = t('drawNumberBtn');
     $('bjWinnerSub').textContent = t('diceWinnerSub');
+    $('invPlayerLabel').textContent = t('playerLabel');
+    $('invAttemptText1').textContent = t('runAttemptText1');
+    $('invAttemptText2').textContent = t('runAttemptText2');
+    $('invStartBtn').textContent = t('runStartBtn');
+    $('invScoreText').textContent = t('invScoreText');
+    $('invRetryBtn').textContent = t('runNextAttemptBtn');
+    $('invDoneText1').textContent = t('runDoneText1');
+    $('invDoneLabel').textContent = t('runDoneLabel');
+    $('invDoneText2').textContent = t('runDoneText2');
+    $('invTiebreakLabel').textContent = t('playerLabel');
+    $('invTiebreakInfo').innerHTML = t('invTiebreakInfo');
+    $('invTiebreakBtn').textContent = t('drawNumberBtn');
+    $('invWinnerSub').textContent = t('diceWinnerSub');
     document.querySelectorAll('.lang-btn').forEach(b=>{
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -1389,6 +1470,10 @@
         const winner = computeBjWinner();
         $('bjAfterBox').style.display = 'block';
         $('bjWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'invasion'){
+        const winner = computeInvWinner();
+        $('invAfterBox').style.display = 'block';
+        $('invWinnerName').textContent = winner ? winner.name : '—';
       } else {
         $('closedBox').style.display = 'block';
         $('closedText').innerHTML = t('closedAccess');
@@ -1412,6 +1497,7 @@
     else if(type === 'chrono') renderChrono();
     else if(type === 'slot') renderSlot();
     else if(type === 'blackjack') renderBlackjack();
+    else if(type === 'invasion') renderInvasion();
 
     renderLeaderboard(type);
   }
@@ -1444,6 +1530,10 @@
     if(type === 'blackjack'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon bj-icon">🃏</span>${t('rulesTitle')}</div><ul class="rules-list">
         ${t('rulesBlackjack').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'invasion'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon inv-icon">👾</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesInvasion').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -2789,6 +2879,374 @@
     $('bjRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
   }
 
+  // ==================== JEU : INVASION ====================
+  // Sprites pixel-art originaux (bitmaps 8x8), inspirés du genre "défense contre vagues d'envahisseurs"
+  // sans reprendre les sprites précis d'un jeu existant.
+  const INV_ALIEN_A = [
+    ['0','0','1','0','0','1','0','0'],
+    ['0','0','1','1','1','1','0','0'],
+    ['0','1','1','1','1','1','1','0'],
+    ['1','1','0','1','1','0','1','1'],
+    ['1','1','1','1','1','1','1','1'],
+    ['0','0','1','1','1','1','0','0'],
+    ['0','1','1','0','0','1','1','0'],
+    ['1','0','1','0','0','1','0','1']
+  ];
+  const INV_ALIEN_A2 = INV_ALIEN_A.map((row,i)=> i<6 ? row : (i===6 ? ['0','0','1','1','1','1','0','0'] : ['0','1','0','0','0','0','1','0']));
+  const INV_ALIEN_B = [
+    ['0','0','0','1','1','0','0','0'],
+    ['0','0','1','1','1','1','0','0'],
+    ['0','1','1','1','1','1','1','0'],
+    ['1','1','1','1','1','1','1','1'],
+    ['1','1','0','1','1','0','1','1'],
+    ['0','0','1','0','0','1','0','0'],
+    ['0','1','0','0','0','0','1','0'],
+    ['1','0','0','0','0','0','0','1']
+  ];
+  const INV_ALIEN_B2 = INV_ALIEN_B.map((row,i)=> i<6 ? row : (i===6 ? ['0','0','1','0','0','1','0','0'] : ['0','0','1','0','0','1','0','0']));
+  const INV_PLAYER = [
+    ['0','0','0','0','0','1','0','0','0','0','0'],
+    ['0','0','0','0','1','1','1','0','0','0','0'],
+    ['0','0','0','0','1','1','1','0','0','0','0'],
+    ['0','1','1','1','1','1','1','1','1','1','0'],
+    ['1','1','1','1','1','1','1','1','1','1','1'],
+    ['1','1','1','1','1','1','1','1','1','1','1']
+  ];
+  const INV_UFO = [
+    ['0','0','0','1','1','1','0','0','0'],
+    ['0','1','1','1','1','1','1','1','0'],
+    ['1','1','1','1','1','1','1','1','1'],
+    ['0','0','1','0','1','0','1','0','0']
+  ];
+
+  function invDrawSprite(ctx, bitmap, x, y, px, color){
+    ctx.fillStyle = color;
+    for(let r=0;r<bitmap.length;r++){
+      for(let c=0;c<bitmap[r].length;c++){
+        if(bitmap[r][c]==='1') ctx.fillRect(Math.round(x + c*px), Math.round(y + r*px), Math.ceil(px), Math.ceil(px));
+      }
+    }
+  }
+
+  const INV_W = 300, INV_H = 260;
+  const INV_COLS = 6, INV_ROWS = 4, INV_CELL_W = 42, INV_CELL_H = 26, INV_GRID_X = 24, INV_GRID_Y = 24;
+  const INV_ALIEN_PX = 3, INV_PLAYER_PX = 2.6, INV_UFO_PX = 3;
+  const INV_ROW_SCORES = [30, 20, 20, 10];
+  const INV_MAX_LIVES = 3;
+
+  let invScores = {};
+  let invCurrentAttempt = 1;
+  let invUiState = null; // null = calculer depuis les données ; 'playing' / 'over' = états transitoires
+  let invCanvas, invCtx, invRafId = null, invRunning = false;
+  let invAliens = [], invAlienOffsetX = 0, invAlienOffsetY = 0, invAlienDir = 1, invAlienSpeed = 14, invFrameToggle = false, invFrameTimer = 0;
+  let invPlayerX = 0, invMoveDir = 0;
+  let invPlayerBullet = null, invAlienBullets = [], invParticles = [];
+  let invScore = 0, invLives = INV_MAX_LIVES, invWave = 1;
+  let invUfo = null, invUfoTimer = 0;
+  let invLastTs = null, invFireCooldown = 0;
+
+  function myInvRecord(){ return (invScores && invScores[myId]) || null; }
+
+  function renderInvasion(){
+    if(invUiState === 'playing'){ $('invPlayBox').style.display = 'block'; return; }
+    if(invUiState === 'over'){ $('invOverBox').style.display = 'block'; return; }
+
+    const rec = myInvRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('invDoneBox').style.display = 'block';
+      $('invDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    if(!rec || rec.tiebreak === undefined){
+      $('invTiebreakBox').style.display = 'block';
+      $('invTiebreakName').textContent = myName;
+      return;
+    }
+    invCurrentAttempt = attemptsUsed + 1;
+    $('invIntroBox').style.display = 'block';
+    $('invIntroName').textContent = myName;
+    $('invTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+    $('invAttemptNumber').textContent = invCurrentAttempt;
+    $('invBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollInvTiebreak(){
+    const btn = $('invTiebreakBtn'), face = $('invTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'invasionGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeInvWinner(){
+    const entries = Object.keys(invScores).map(id => ({id, ...invScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  function invSpawnWave(){
+    invAliens = [];
+    for(let r=0;r<INV_ROWS;r++){
+      for(let c=0;c<INV_COLS;c++){
+        invAliens.push({row:r, col:c, alive:true, type: r%2===0 ? 'a' : 'b'});
+      }
+    }
+    invAlienOffsetX = 0;
+    invAlienOffsetY = 0;
+    invAlienDir = 1;
+    invAlienSpeed = Math.min(14 + invWave*3, 60);
+  }
+
+  function invUpdateLivesDisplay(){
+    $('invLivesDisplay').innerHTML = Array.from({length:INV_MAX_LIVES}).map((_,i)=>
+      `<span class="hit-dot ${i>=invLives?'used':''}"></span>`).join('');
+  }
+
+  function initInvCanvasOnce(){
+    if(invCanvas) return;
+    invCanvas = $('invCanvas');
+    invCtx = invCanvas.getContext('2d');
+
+    const pressMove = (dir)=>{ invMoveDir = dir; };
+    const releaseMove = ()=>{ invMoveDir = 0; };
+    ['mousedown','touchstart'].forEach(ev=>{
+      $('invLeftBtn').addEventListener(ev, e=>{ e.preventDefault(); pressMove(-1); });
+      $('invRightBtn').addEventListener(ev, e=>{ e.preventDefault(); pressMove(1); });
+    });
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{
+      $('invLeftBtn').addEventListener(ev, releaseMove);
+      $('invRightBtn').addEventListener(ev, releaseMove);
+    });
+    $('invFireBtn').addEventListener('click', ()=> invFireBullet());
+    document.addEventListener('keydown', e=>{
+      if(!invRunning) return;
+      if(e.key==='ArrowLeft') invMoveDir = -1;
+      if(e.key==='ArrowRight') invMoveDir = 1;
+      if(e.key===' ') invFireBullet();
+    });
+    document.addEventListener('keyup', e=>{
+      if(e.key==='ArrowLeft' && invMoveDir===-1) invMoveDir = 0;
+      if(e.key==='ArrowRight' && invMoveDir===1) invMoveDir = 0;
+    });
+  }
+
+  function invFireBullet(){
+    if(!invRunning || invPlayerBullet || invFireCooldown > 0) return;
+    invPlayerBullet = { x: invPlayerX + 14, y: INV_H - 30 };
+    invFireCooldown = 0.15;
+  }
+
+  function startInvAttempt(){
+    hideAllGameBoxes();
+    $('invPlayBox').style.display = 'block';
+    invUiState = 'playing';
+    initInvCanvasOnce();
+
+    invScore = 0; invLives = INV_MAX_LIVES; invWave = 1;
+    invPlayerX = INV_W/2 - 14; invMoveDir = 0;
+    invPlayerBullet = null; invAlienBullets = []; invParticles = [];
+    invUfo = null; invUfoTimer = 6 + Math.random()*8;
+    invFireCooldown = 0; invFrameTimer = 0; invFrameToggle = false;
+    invSpawnWave();
+    invUpdateLivesDisplay();
+    $('invAttemptTag').textContent = fmt(t('runAttemptTag'), {n: invCurrentAttempt});
+    $('invScoreLabel').textContent = '0';
+
+    invRunning = true;
+    invLastTs = null;
+    invRafId = requestAnimationFrame(invLoop);
+  }
+
+  function invLoop(ts){
+    if(!invRunning) return;
+    if(invLastTs === null) invLastTs = ts;
+    const dt = Math.min((ts - invLastTs)/1000, 0.05);
+    invLastTs = ts;
+
+    invFireCooldown = Math.max(0, invFireCooldown - dt);
+
+    // déplacement du joueur
+    invPlayerX += invMoveDir * 160 * dt;
+    invPlayerX = Math.max(4, Math.min(INV_W - 32, invPlayerX));
+
+    // animation des envahisseurs (alternance des pattes)
+    invFrameTimer += dt;
+    if(invFrameTimer > 0.4){ invFrameTimer = 0; invFrameToggle = !invFrameToggle; }
+
+    // déplacement du groupe d'envahisseurs
+    const aliveAliens = invAliens.filter(a=>a.alive);
+    const speedFactor = 1 + (INV_COLS*INV_ROWS - aliveAliens.length) * 0.04;
+    invAlienOffsetX += invAlienDir * invAlienSpeed * speedFactor * dt;
+    const minCol = Math.min(...aliveAliens.map(a=>a.col), INV_COLS-1);
+    const maxCol = Math.max(...aliveAliens.map(a=>a.col), 0);
+    const leftEdge = INV_GRID_X + minCol*INV_CELL_W + invAlienOffsetX;
+    const rightEdge = INV_GRID_X + maxCol*INV_CELL_W + 24 + invAlienOffsetX;
+    if(rightEdge > INV_W - 6 || leftEdge < 6){
+      invAlienDir *= -1;
+      invAlienOffsetY += 10;
+    }
+
+    // vérifie si les envahisseurs ont atteint le joueur
+    const frontRowY = INV_GRID_Y + (INV_ROWS-1)*INV_CELL_H + invAlienOffsetY + 24;
+    if(frontRowY >= INV_H - 34){ invEndAttempt(); return; }
+
+    // tir des envahisseurs
+    invUfoTimer -= dt;
+    if(Math.random() < 0.012 && aliveAliens.length > 0){
+      const shooter = aliveAliens[Math.floor(Math.random()*aliveAliens.length)];
+      const sx = INV_GRID_X + shooter.col*INV_CELL_W + invAlienOffsetX + 12;
+      const sy = INV_GRID_Y + shooter.row*INV_CELL_H + invAlienOffsetY + 24;
+      invAlienBullets.push({x: sx, y: sy});
+    }
+    invAlienBullets.forEach(b=> b.y += 130*dt);
+    invAlienBullets = invAlienBullets.filter(b=> b.y < INV_H);
+
+    // tir du joueur
+    if(invPlayerBullet){
+      invPlayerBullet.y -= 260*dt;
+      if(invPlayerBullet.y < 0) invPlayerBullet = null;
+    }
+
+    // OVNI bonus
+    if(!invUfo && invUfoTimer <= 0){
+      invUfo = { x: -20, dir: 1, value: 50 + Math.floor(Math.random()*3)*50 };
+      invUfoTimer = 14 + Math.random()*10;
+    }
+    if(invUfo){
+      invUfo.x += 70*dt;
+      if(invUfo.x > INV_W + 20) invUfo = null;
+    }
+
+    // collisions : tir joueur vs envahisseurs
+    if(invPlayerBullet){
+      for(const a of invAliens){
+        if(!a.alive) continue;
+        const ax = INV_GRID_X + a.col*INV_CELL_W + invAlienOffsetX;
+        const ay = INV_GRID_Y + a.row*INV_CELL_H + invAlienOffsetY;
+        if(invPlayerBullet.x > ax && invPlayerBullet.x < ax+24 && invPlayerBullet.y > ay && invPlayerBullet.y < ay+24){
+          a.alive = false;
+          invScore += INV_ROW_SCORES[a.row] || 10;
+          $('invScoreLabel').textContent = invScore;
+          for(let i=0;i<6;i++) invParticles.push({x:ax+12, y:ay+12, vx:(Math.random()-0.5)*120, vy:(Math.random()-0.5)*120, life:0.4});
+          invPlayerBullet = null;
+          break;
+        }
+      }
+    }
+    // collision tir joueur vs OVNI
+    if(invPlayerBullet && invUfo){
+      const ux = invUfo.x, uy = 14;
+      if(invPlayerBullet.x > ux && invPlayerBullet.x < ux+27 && invPlayerBullet.y > uy && invPlayerBullet.y < uy+12){
+        invScore += invUfo.value;
+        $('invScoreLabel').textContent = invScore;
+        for(let i=0;i<8;i++) invParticles.push({x:ux+13, y:uy+6, vx:(Math.random()-0.5)*150, vy:(Math.random()-0.5)*150, life:0.5});
+        invUfo = null;
+        invPlayerBullet = null;
+      }
+    }
+    // collisions : tirs ennemis vs joueur
+    const py = INV_H - 30, pxw = 28;
+    invAlienBullets = invAlienBullets.filter(b=>{
+      if(b.x > invPlayerX && b.x < invPlayerX+pxw && b.y > py && b.y < py+16){
+        invLives--;
+        invUpdateLivesDisplay();
+        for(let i=0;i<8;i++) invParticles.push({x:invPlayerX+14, y:py+8, vx:(Math.random()-0.5)*150, vy:(Math.random()-0.5)*150, life:0.5});
+        if(invLives <= 0){ invEndAttempt(); }
+        return false;
+      }
+      return true;
+    });
+
+    // particules
+    invParticles.forEach(p=>{ p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; });
+    invParticles = invParticles.filter(p=> p.life > 0);
+
+    // vague suivante
+    if(aliveAliens.length === 0 && invRunning){
+      invWave++;
+      invSpawnWave();
+    }
+
+    invDrawFrame();
+    if(invRunning) invRafId = requestAnimationFrame(invLoop);
+  }
+
+  function invDrawFrame(){
+    const ctx = invCtx;
+    ctx.fillStyle = '#0b0d0a';
+    ctx.fillRect(0,0,INV_W,INV_H);
+    // étoiles de fond
+    ctx.fillStyle = 'rgba(226,161,60,0.15)';
+    for(let i=0;i<18;i++){ ctx.fillRect((i*37)%INV_W, (i*53)%INV_H, 1, 1); }
+
+    // envahisseurs
+    invAliens.forEach(a=>{
+      if(!a.alive) return;
+      const ax = INV_GRID_X + a.col*INV_CELL_W + invAlienOffsetX;
+      const ay = INV_GRID_Y + a.row*INV_CELL_H + invAlienOffsetY;
+      const bitmap = a.type==='a' ? (invFrameToggle?INV_ALIEN_A2:INV_ALIEN_A) : (invFrameToggle?INV_ALIEN_B2:INV_ALIEN_B);
+      const color = a.type==='a' ? '#4fd6c9' : '#e2a13c';
+      invDrawSprite(ctx, bitmap, ax, ay, INV_ALIEN_PX, color);
+    });
+
+    // OVNI
+    if(invUfo) invDrawSprite(ctx, INV_UFO, invUfo.x, 14, INV_UFO_PX, '#c1442f');
+
+    // joueur
+    invDrawSprite(ctx, INV_PLAYER, invPlayerX, INV_H-30, INV_PLAYER_PX, '#e2a13c');
+
+    // tirs
+    if(invPlayerBullet){ ctx.fillStyle = '#eae7dd'; ctx.fillRect(invPlayerBullet.x, invPlayerBullet.y, 2, 8); }
+    ctx.fillStyle = '#c1442f';
+    invAlienBullets.forEach(b=> ctx.fillRect(b.x, b.y, 2, 8));
+
+    // particules
+    invParticles.forEach(p=>{
+      ctx.fillStyle = `rgba(226,161,60,${Math.max(0,p.life/0.5)})`;
+      ctx.fillRect(p.x, p.y, 3, 3);
+    });
+  }
+
+  async function invEndAttempt(){
+    invRunning = false;
+    if(invRafId) cancelAnimationFrame(invRafId);
+    invUiState = 'over';
+    $('invPlayBox').style.display = 'none';
+    $('invOverBox').style.display = 'block';
+    $('invFinalScore').textContent = invScore;
+
+    const path = 'invasionGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.attempts = (rec.attempts || []).concat([invScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, invScore);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('invOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
+    $('invRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
   // ==================== LEADERBOARD (par jeu) ====================
   function renderLeaderboard(type){
     const body = $('leaderboardBody');
@@ -2872,6 +3330,16 @@
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
+    if(type === 'invasion'){
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
+      const entries = Object.keys(invScores).map(id=>({id, ...invScores[id]}))
+        .sort((a,b)=> (b.bestScore||0)-(a.bestScore||0) || (b.tiebreak||0)-(a.tiebreak||0));
+      body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
+        const meCls = e.id===myId?'me':'';
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.bestScore||0}</span><span></span></div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
+      return;
+    }
     head.innerHTML = `<span>${t('lbPlayer')}</span><span></span><span></span>`;
     body.innerHTML = `<div class="empty-state">${t('lbEmptyGeneric')}</div>`;
   }
@@ -2906,6 +3374,9 @@
   $('bjRetryBtn').addEventListener('click', startBjHand);
   $('bjHitBtn').addEventListener('click', onBjHit);
   $('bjStandBtn').addEventListener('click', onBjStand);
+  $('invTiebreakBtn').addEventListener('click', rollInvTiebreak);
+  $('invStartBtn').addEventListener('click', startInvAttempt);
+  $('invRetryBtn').addEventListener('click', startInvAttempt);
   $('seqRetryBtn').addEventListener('click', startSeqAttempt);
   document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));
