@@ -2460,6 +2460,7 @@
     return n;
   }
 
+  let slotBonusTimeoutId = null;
   function startBonusRound(){
     return new Promise(resolve=>{
       slotBonusResolve = resolve;
@@ -2483,6 +2484,10 @@
       $('bonusTotal').textContent = '';
       $('bonusOverlay').classList.add('showing');
       slotSoundBonusTrigger();
+      // Filet de sécurité : si le joueur n'interagit pas, on referme le bonus tout seul
+      // pour ne jamais bloquer le jeu indéfiniment.
+      if(slotBonusTimeoutId) clearTimeout(slotBonusTimeoutId);
+      slotBonusTimeoutId = setTimeout(()=>{ if(slotBonusActive) endBonusRound(); }, 20000);
     });
   }
 
@@ -2522,6 +2527,7 @@
   }
 
   function endBonusRound(){
+    if(slotBonusTimeoutId){ clearTimeout(slotBonusTimeoutId); slotBonusTimeoutId = null; }
     $('bonusOverlay').classList.remove('showing');
     slotBonusActive = false;
     if(slotBonusResolve){ const r = slotBonusResolve; slotBonusResolve = null; r(slotBonusTotal); }
@@ -2532,6 +2538,8 @@
     const cost = SLOT_BASE_BET * mult;
     if(slotLocalTokens < cost) return;
     slotSpinning = true;
+    let rec2 = null;
+    try{
     slotGetAudioCtx(); // débloque l'audio dans le même geste utilisateur que le clic
     document.querySelectorAll('.bet-btn').forEach(b=> b.disabled = true);
     $('slotResultMsg').textContent = '';
@@ -2664,10 +2672,12 @@
       current.tokens = (current.tokens||0) + net + bonusWon;
       return current;
     });
-    const rec2 = result.snapshot.val();
+    rec2 = result.snapshot.val();
 
-    slotSpinning = false;
-    updateSlotBetButtons();
+    } finally {
+      slotSpinning = false;
+      updateSlotBetButtons();
+    }
 
     if(rec2 && rec2.tokens < SLOT_BASE_BET){
       setTimeout(()=>{ endSlotSession(); }, 900);
