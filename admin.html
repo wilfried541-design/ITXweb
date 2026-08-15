@@ -194,6 +194,12 @@
       <div class="info-line mono" style="color:var(--accent); margin-top:6px; word-break:break-all;" id="playerLinkLine">jouer.html</div>
     </div>
 
+    <div class="section-title"><span>Maintenance</span></div>
+    <div class="board">
+      <div class="info-line">Efface tous les scores et essais du jour, pour tous les jeux (utile après des tests).</div>
+      <button class="btn-danger" id="resetScoresBtn">Réinitialiser les scores du jour</button>
+    </div>
+
   </div>
 
   <footer>ITX — Admin des jeux du train</footer>
@@ -469,12 +475,30 @@
     showToast('Accès fermé.');
   }
 
+  async function resetAllScores(){
+    if(!window.confirm("Réinitialiser tous les scores et essais du jour, pour tous les jeux ? Cette action est définitive.")) return;
+    const today = todayDateStr();
+    const paths = [
+      'sundayGame/' + today,
+      'targetGame/' + today,
+      'trainRunGame/' + today,
+      'sequenceAllianceGame/' + today,
+      'chronoGame/' + today,
+      'slotGame/' + today,
+      'blackjackGame/' + today,
+      'invasionGame/' + today
+    ];
+    await Promise.all(paths.map(p => db.ref(p).remove()));
+    showToast('Scores du jour réinitialisés pour tous les jeux.');
+  }
+
   // ---- Init ----
   $('r4Btn').addEventListener('click', toggleR4);
   $('gameTypeSelect').addEventListener('change', onGameTypeChange);
   $('openAccessBtn').addEventListener('click', openAccess);
   $('scheduleAccessBtn').addEventListener('click', scheduleAccess);
   $('closeAccessBtn').addEventListener('click', closeAccess);
+  $('resetScoresBtn').addEventListener('click', resetAllScores);
   $('cfgDate').value = todayDateStr();
   $('cfgDate').min = todayDateStr();
 
