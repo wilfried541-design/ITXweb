@@ -70,6 +70,18 @@
   .status-pill.scheduled{background:rgba(226,161,60,0.15); color:var(--accent); border:1px solid var(--accent);}
   .status-pill.closed{background:rgba(138,82,64,0.15); color:var(--ineligible,#8a5240); border:1px solid #8a5240;}
 
+  .sched-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--border); text-align:left;
+  }
+  .sched-row:last-child{border-bottom:none;}
+  .sched-row .sched-info{font-size:13px; line-height:1.5;}
+  .sched-row .sched-info b{color:var(--accent);}
+  .sched-row .sched-cancel{
+    background:transparent; color:var(--accent-2); border:1px solid var(--accent-2); border-radius:6px;
+    padding:6px 10px; font-size:11px; width:auto; margin-top:0; flex-shrink:0;
+  }
+
   .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;}
   .modal-box{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius); padding:18px; width:100%; max-width:340px;}
   .modal-title{font-size:15px; margin-bottom:12px; line-height:1.4;}
@@ -115,6 +127,7 @@
       <div class="info-line" id="currentStatusLine">Aucun jeu configuré pour l'instant.</div>
       <div style="text-align:center;"><span class="status-pill closed" id="statusPill">Fermé</span></div>
       <button class="btn-danger" id="closeAccessBtn" style="display:none;">Fermer l'accès</button>
+      <button class="btn-secondary" id="clearOverrideBtn" style="display:none;">Revenir à la programmation automatique</button>
     </div>
 
     <div class="section-title"><span>Choisir le jeu du jour</span></div>
@@ -188,6 +201,12 @@
       <button class="btn-secondary" id="scheduleAccessBtn">Programmer cette session</button>
     </div>
 
+    <div class="section-title"><span>Sessions programmées</span></div>
+    <div class="board" id="scheduledListBoard">
+      <div class="info-line" id="scheduledEmptyLine">Aucune session programmée pour l'instant.</div>
+      <div id="scheduledList"></div>
+    </div>
+
     <div class="section-title"><span>Lien à partager</span></div>
     <div class="board">
       <div class="info-line">Envoie ce lien à l'alliance pour jouer :</div>
@@ -250,6 +269,7 @@
   let r4Unlocked = false, currentR4Name = null;
   let members = [];
   let control = null; // gameControl
+  let scheduledSessions = {}; // scheduledSessions/{id}
 
   const $ = id => document.getElementById(id);
   function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -355,6 +375,7 @@
 
     db.ref('members').on('value', snap=>{ members = snap.val() || []; });
     db.ref('gameControl').on('value', snap=>{ control = snap.val() || null; renderControlStatus(); });
+    db.ref('scheduledSessions').on('value', snap=>{ scheduledSessions = snap.val() || {}; renderScheduledList(); });
 
     auth.onAuthStateChanged(user=>{
       r4Unlocked = !!user;
@@ -369,19 +390,20 @@
   function renderControlStatus(){
     const status = control ? control.status : null;
     const isOpen = status === 'open';
-    const isScheduled = status === 'scheduled';
-    let label = 'Fermé', cls = 'closed';
-    if(isOpen){ label = 'Ouvert'; cls = 'open'; }
-    else if(isScheduled){ label = 'Programmé'; cls = 'scheduled'; }
+    const isClosed = status === 'closed';
+    let label = 'Auto (programmation)', cls = 'scheduled';
+    if(isOpen){ label = 'Ouvert (manuel)'; cls = 'open'; }
+    else if(isClosed){ label = 'Fermé (manuel)'; cls = 'closed'; }
     $('statusPill').textContent = label;
     $('statusPill').className = 'status-pill ' + cls;
-    $('closeAccessBtn').style.display = (isOpen || isScheduled) ? 'block' : 'none';
-    if(!control || !control.activeGame){
-      $('currentStatusLine').textContent = 'Aucun jeu configuré pour l\'instant.';
-    } else if(isScheduled){
-      $('currentStatusLine').innerHTML = `Jeu programmé : <b>${GAME_LABELS[control.activeGame] || control.activeGame}</b><br>Le <b>${control.scheduledDate}</b>, de <b>${control.windowStart}</b> à <b>${control.windowEnd}</b> (heure italienne)`;
+    $('closeAccessBtn').style.display = isOpen ? 'block' : 'none';
+    $('clearOverrideBtn').style.display = (isOpen || isClosed) ? 'block' : 'none';
+    if(isOpen){
+      $('currentStatusLine').innerHTML = `Accès forcé ouvert : <b>${GAME_LABELS[control.activeGame] || control.activeGame}</b>`;
+    } else if(isClosed){
+      $('currentStatusLine').innerHTML = `Accès forcé fermé manuellement — bloque toute session programmée en cours.`;
     } else {
-      $('currentStatusLine').innerHTML = `Jeu actuel : <b>${GAME_LABELS[control.activeGame] || control.activeGame}</b>`;
+      $('currentStatusLine').textContent = 'Aucun forçage manuel : le jeu suit automatiquement les sessions programmées ci-dessous.';
     }
   }
 
@@ -435,7 +457,7 @@
     showToast('Accès ouvert !');
   }
 
-  // ---- Programmation à l'avance : s'ouvre/se ferme automatiquement au créneau choisi ----
+  // ---- Programmation à l'avance : ajoute une session à la liste, sans écraser les autres ----
   async function scheduleAccess(){
     const type = $('gameTypeSelect').value;
     const dateInput = $('cfgDate').value;
@@ -461,18 +483,49 @@
       await db.ref('sundayGame/' + dateInput + '/results').set({});
     }
 
-    await db.ref('gameControl').set({
-      activeGame: type, status:'scheduled', config,
-      scheduledDate: dateInput, windowStart: secondsToHMS(startSec), windowEnd: secondsToHMS(endSec),
-      updatedAt: Date.now(), updatedBy: currentR4Name
+    const newRef = db.ref('scheduledSessions').push();
+    await newRef.set({
+      type, config,
+      date: dateInput, windowStart: secondsToHMS(startSec), windowEnd: secondsToHMS(endSec),
+      createdAt: Date.now(), createdBy: currentR4Name
     });
-    showToast(`Session programmée pour le ${dateInput} !`);
+    showToast(`Session ajoutée pour le ${dateInput} !`);
+  }
+
+  async function cancelScheduledSession(id){
+    if(!window.confirm('Annuler cette session programmée ?')) return;
+    await db.ref('scheduledSessions/' + id).remove();
+    showToast('Session annulée.');
+  }
+
+  function renderScheduledList(){
+    const today = todayDateStr();
+    const entries = Object.keys(scheduledSessions || {})
+      .map(id => ({id, ...scheduledSessions[id]}))
+      .filter(s => s.date >= today)
+      .sort((a,b)=> (a.date+a.windowStart).localeCompare(b.date+b.windowStart));
+    const listEl = $('scheduledList');
+    $('scheduledEmptyLine').style.display = entries.length ? 'none' : 'block';
+    listEl.innerHTML = entries.map(s => `
+      <div class="sched-row">
+        <div class="sched-info">${GAME_LABELS[s.type] || s.type}<br><b>${s.date}</b> · ${s.windowStart}–${s.windowEnd}</div>
+        <button class="sched-cancel" data-cancel-id="${s.id}">Annuler</button>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('[data-cancel-id]').forEach(btn=>{
+      btn.addEventListener('click', ()=> cancelScheduledSession(btn.dataset.cancelId));
+    });
   }
 
   async function closeAccess(){
     if(!control) return;
     await db.ref('gameControl/status').set('closed');
     showToast('Accès fermé.');
+  }
+
+  async function clearOverride(){
+    await db.ref('gameControl').remove();
+    showToast('Retour à la programmation automatique.');
   }
 
   async function resetAllScores(){
@@ -498,6 +551,7 @@
   $('openAccessBtn').addEventListener('click', openAccess);
   $('scheduleAccessBtn').addEventListener('click', scheduleAccess);
   $('closeAccessBtn').addEventListener('click', closeAccess);
+  $('clearOverrideBtn').addEventListener('click', clearOverride);
   $('resetScoresBtn').addEventListener('click', resetAllScores);
   $('cfgDate').value = todayDateStr();
   $('cfgDate').min = todayDateStr();
