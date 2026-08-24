@@ -142,6 +142,9 @@
         <option value="slot">🎰 Machine à sous ITX</option>
         <option value="blackjack">🃏 Blackjack ITX</option>
         <option value="invasion">👾 Invasion ITX</option>
+        <option value="mole">🌸 Chasse aux taupes néon</option>
+        <option value="garden">🦋 Jardin de paires</option>
+        <option value="gems">💎 Tri de gemmes</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -184,6 +187,21 @@
       <!-- Config spécifique : invasion -->
       <div id="cfgInvasion" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Chaque joueur a 3 parties dans la journée du créneau, façon défense contre vagues d'envahisseurs. Meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : mole -->
+      <div id="cfgMole" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Des taupes néon surgissent 25 secondes, il faut en toucher un maximum (attention aux taupes noires, à éviter). 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : garden -->
+      <div id="cfgGarden" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Memory par paires sur 45 secondes, thème jardin. Score = nombre de paires trouvées. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : gems -->
+      <div id="cfgGems" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Une couleur cible est tirée, il faut cliquer uniquement les gemmes de cette couleur pendant 25 secondes. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
       </div>
 
       <!-- Pour ajouter un futur jeu : ajouter une <option> ci-dessus, un bloc #cfgXxx ici, -->
@@ -263,7 +281,7 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX' };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes' };
 
   let db = null, auth = null;
   let r4Unlocked = false, currentR4Name = null;
@@ -411,7 +429,7 @@
   function onGameTypeChange(){
     const type = $('gameTypeSelect').value;
     document.querySelectorAll('.game-config').forEach(el => el.style.display = 'none');
-    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion'};
+    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion', mole:'cfgMole', garden:'cfgGarden', gems:'cfgGems'};
     if(map[type]) $(map[type]).style.display = 'block';
   }
 
@@ -539,7 +557,10 @@
       'chronoGame/' + today,
       'slotGame/' + today,
       'blackjackGame/' + today,
-      'invasionGame/' + today
+      'invasionGame/' + today,
+      'moleGame/' + today,
+      'gardenGame/' + today,
+      'gemsGame/' + today
     ];
     await Promise.all(paths.map(p => db.ref(p).remove()));
     showToast('Scores du jour réinitialisés pour tous les jeux.');
