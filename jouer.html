@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ITX — Jouer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -182,10 +182,11 @@
   .hit-dot{width:12px; height:12px; border-radius:50%; border:1px solid var(--accent-2); background:transparent;}
   .hit-dot.used{background:var(--accent-2);}
   canvas{width:100%; display:block; background:#0e120d; border:1px solid var(--border); border-radius:8px; touch-action:none;}
-  .lane-controls{display:flex; gap:8px; margin-top:10px;}
+  .lane-controls{display:flex; gap:8px; margin-top:10px; touch-action:manipulation;}
   .lane-btn{
     flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
     padding:14px 0; border-radius:8px; font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; cursor:pointer;
+    touch-action:manipulation;
   }
   .lane-btn:active{border-color:var(--accent); color:var(--accent);}
 
@@ -411,12 +412,12 @@
 
   /* ==== Chasse aux taupes néon / Tri de gemmes (grille 3x3 partagée) ==== */
   .mole-grid{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; touch-action:manipulation;
   }
   .mole-hole{
     aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 50% 40%, #241030, #120a18);
     border:3px solid #3a2a4a; position:relative; overflow:hidden; cursor:pointer;
-    box-shadow:inset 0 6px 10px rgba(0,0,0,0.6);
+    box-shadow:inset 0 6px 10px rgba(0,0,0,0.6); touch-action:manipulation;
   }
   .mole-critter{
     position:absolute; left:50%; top:100%; width:68%; height:68%; border-radius:50%; transform:translate(-50%,0);
@@ -445,12 +446,12 @@
 
   /* ==== Jardin de paires ==== */
   .garden-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:16px 0;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:16px 0; touch-action:manipulation;
   }
   .garden-card{
     aspect-ratio:1; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
     font-size:22px; background:linear-gradient(160deg,#3a2a4a,#241830); border:2px solid #5a4a6a;
-    box-shadow:0 2px 6px rgba(0,0,0,0.4); transition:transform 0.15s ease;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4); transition:transform 0.15s ease; touch-action:manipulation;
   }
   .garden-card.flipped{
     background:linear-gradient(160deg,#fff0f6,#ffe4f0); border-color:#ff9fd6; color:#3a1030;
@@ -468,7 +469,7 @@
     font-size:22px; color:var(--cyan); text-shadow:0 0 14px rgba(79,214,201,0.9), 0 2px 0 rgba(0,0,0,0.7);
   }
   .wave-banner.showing{animation:bigWinPop 1.6s cubic-bezier(.34,1.56,.64,1) forwards;}
-  .inv-canvas-wrap{position:relative;}
+  .inv-canvas-wrap{position:relative; touch-action:none;}
 
   .bet-row{display:flex; gap:8px; margin-top:14px;}
   .bet-btn{
@@ -3501,7 +3502,7 @@
       $('invLeftBtn').addEventListener(ev, releaseMove);
       $('invRightBtn').addEventListener(ev, releaseMove);
     });
-    $('invFireBtn').addEventListener('click', ()=> invFireBullet());
+    $('invFireBtn').addEventListener('pointerdown', (e)=>{ e.preventDefault(); invFireBullet(); });
     document.addEventListener('keydown', e=>{
       if(!invRunning) return;
       if(e.key==='ArrowLeft') invMoveDir = -1;
@@ -3806,7 +3807,7 @@
     molSpawnNext();
 
     document.querySelectorAll('.mole-hole').forEach((hole, idx)=>{
-      hole.onclick = ()=> onMolHit(idx);
+      hole.onpointerdown = (e)=>{ e.preventDefault(); onMolHit(idx); };
     });
   }
 
@@ -3860,7 +3861,7 @@
     molUiState = 'over';
     clearInterval(molTimerId); molTimerId = null;
     clearTimeout(molSpawnTimeout);
-    document.querySelectorAll('.mole-hole').forEach(h=>{ h.onclick=null; h.innerHTML=''; });
+    document.querySelectorAll('.mole-hole').forEach(h=>{ h.onpointerdown=null; h.innerHTML=''; });
     $('molPlayBox').style.display = 'none';
     $('molOverBox').style.display = 'block';
     const finalScore = Math.max(0, molScore);
@@ -4120,7 +4121,7 @@
     gemSpawnNext();
 
     document.querySelectorAll('#gemGrid .mole-hole').forEach((slot, idx)=>{
-      slot.onclick = ()=> onGemHit(idx);
+      slot.onpointerdown = (e)=>{ e.preventDefault(); onGemHit(idx); };
     });
   }
 
@@ -4173,7 +4174,7 @@
     gemUiState = 'over';
     clearInterval(gemTimerId); gemTimerId = null;
     clearTimeout(gemSpawnTimeout);
-    document.querySelectorAll('#gemGrid .mole-hole').forEach(h=>{ h.onclick=null; h.innerHTML=''; });
+    document.querySelectorAll('#gemGrid .mole-hole').forEach(h=>{ h.onpointerdown=null; h.innerHTML=''; });
     $('gemPlayBox').style.display = 'none';
     $('gemOverBox').style.display = 'block';
     const finalScore = Math.max(0, gemScore);
