@@ -182,11 +182,11 @@
   .hit-dot{width:12px; height:12px; border-radius:50%; border:1px solid var(--accent-2); background:transparent;}
   .hit-dot.used{background:var(--accent-2);}
   canvas{width:100%; display:block; background:#0e120d; border:1px solid var(--border); border-radius:8px; touch-action:none;}
-  .lane-controls{display:flex; gap:8px; margin-top:10px; touch-action:manipulation;}
+  .lane-controls{display:flex; gap:8px; margin-top:10px; touch-action:none;}
   .lane-btn{
     flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
     padding:14px 0; border-radius:8px; font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; cursor:pointer;
-    touch-action:manipulation;
+    touch-action:none;
   }
   .lane-btn:active{border-color:var(--accent); color:var(--accent);}
 
@@ -412,12 +412,12 @@
 
   /* ==== Chasse aux taupes néon / Tri de gemmes (grille 3x3 partagée) ==== */
   .mole-grid{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; touch-action:manipulation;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; touch-action:none;
   }
   .mole-hole{
     aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 50% 40%, #241030, #120a18);
     border:3px solid #3a2a4a; position:relative; overflow:hidden; cursor:pointer;
-    box-shadow:inset 0 6px 10px rgba(0,0,0,0.6); touch-action:manipulation;
+    box-shadow:inset 0 6px 10px rgba(0,0,0,0.6); touch-action:none;
   }
   .mole-critter{
     position:absolute; left:50%; top:100%; width:68%; height:68%; border-radius:50%; transform:translate(-50%,0);
@@ -444,14 +444,32 @@
   .gem-target b.red{color:#ff4d4d; text-shadow:0 0 8px rgba(255,77,77,0.7);}
   .gem-target b.teal{color:#4fd6c9; text-shadow:0 0 8px rgba(79,214,201,0.7);}
 
+  .gem-wrap{position:relative;}
+  .gem-reveal{
+    position:absolute; inset:0; z-index:6; display:none; flex-direction:column; align-items:center; justify-content:center;
+    background:rgba(8,4,12,0.94); border-radius:12px; text-align:center; gap:6px;
+  }
+  .gem-reveal-label{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim);}
+  .gem-reveal-color{font-family:'Oswald',sans-serif; font-weight:800; font-size:34px; text-transform:uppercase; letter-spacing:2px;}
+  .gem-reveal-color.pink{color:#ff5fd8; text-shadow:0 0 18px rgba(255,95,216,0.9);}
+  .gem-reveal-color.purple{color:#8b5cf6; text-shadow:0 0 18px rgba(139,92,246,0.9);}
+  .gem-reveal-color.gold{color:#ffcf4d; text-shadow:0 0 18px rgba(255,207,77,0.9);}
+  .gem-reveal-color.red{color:#ff4d4d; text-shadow:0 0 18px rgba(255,77,77,0.9);}
+  .gem-reveal-color.teal{color:#4fd6c9; text-shadow:0 0 18px rgba(79,214,201,0.9);}
+  .gem-reveal-count{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:26px; color:var(--accent); margin-top:8px;
+    animation:gemCountPulse 1s ease-in-out infinite;
+  }
+  @keyframes gemCountPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.15);}}
+
   /* ==== Jardin de paires ==== */
   .garden-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:16px 0; touch-action:manipulation;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:16px 0; touch-action:none;
   }
   .garden-card{
     aspect-ratio:1; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
     font-size:22px; background:linear-gradient(160deg,#3a2a4a,#241830); border:2px solid #5a4a6a;
-    box-shadow:0 2px 6px rgba(0,0,0,0.4); transition:transform 0.15s ease; touch-action:manipulation;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4); transition:transform 0.15s ease; touch-action:none;
   }
   .garden-card.flipped{
     background:linear-gradient(160deg,#fff0f6,#ffe4f0); border-color:#ff9fd6; color:#3a1030;
@@ -1008,10 +1026,17 @@
       <span><span id="gemScoreText">Score : </span><span class="score" id="gemScoreLabel">0</span></span>
     </div>
     <div class="gem-target" id="gemTargetBadge"><span id="gemTargetText">Cible :</span> <b id="gemTargetColorName">—</b></div>
-    <div class="mole-grid" id="gemGrid">
-      <div class="mole-hole" id="gemSlot0"></div><div class="mole-hole" id="gemSlot1"></div><div class="mole-hole" id="gemSlot2"></div>
-      <div class="mole-hole" id="gemSlot3"></div><div class="mole-hole" id="gemSlot4"></div><div class="mole-hole" id="gemSlot5"></div>
-      <div class="mole-hole" id="gemSlot6"></div><div class="mole-hole" id="gemSlot7"></div><div class="mole-hole" id="gemSlot8"></div>
+    <div class="gem-wrap">
+      <div class="mole-grid" id="gemGrid">
+        <div class="mole-hole" id="gemSlot0"></div><div class="mole-hole" id="gemSlot1"></div><div class="mole-hole" id="gemSlot2"></div>
+        <div class="mole-hole" id="gemSlot3"></div><div class="mole-hole" id="gemSlot4"></div><div class="mole-hole" id="gemSlot5"></div>
+        <div class="mole-hole" id="gemSlot6"></div><div class="mole-hole" id="gemSlot7"></div><div class="mole-hole" id="gemSlot8"></div>
+      </div>
+      <div class="gem-reveal" id="gemRevealOverlay">
+        <div class="gem-reveal-label" id="gemRevealLabel">Ta cible :</div>
+        <div class="gem-reveal-color" id="gemRevealColor">—</div>
+        <div class="gem-reveal-count" id="gemRevealCount">5</div>
+      </div>
     </div>
   </div>
   <div id="gemOverBox" style="display:none;">
@@ -1121,10 +1146,10 @@
       rulesMole:["Des taupes néon surgissent au hasard, tape-les avant qu'elles ne redescendent.","Chaque taupe touchée rapporte 1 point. Attention aux taupes noires : les éviter, elles retirent 2 points.","25 secondes par essai. 3 essais par jour, meilleur score retenu."],
       molTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       molScoreText:"Score : ",
-      rulesGarden:["Une grille de cartes retournées : clique-en deux pour les révéler.","Si elles correspondent, la paire reste visible et rapporte 1 point. Sinon, elles se retournent.","45 secondes par essai. 3 essais par jour, meilleur score retenu."],
+      rulesGarden:["Une grille de 20 cartes retournées (10 paires) : clique-en deux pour les révéler.","Chaque paire trouvée rapporte 100 points. Chaque erreur retire 10 points — vise la précision !","45 secondes par essai. 3 essais par jour, meilleur score retenu."],
       gdnTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       gdnScoreText:"Paires : ",
-      rulesGems:["Une couleur cible est tirée au sort au début de l'essai.","Clique uniquement les gemmes de cette couleur : +1 point. Une mauvaise couleur cliquée retire 1 point.","25 secondes par essai. 3 essais par jour, meilleur score retenu."],
+      rulesGems:["Une couleur cible est tirée au sort et affichée en grand pendant 5 secondes avant le début du jeu.","Clique uniquement les gemmes de cette couleur : +1 point. Une mauvaise couleur cliquée retire 1 point.","25 secondes par essai. 3 essais par jour, meilleur score retenu."],
       gemTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       gemScoreText:"Score : ", gemTargetText:"Cible :",
       gemColorPink:"Rose", gemColorPurple:"Violet", gemColorGold:"Or", gemColorRed:"Rouge", gemColorTeal:"Turquoise",
@@ -1191,10 +1216,10 @@
       rulesMole:["Neon moles pop up at random — tap them before they duck back down.","Each mole hit scores 1 point. Watch out for black moles: avoid them, they cost 2 points.","25 seconds per attempt. 3 attempts per day, best score kept."],
       molTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       molScoreText:"Score: ",
-      rulesGarden:["A grid of face-down cards: click two to reveal them.","If they match, the pair stays revealed and scores 1 point. Otherwise, they flip back.","45 seconds per attempt. 3 attempts per day, best score kept."],
+      rulesGarden:["A grid of 20 face-down cards (10 pairs): click two to reveal them.","Each pair found scores 100 points. Each mistake costs 10 points — aim for precision!","45 seconds per attempt. 3 attempts per day, best score kept."],
       gdnTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       gdnScoreText:"Pairs: ",
-      rulesGems:["A target color is drawn at the start of the attempt.","Click only gems of that color: +1 point. Clicking the wrong color costs 1 point.","25 seconds per attempt. 3 attempts per day, best score kept."],
+      rulesGems:["A target color is drawn and shown big for 5 seconds before the game starts.","Click only gems of that color: +1 point. Clicking the wrong color costs 1 point.","25 seconds per attempt. 3 attempts per day, best score kept."],
       gemTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       gemScoreText:"Score: ", gemTargetText:"Target:",
       gemColorPink:"Pink", gemColorPurple:"Purple", gemColorGold:"Gold", gemColorRed:"Red", gemColorTeal:"Teal",
@@ -1261,10 +1286,10 @@
       rulesMole:["Topos de neón salen al azar: tócalos antes de que se escondan.","Cada topo tocado da 1 punto. Cuidado con los topos negros: evítalos, quitan 2 puntos.","25 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
       molTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       molScoreText:"Puntaje: ",
-      rulesGarden:["Una cuadrícula de cartas boca abajo: haz clic en dos para revelarlas.","Si coinciden, la pareja queda revelada y da 1 punto. Si no, se voltean de nuevo.","45 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
+      rulesGarden:["Una cuadrícula de 20 cartas boca abajo (10 parejas): haz clic en dos para revelarlas.","Cada pareja encontrada da 100 puntos. Cada error resta 10 puntos — ¡busca la precisión!","45 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
       gdnTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       gdnScoreText:"Parejas: ",
-      rulesGems:["Se sortea un color objetivo al inicio del intento.","Haz clic solo en las gemas de ese color: +1 punto. Un color equivocado quita 1 punto.","25 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
+      rulesGems:["Se sortea un color objetivo y se muestra en grande durante 5 segundos antes de empezar.","Haz clic solo en las gemas de ese color: +1 punto. Un color equivocado quita 1 punto.","25 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
       gemTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       gemScoreText:"Puntaje: ", gemTargetText:"Objetivo:",
       gemColorPink:"Rosa", gemColorPurple:"Morado", gemColorGold:"Dorado", gemColorRed:"Rojo", gemColorTeal:"Turquesa",
@@ -1331,10 +1356,10 @@
       rulesMole:["Talpe al neon spuntano a caso: toccale prima che si nascondano.","Ogni talpa colpita dà 1 punto. Attenzione alle talpe nere: evitale, tolgono 2 punti.","25 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
       molTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       molScoreText:"Punteggio: ",
-      rulesGarden:["Una griglia di carte coperte: clicca due carte per rivelarle.","Se corrispondono, la coppia resta rivelata e dà 1 punto. Altrimenti si girano di nuovo.","45 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      rulesGarden:["Una griglia di 20 carte coperte (10 coppie): clicca due carte per rivelarle.","Ogni coppia trovata dà 100 punti. Ogni errore toglie 10 punti — punta alla precisione!","45 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
       gdnTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       gdnScoreText:"Coppie: ",
-      rulesGems:["Un colore bersaglio viene estratto all'inizio del tentativo.","Clicca solo le gemme di quel colore: +1 punto. Un colore sbagliato toglie 1 punto.","25 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      rulesGems:["Un colore bersaglio viene estratto e mostrato in grande per 5 secondi prima di iniziare.","Clicca solo le gemme di quel colore: +1 punto. Un colore sbagliato toglie 1 punto.","25 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
       gemTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       gemScoreText:"Punteggio: ", gemTargetText:"Bersaglio:",
       gemColorPink:"Rosa", gemColorPurple:"Viola", gemColorGold:"Oro", gemColorRed:"Rosso", gemColorTeal:"Turchese",
@@ -1401,10 +1426,10 @@
       rulesMole:["Neon köstebekler rastgele belirir: saklanmadan önce onlara vur.","Vurulan her köstebek 1 puan verir. Siyah köstebeklere dikkat: onlardan kaçın, 2 puan götürürler.","Deneme başına 25 saniye. Günde 3 deneme, en iyi skor saklanır."],
       molTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       molScoreText:"Skor: ",
-      rulesGarden:["Kapalı kartlardan oluşan bir ızgara: ikisini açmak için tıkla.","Eşleşirlerse çift açık kalır ve 1 puan verir. Eşleşmezlerse tekrar kapanır.","Deneme başına 45 saniye. Günde 3 deneme, en iyi skor saklanır."],
+      rulesGarden:["20 kapalı karttan oluşan bir ızgara (10 çift): ikisini açmak için tıkla.","Bulunan her çift 100 puan verir. Her hata 10 puan götürür — hassasiyet önemli!","Deneme başına 45 saniye. Günde 3 deneme, en iyi skor saklanır."],
       gdnTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       gdnScoreText:"Çift: ",
-      rulesGems:["Denemenin başında hedef bir renk çekilir.","Sadece o renkteki mücevherlere tıkla: +1 puan. Yanlış renk -1 puan götürür.","Deneme başına 25 saniye. Günde 3 deneme, en iyi skor saklanır."],
+      rulesGems:["Hedef bir renk çekilir ve oyun başlamadan önce 5 saniye boyunca büyük gösterilir.","Sadece o renkteki mücevherlere tıkla: +1 puan. Yanlış renk -1 puan götürür.","Deneme başına 25 saniye. Günde 3 deneme, en iyi skor saklanır."],
       gemTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       gemScoreText:"Skor: ", gemTargetText:"Hedef:",
       gemColorPink:"Pembe", gemColorPurple:"Mor", gemColorGold:"Altın", gemColorRed:"Kırmızı", gemColorTeal:"Turkuaz",
@@ -1471,10 +1496,10 @@
       rulesMole:["Neon mollen duiken willekeurig op: tik ze voordat ze wegduiken.","Elke geraakte mol geeft 1 punt. Let op zwarte mollen: vermijd ze, ze kosten 2 punten.","25 seconden per poging. 3 pogingen per dag, beste score telt."],
       molTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       molScoreText:"Score: ",
-      rulesGarden:["Een raster van omgekeerde kaarten: klik er twee om te onthullen.","Komen ze overeen, dan blijft het paar zichtbaar en geeft 1 punt. Zo niet, dan draaien ze terug om.","45 seconden per poging. 3 pogingen per dag, beste score telt."],
+      rulesGarden:["Een raster van 20 omgekeerde kaarten (10 paren): klik er twee om te onthullen.","Elk gevonden paar geeft 100 punten. Elke fout kost 10 punten — mik op precisie!","45 seconden per poging. 3 pogingen per dag, beste score telt."],
       gdnTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       gdnScoreText:"Paren: ",
-      rulesGems:["Bij de start van de poging wordt een doelkleur getrokken.","Klik alleen op edelstenen van die kleur: +1 punt. Een verkeerde kleur kost 1 punt.","25 seconden per poging. 3 pogingen per dag, beste score telt."],
+      rulesGems:["Er wordt een doelkleur getrokken en 5 seconden lang groot getoond voordat het spel begint.","Klik alleen op edelstenen van die kleur: +1 punt. Een verkeerde kleur kost 1 punt.","25 seconden per poging. 3 pogingen per dag, beste score telt."],
       gemTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       gemScoreText:"Score: ", gemTargetText:"Doel:",
       gemColorPink:"Roze", gemColorPurple:"Paars", gemColorGold:"Goud", gemColorRed:"Rood", gemColorTeal:"Turquoise",
@@ -1694,6 +1719,7 @@
     $('gemStartBtn').textContent = t('runStartBtn');
     $('gemScoreText').textContent = t('gemScoreText');
     $('gemTargetText').textContent = t('gemTargetText');
+    $('gemRevealLabel').textContent = t('gemTargetText');
     $('gemRetryBtn').textContent = t('runNextAttemptBtn');
     $('gemDoneText1').textContent = t('runDoneText1');
     $('gemDoneLabel').textContent = t('runDoneLabel');
@@ -3885,11 +3911,11 @@
 
   // ==================== JEU : JARDIN DE PAIRES ====================
   const GDN_DURATION_MS = 45000;
-  const GDN_ICONS = ['🌸','🦋','🐞','🍄','🌈','🐝','🍀','🌻'];
+  const GDN_ICONS = ['🌸','🦋','🐞','🍄','🌈','🐝','🍀','🌻','🐌','🌷'];
   let gdnScores = {};
   let gdnCurrentAttempt = 1;
   let gdnUiState = null;
-  let gdnScore = 0, gdnTimerId = null, gdnEndTime = 0, gdnDeck = [], gdnFlipped = [], gdnLocked = false, gdnMatchedCount = 0;
+  let gdnScore = 0, gdnTimerId = null, gdnEndTime = 0, gdnDeck = [], gdnFlipped = [], gdnLocked = false, gdnMatchedCount = 0, gdnMismatches = 0;
 
   function myGdnRecord(){ return (gdnScores && gdnScores[myId]) || null; }
 
@@ -3950,7 +3976,7 @@
     hideAllGameBoxes();
     $('gdnPlayBox').style.display = 'block';
     gdnUiState = 'playing';
-    gdnScore = 0; gdnMatchedCount = 0; gdnFlipped = []; gdnLocked = false;
+    gdnScore = 0; gdnMatchedCount = 0; gdnMismatches = 0; gdnFlipped = []; gdnLocked = false;
     $('gdnScoreLabel').textContent = '0';
     gdnEndTime = Date.now() + GDN_DURATION_MS;
 
@@ -4003,6 +4029,7 @@
         gdnLocked = false;
         if(gdnMatchedCount === GDN_ICONS.length) endGdnAttempt();
       } else {
+        gdnMismatches++;
         slotPlayTone(200, 0.12, 'sawtooth', 0, 0.08);
         setTimeout(()=>{
           $('gdnCard'+a).classList.remove('flipped'); $('gdnCard'+a).textContent = '';
@@ -4020,14 +4047,15 @@
     clearInterval(gdnTimerId); gdnTimerId = null;
     $('gdnPlayBox').style.display = 'none';
     $('gdnOverBox').style.display = 'block';
-    $('gdnFinalScore').textContent = gdnScore;
+    const finalScore = Math.max(0, gdnScore*100 - gdnMismatches*10);
+    $('gdnFinalScore').textContent = finalScore;
 
     const path = 'gardenGame/' + todayDateStr() + '/' + myId;
     const result = await db.ref(path).transaction(current=>{
       const rec = current || {name: myName, attempts: [], bestScore: 0};
       rec.name = myName;
-      rec.attempts = (rec.attempts || []).concat([gdnScore]);
-      rec.bestScore = Math.max(rec.bestScore || 0, gdnScore);
+      rec.attempts = (rec.attempts || []).concat([finalScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, finalScore);
       return rec;
     });
     const rec = result.snapshot.val();
@@ -4050,7 +4078,7 @@
   function myGemRecord(){ return (gemScores && gemScores[myId]) || null; }
 
   function renderGems(){
-    if(gemUiState === 'playing'){ $('gemPlayBox').style.display = 'block'; return; }
+    if(gemUiState === 'playing' || gemUiState === 'reveal'){ $('gemPlayBox').style.display = 'block'; return; }
     const rec = myGemRecord();
     const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
     if(attemptsUsed >= MAX_ATTEMPTS){
@@ -4102,18 +4130,48 @@
     return top[0];
   }
 
+  let gemRevealTimerId = null;
+
   function startGemAttempt(){
     hideAllGameBoxes();
     $('gemPlayBox').style.display = 'block';
-    gemUiState = 'playing';
+    gemUiState = 'reveal';
     gemScore = 0;
     $('gemScoreLabel').textContent = '0';
-    gemEndTime = Date.now() + GEM_DURATION_MS;
+    $('gemTimeLeft').textContent = `00:${String(Math.ceil(GEM_DURATION_MS/1000)).padStart(2,'0')}`;
     gemTargetColor = GEM_COLORS[Math.floor(Math.random()*GEM_COLORS.length)];
     const badge = $('gemTargetColorName');
     badge.textContent = t(GEM_COLOR_KEYS[gemTargetColor]);
     badge.className = gemTargetColor;
     for(let i=0;i<9;i++){ $('gemSlot'+i).innerHTML = ''; $('gemSlot'+i).dataset.alive = '0'; }
+
+    const revealColor = $('gemRevealColor');
+    revealColor.textContent = t(GEM_COLOR_KEYS[gemTargetColor]);
+    revealColor.className = 'gem-reveal-color ' + gemTargetColor;
+    $('gemRevealOverlay').style.display = 'flex';
+
+    let count = 5;
+    $('gemRevealCount').textContent = count;
+    slotPlayTone(500, 0.08, 'triangle', 0, 0.08);
+    if(gemRevealTimerId) clearInterval(gemRevealTimerId);
+    gemRevealTimerId = setInterval(()=>{
+      count--;
+      if(count <= 0){
+        clearInterval(gemRevealTimerId);
+        gemRevealTimerId = null;
+        $('gemRevealOverlay').style.display = 'none';
+        slotPlayTone(880, 0.15, 'square', 0, 0.1);
+        beginGemPlay();
+      } else {
+        $('gemRevealCount').textContent = count;
+        slotPlayTone(500, 0.08, 'triangle', 0, 0.08);
+      }
+    }, 1000);
+  }
+
+  function beginGemPlay(){
+    gemUiState = 'playing';
+    gemEndTime = Date.now() + GEM_DURATION_MS;
 
     gemTickTimer();
     if(gemTimerId) clearInterval(gemTimerId);
