@@ -145,6 +145,9 @@
         <option value="mole">🌸 Chasse aux taupes néon</option>
         <option value="garden">🦋 Jardin de paires</option>
         <option value="gems">💎 Tri de gemmes</option>
+        <option value="bubble">🫧 Bulles de savon</option>
+        <option value="glitter">💄 Pluie de paillettes</option>
+        <option value="combo">💅 Combo couleurs</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -202,6 +205,21 @@
       <!-- Config spécifique : gems -->
       <div id="cfgGems" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Une couleur cible est tirée, il faut cliquer uniquement les gemmes de cette couleur pendant 25 secondes. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : bubble -->
+      <div id="cfgBubble" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Des bulles pastel surgissent 25 secondes, il faut en éclater un maximum (attention aux bulles sombres, à éviter). 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : glitter -->
+      <div id="cfgGlitter" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Des objets tombent, il faut les rattraper avec un panier pendant 25 secondes (attention aux objets à éviter). 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : combo -->
+      <div id="cfgCombo" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Une couleur cible est tirée, il faut cliquer uniquement les bons éléments pendant 25 secondes. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
       </div>
 
       <!-- Pour ajouter un futur jeu : ajouter une <option> ci-dessus, un bloc #cfgXxx ici, -->
@@ -281,7 +299,7 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes' };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes', bubble:'🫧 Bulles de savon', glitter:'💄 Pluie de paillettes', combo:'💅 Combo couleurs' };
 
   let db = null, auth = null;
   let r4Unlocked = false, currentR4Name = null;
@@ -429,7 +447,7 @@
   function onGameTypeChange(){
     const type = $('gameTypeSelect').value;
     document.querySelectorAll('.game-config').forEach(el => el.style.display = 'none');
-    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion', mole:'cfgMole', garden:'cfgGarden', gems:'cfgGems'};
+    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion', mole:'cfgMole', garden:'cfgGarden', gems:'cfgGems', bubble:'cfgBubble', glitter:'cfgGlitter', combo:'cfgCombo'};
     if(map[type]) $(map[type]).style.display = 'block';
   }
 
@@ -560,7 +578,10 @@
       'invasionGame/' + today,
       'moleGame/' + today,
       'gardenGame/' + today,
-      'gemsGame/' + today
+      'gemsGame/' + today,
+      'bubbleGame/' + today,
+      'glitterGame/' + today,
+      'comboGame/' + today
     ];
     await Promise.all(paths.map(p => db.ref(p).remove()));
     showToast('Scores du jour réinitialisés pour tous les jeux.');

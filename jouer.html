@@ -130,6 +130,9 @@
   .mol-icon{border-color:var(--neon-pink); box-shadow:0 0 10px var(--neon-pink), 0 0 28px rgba(255,95,216,0.8);}
   .gdn-icon{border-color:#ffb3e0; box-shadow:0 0 10px #ffb3e0, 0 0 28px rgba(255,179,224,0.7);}
   .gem-icon{border-color:var(--purple); box-shadow:0 0 10px var(--purple), 0 0 28px rgba(139,92,246,0.8);}
+  .bub-icon{border-color:#ffb3e0; box-shadow:0 0 10px #ffb3e0, 0 0 28px rgba(255,179,224,0.7);}
+  .glt-icon{border-color:var(--neon-pink); box-shadow:0 0 10px var(--neon-pink), 0 0 28px rgba(255,95,216,0.8);}
+  .cmb-icon{border-color:var(--neon-gold); box-shadow:0 0 10px var(--neon-gold), 0 0 28px rgba(255,207,77,0.8);}
   .rules-list{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.6; text-align:left;}
   .rules-list li{margin-bottom:4px;}
   .rules-list b{color:var(--text);}
@@ -479,6 +482,23 @@
     background:linear-gradient(160deg,#eafff0,#d6ffe4); border-color:#7fe6a0; opacity:0.85; cursor:default;
   }
   @keyframes gardenFlip{0%{transform:scale(0.85) rotateY(90deg);} 100%{transform:scale(1) rotateY(0);}}
+
+  /* ==== Bulles de savon (réutilise .mole-hole, habillage translucide) ==== */
+  .bubble-hole{
+    background:radial-gradient(circle at 50% 100%, rgba(255,159,214,0.12), rgba(20,10,25,0.6));
+    border-color:#5a3a5a;
+  }
+  .bubble-critter{
+    position:absolute; left:50%; bottom:-100%; width:70%; height:70%; border-radius:50%; transform:translate(-50%,0);
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+    transition:bottom 0.15s cubic-bezier(.34,1.56,.64,1);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.85), rgba(255,182,235,0.35) 60%, rgba(255,159,214,0.25));
+    border:1.5px solid rgba(255,255,255,0.6); box-shadow:0 0 14px rgba(255,159,214,0.7), inset 0 0 10px rgba(255,255,255,0.4);
+  }
+  .bubble-critter.up{bottom:16%;}
+  .bubble-critter.lilac{background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.85), rgba(196,166,255,0.4) 60%, rgba(139,92,246,0.3)); box-shadow:0 0 14px rgba(139,92,246,0.7), inset 0 0 10px rgba(255,255,255,0.4);}
+  .bubble-critter.gold{background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9), rgba(255,224,138,0.5) 60%, rgba(255,207,77,0.35)); box-shadow:0 0 16px rgba(255,207,77,0.8), inset 0 0 10px rgba(255,255,255,0.4);}
+  .bubble-critter.bad{background:radial-gradient(circle at 35% 30%, rgba(90,60,60,0.9), rgba(30,10,10,0.85)); box-shadow:0 0 14px rgba(0,0,0,0.7); border:1.5px solid #5a2a2a;}
 
   .wave-banner{
     position:absolute; inset:0; z-index:8; display:flex; align-items:center; justify-content:center;
@@ -1061,6 +1081,150 @@
     </div>
   </div>
 
+  <!-- ==================== JEU : BULLES DE SAVON ==================== -->
+  <div id="bubTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="bubTiebreakLabel">Joueur : </span><b id="bubTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="bubTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="bubTiebreakFace">?</div></div>
+    <button class="btn-primary" id="bubTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="bubIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="bubPlayerLabel">Joueur : </span><b id="bubIntroName"></b> <span class="tiebreak-tag" id="bubTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;"><span id="bubAttemptText1">Essai </span><b id="bubAttemptNumber">1</b><span id="bubAttemptText2">/3 aujourd'hui.</span><span id="bubBestSoFar"></span></div>
+    <button class="btn-primary" id="bubStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="bubPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="bubTimeLeft">00:25</span>
+      <span><span id="bubScoreText">Score : </span><span class="score" id="bubScoreLabel">0</span></span>
+    </div>
+    <div class="mole-grid" id="bubGrid">
+      <div class="mole-hole bubble-hole" id="bubHole0"></div><div class="mole-hole bubble-hole" id="bubHole1"></div><div class="mole-hole bubble-hole" id="bubHole2"></div>
+      <div class="mole-hole bubble-hole" id="bubHole3"></div><div class="mole-hole bubble-hole" id="bubHole4"></div><div class="mole-hole bubble-hole" id="bubHole5"></div>
+      <div class="mole-hole bubble-hole" id="bubHole6"></div><div class="mole-hole bubble-hole" id="bubHole7"></div><div class="mole-hole bubble-hole" id="bubHole8"></div>
+    </div>
+  </div>
+  <div id="bubOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🫧</div>
+      <div class="wname" id="bubFinalScore">0</div>
+      <div class="wsub" id="bubOverSub">Score de cet essai</div>
+    </div>
+    <button class="btn-primary" id="bubRetryBtn">Essai suivant</button>
+  </div>
+  <div id="bubDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="bubDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="bubDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="bubDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="bubDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="bubAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="bubWinnerName"></div>
+      <div class="wsub" id="bubWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU : PLUIE DE PAILLETTES ==================== -->
+  <div id="gltTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="gltTiebreakLabel">Joueur : </span><b id="gltTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="gltTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="gltTiebreakFace">?</div></div>
+    <button class="btn-primary" id="gltTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="gltIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="gltPlayerLabel">Joueur : </span><b id="gltIntroName"></b> <span class="tiebreak-tag" id="gltTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;"><span id="gltAttemptText1">Essai </span><b id="gltAttemptNumber">1</b><span id="gltAttemptText2">/3 aujourd'hui.</span><span id="gltBestSoFar"></span></div>
+    <button class="btn-primary" id="gltStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="gltPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="gltTimeLeft">00:25</span>
+      <span><span id="gltScoreText">Score : </span><span class="score" id="gltScoreLabel">0</span></span>
+    </div>
+    <canvas id="gltCanvas" width="300" height="260"></canvas>
+    <div class="lane-controls">
+      <button class="lane-btn" id="gltLeftBtn">◀</button>
+      <button class="lane-btn" id="gltRightBtn">▶</button>
+    </div>
+  </div>
+  <div id="gltOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">💄</div>
+      <div class="wname" id="gltFinalScore">0</div>
+      <div class="wsub" id="gltOverSub">Score de cet essai</div>
+    </div>
+    <button class="btn-primary" id="gltRetryBtn">Essai suivant</button>
+  </div>
+  <div id="gltDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="gltDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="gltDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="gltDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="gltDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="gltAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="gltWinnerName"></div>
+      <div class="wsub" id="gltWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
+  <!-- ==================== JEU : COMBO COULEURS ==================== -->
+  <div id="cmbTiebreakBox" class="board" style="display:none;">
+    <div class="info-line"><span id="cmbTiebreakLabel">Joueur : </span><b id="cmbTiebreakName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="cmbTiebreakInfo">Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.</div>
+    <div class="dice-stage"><div class="dice-face" id="cmbTiebreakFace">?</div></div>
+    <button class="btn-primary" id="cmbTiebreakBtn">Tirer mon nombre</button>
+  </div>
+  <div id="cmbIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="cmbPlayerLabel">Joueur : </span><b id="cmbIntroName"></b> <span class="tiebreak-tag" id="cmbTiebreakTag"></span></div>
+    <div class="info-line" style="margin-top:8px;"><span id="cmbAttemptText1">Essai </span><b id="cmbAttemptNumber">1</b><span id="cmbAttemptText2">/3 aujourd'hui.</span><span id="cmbBestSoFar"></span></div>
+    <button class="btn-primary" id="cmbStartBtn">Lancer l'essai</button>
+  </div>
+  <div id="cmbPlayBox" class="board" style="display:none;">
+    <div class="hud">
+      <span class="mono" id="cmbTimeLeft">00:25</span>
+      <span><span id="cmbScoreText">Score : </span><span class="score" id="cmbScoreLabel">0</span></span>
+    </div>
+    <div class="gem-target" id="cmbTargetBadge"><span id="cmbTargetText">Cible :</span> <b id="cmbTargetColorName">—</b></div>
+    <div class="gem-wrap">
+      <div class="mole-grid" id="cmbGrid">
+        <div class="mole-hole" id="cmbSlot0"></div><div class="mole-hole" id="cmbSlot1"></div><div class="mole-hole" id="cmbSlot2"></div>
+        <div class="mole-hole" id="cmbSlot3"></div><div class="mole-hole" id="cmbSlot4"></div><div class="mole-hole" id="cmbSlot5"></div>
+        <div class="mole-hole" id="cmbSlot6"></div><div class="mole-hole" id="cmbSlot7"></div><div class="mole-hole" id="cmbSlot8"></div>
+        <div class="mole-hole" id="cmbSlot9"></div><div class="mole-hole" id="cmbSlot10"></div><div class="mole-hole" id="cmbSlot11"></div>
+      </div>
+      <div class="gem-reveal" id="cmbRevealOverlay">
+        <div class="gem-reveal-label" id="cmbRevealLabel">Ta cible :</div>
+        <div class="gem-reveal-color" id="cmbRevealColor">—</div>
+        <div class="gem-reveal-count" id="cmbRevealCount">5</div>
+      </div>
+    </div>
+  </div>
+  <div id="cmbOverBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">💅</div>
+      <div class="wname" id="cmbFinalScore">0</div>
+      <div class="wsub" id="cmbOverSub">Score de cet essai</div>
+    </div>
+    <button class="btn-primary" id="cmbRetryBtn">Essai suivant</button>
+  </div>
+  <div id="cmbDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="cmbDoneText1">Tes 3 essais du jour sont terminés.</div>
+    <div class="level-label" style="margin-top:10px;" id="cmbDoneLabel">Ton meilleur score</div>
+    <div class="level-number" id="cmbDoneBest" style="font-size:28px;">0</div>
+    <div class="info-line" style="margin-top:10px;" id="cmbDoneText2">Reviens demain pour retenter ta chance !</div>
+  </div>
+  <div id="cmbAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="cmbWinnerName"></div>
+      <div class="wsub" id="cmbWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
        lui donner ses propres ids, et ajouter sa logique dans renderGame() / handlers plus bas. ==================== -->
 
@@ -1153,6 +1317,15 @@
       gemTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
       gemScoreText:"Score : ", gemTargetText:"Cible :",
       gemColorPink:"Rose", gemColorPurple:"Violet", gemColorGold:"Or", gemColorRed:"Rouge", gemColorTeal:"Turquoise",
+      rulesBubble:["Des bulles pastel surgissent au hasard, éclate-les avant qu'elles ne redescendent.","Chaque bulle éclatée rapporte 1 point. Attention aux bulles sombres : les éviter, elles retirent 2 points.","25 secondes par essai. 3 essais par jour, meilleur score retenu."],
+      bubTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      bubScoreText:"Score : ",
+      rulesGlitter:["Des objets tombent du haut de l'écran, déplace ton panier pour les rattraper.","Chaque bon objet rattrapé rapporte 1 point. Les objets à éviter en retirent 2.","25 secondes par essai. 3 essais par jour, meilleur score retenu."],
+      gltTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      gltScoreText:"Score : ",
+      rulesCombo:["Une couleur cible est tirée et affichée en grand pendant 5 secondes avant le début du jeu.","Clique uniquement les éléments de cette couleur : +1 point. Une mauvaise couleur cliquée retire 1 point.","25 secondes par essai, grille plus grande que le tri de gemmes. 3 essais par jour, meilleur score retenu."],
+      cmbTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de score à la fin de la journée.",
+      cmbScoreText:"Score : ", cmbTargetText:"Cible :",
       slotOutOfTokens:"Plus assez de jetons pour miser !",
       slotDoneText1:"Ta session du jour est terminée.", slotDoneLabel:"Jetons finaux", slotDoneText2:"Reviens demain pour retenter ta chance !",
       diceTiebreakInfo:"Avant de commencer, tire ton <b>nombre de départage</b> (1 à 99) — il ne servira qu'en cas d'égalité de niveau à la fin.",
@@ -1223,6 +1396,15 @@
       gemTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
       gemScoreText:"Score: ", gemTargetText:"Target:",
       gemColorPink:"Pink", gemColorPurple:"Purple", gemColorGold:"Gold", gemColorRed:"Red", gemColorTeal:"Teal",
+      rulesBubble:["Pastel bubbles pop up at random — burst them before they sink back down.","Each burst bubble scores 1 point. Watch out for dark bubbles: avoid them, they cost 2 points.","25 seconds per attempt. 3 attempts per day, best score kept."],
+      bubTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      bubScoreText:"Score: ",
+      rulesGlitter:["Items fall from the top of the screen, move your basket to catch them.","Each good item caught scores 1 point. Items to avoid cost 2 points.","25 seconds per attempt. 3 attempts per day, best score kept."],
+      gltTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      gltScoreText:"Score: ",
+      rulesCombo:["A target color is drawn and shown big for 5 seconds before the game starts.","Click only items of that color: +1 point. Clicking the wrong color costs 1 point.","25 seconds per attempt, a bigger grid than gem sorting. 3 attempts per day, best score kept."],
+      cmbTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a score tie at the end of the day.",
+      cmbScoreText:"Score: ", cmbTargetText:"Target:",
       slotOutOfTokens:"Not enough tokens left to bet!",
       slotDoneText1:"Your session for today is over.", slotDoneLabel:"Final tokens", slotDoneText2:"Come back tomorrow to try again!",
       diceTiebreakInfo:"Before starting, draw your <b>tiebreak number</b> (1 to 99) — it's only used in case of a level tie at the end.",
@@ -1293,6 +1475,15 @@
       gemTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
       gemScoreText:"Puntaje: ", gemTargetText:"Objetivo:",
       gemColorPink:"Rosa", gemColorPurple:"Morado", gemColorGold:"Dorado", gemColorRed:"Rojo", gemColorTeal:"Turquesa",
+      rulesBubble:["Burbujas pastel salen al azar: revéntalas antes de que bajen de nuevo.","Cada burbuja reventada da 1 punto. Cuidado con las burbujas oscuras: evítalas, quitan 2 puntos.","25 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
+      bubTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      bubScoreText:"Puntaje: ",
+      rulesGlitter:["Caen objetos desde arriba, mueve tu cesta para atraparlos.","Cada buen objeto atrapado da 1 punto. Los objetos a evitar quitan 2 puntos.","25 segundos por intento. 3 intentos al día, mejor puntaje retenido."],
+      gltTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      gltScoreText:"Puntaje: ",
+      rulesCombo:["Se sortea un color objetivo y se muestra en grande durante 5 segundos antes de empezar.","Haz clic solo en los elementos de ese color: +1 punto. Un color equivocado quita 1 punto.","25 segundos por intento, cuadrícula más grande que el tri de gemas. 3 intentos al día, mejor puntaje retenido."],
+      cmbTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de puntaje al final del día.",
+      cmbScoreText:"Puntaje: ", cmbTargetText:"Objetivo:",
       slotOutOfTokens:"¡No quedan suficientes fichas para apostar!",
       slotDoneText1:"Tu sesión de hoy ha terminado.", slotDoneLabel:"Fichas finales", slotDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       diceTiebreakInfo:"Antes de empezar, saca tu <b>número de desempate</b> (1 a 99) — solo se usará en caso de empate de nivel al final.",
@@ -1363,6 +1554,15 @@
       gemTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
       gemScoreText:"Punteggio: ", gemTargetText:"Bersaglio:",
       gemColorPink:"Rosa", gemColorPurple:"Viola", gemColorGold:"Oro", gemColorRed:"Rosso", gemColorTeal:"Turchese",
+      rulesBubble:["Bolle pastello spuntano a caso: falle scoppiare prima che scendano di nuovo.","Ogni bolla scoppiata dà 1 punto. Attenzione alle bolle scure: evitale, tolgono 2 punti.","25 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      bubTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      bubScoreText:"Punteggio: ",
+      rulesGlitter:["Gli oggetti cadono dall'alto, muovi il tuo cestino per prenderli.","Ogni buon oggetto preso dà 1 punto. Gli oggetti da evitare tolgono 2 punti.","25 secondi per tentativo. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      gltTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      gltScoreText:"Punteggio: ",
+      rulesCombo:["Un colore bersaglio viene estratto e mostrato in grande per 5 secondi prima di iniziare.","Clicca solo gli elementi di quel colore: +1 punto. Un colore sbagliato toglie 1 punto.","25 secondi per tentativo, griglia più grande del tri di gemme. 3 tentativi al giorno, viene mantenuto il punteggio migliore."],
+      cmbTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di punteggio a fine giornata.",
+      cmbScoreText:"Punteggio: ", cmbTargetText:"Bersaglio:",
       slotOutOfTokens:"Non hai più abbastanza gettoni per puntare!",
       slotDoneText1:"La tua sessione di oggi è terminata.", slotDoneLabel:"Gettoni finali", slotDoneText2:"Torna domani per riprovare!",
       diceTiebreakInfo:"Prima di iniziare, estrai il tuo <b>numero di spareggio</b> (1 a 99) — servirà solo in caso di parità di livello alla fine.",
@@ -1433,6 +1633,15 @@
       gemTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
       gemScoreText:"Skor: ", gemTargetText:"Hedef:",
       gemColorPink:"Pembe", gemColorPurple:"Mor", gemColorGold:"Altın", gemColorRed:"Kırmızı", gemColorTeal:"Turkuaz",
+      rulesBubble:["Pastel baloncuklar rastgele belirir: batmadan önce onları patlat.","Patlatılan her balon 1 puan verir. Koyu renkli balonlara dikkat: onlardan kaçın, 2 puan götürürler.","Deneme başına 25 saniye. Günde 3 deneme, en iyi skor saklanır."],
+      bubTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      bubScoreText:"Skor: ",
+      rulesGlitter:["Nesneler ekranın üstünden düşer, onları yakalamak için sepetini hareket ettir.","Yakalanan her iyi nesne 1 puan verir. Kaçınılması gereken nesneler 2 puan götürür.","Deneme başına 25 saniye. Günde 3 deneme, en iyi skor saklanır."],
+      gltTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      gltScoreText:"Skor: ",
+      rulesCombo:["Hedef bir renk çekilir ve oyun başlamadan önce 5 saniye boyunca büyük gösterilir.","Sadece o renkteki öğelere tıkla: +1 puan. Yanlış renk -1 puan götürür.","Deneme başına 25 saniye, mücevher ayıklamadan daha büyük bir ızgara. Günde 3 deneme, en iyi skor saklanır."],
+      cmbTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece gün sonunda skor eşitliği olursa kullanılır.",
+      cmbScoreText:"Skor: ", cmbTargetText:"Hedef:",
       slotOutOfTokens:"Bahis yapmak için yeterli jeton kalmadı!",
       slotDoneText1:"Bugünkü oturumun sona erdi.", slotDoneLabel:"Son jeton sayısı", slotDoneText2:"Tekrar denemek için yarın gel!",
       diceTiebreakInfo:"Başlamadan önce, <b>eşitlik bozma sayını</b> (1 ile 99 arası) çek — sadece sonunda seviye eşitliği olursa kullanılır.",
@@ -1503,6 +1712,15 @@
       gemTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
       gemScoreText:"Score: ", gemTargetText:"Doel:",
       gemColorPink:"Roze", gemColorPurple:"Paars", gemColorGold:"Goud", gemColorRed:"Rood", gemColorTeal:"Turquoise",
+      rulesBubble:["Pastelkleurige bellen duiken willekeurig op: knap ze voordat ze wegzakken.","Elke gesprongen bel geeft 1 punt. Let op donkere bellen: vermijd ze, ze kosten 2 punten.","25 seconden per poging. 3 pogingen per dag, beste score telt."],
+      bubTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      bubScoreText:"Score: ",
+      rulesGlitter:["Voorwerpen vallen van boven, beweeg je mandje om ze op te vangen.","Elk goed voorwerp geeft 1 punt. Voorwerpen om te vermijden kosten 2 punten.","25 seconden per poging. 3 pogingen per dag, beste score telt."],
+      gltTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      gltScoreText:"Score: ",
+      rulesCombo:["Er wordt een doelkleur getrokken en 5 seconden lang groot getoond voordat het spel begint.","Klik alleen op items van die kleur: +1 punt. Een verkeerde kleur kost 1 punt.","25 seconden per poging, groter raster dan bij edelstenen sorteren. 3 pogingen per dag, beste score telt."],
+      cmbTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke score aan het einde van de dag.",
+      cmbScoreText:"Score: ", cmbTargetText:"Doel:",
       slotOutOfTokens:"Niet genoeg fiches meer om in te zetten!",
       slotDoneText1:"Je sessie van vandaag is afgelopen.", slotDoneLabel:"Eindstand fiches", slotDoneText2:"Kom morgen terug om het nog eens te proberen!",
       diceTiebreakInfo:"Trek voordat je begint je <b>tiebreak-nummer</b> (1 tot 99) — dit wordt alleen gebruikt bij een gelijke stand aan het einde.",
@@ -1560,6 +1778,9 @@
     db.ref('moleGame/' + todayDateStr()).on('value', snap=>{ molScores = snap.val() || {}; render(); });
     db.ref('gardenGame/' + todayDateStr()).on('value', snap=>{ gdnScores = snap.val() || {}; render(); });
     db.ref('gemsGame/' + todayDateStr()).on('value', snap=>{ gemScores = snap.val() || {}; render(); });
+    db.ref('bubbleGame/' + todayDateStr()).on('value', snap=>{ bubScores = snap.val() || {}; render(); });
+    db.ref('glitterGame/' + todayDateStr()).on('value', snap=>{ gltScores = snap.val() || {}; render(); });
+    db.ref('comboGame/' + todayDateStr()).on('value', snap=>{ cmbScores = snap.val() || {}; render(); });
 
     setInterval(render, 1000);
   }
@@ -1583,7 +1804,10 @@
      'invTiebreakBox','invIntroBox','invPlayBox','invOverBox','invDoneBox','invAfterBox',
      'molTiebreakBox','molIntroBox','molPlayBox','molOverBox','molDoneBox','molAfterBox',
      'gdnTiebreakBox','gdnIntroBox','gdnPlayBox','gdnOverBox','gdnDoneBox','gdnAfterBox',
-     'gemTiebreakBox','gemIntroBox','gemPlayBox','gemOverBox','gemDoneBox','gemAfterBox'
+     'gemTiebreakBox','gemIntroBox','gemPlayBox','gemOverBox','gemDoneBox','gemAfterBox',
+     'bubTiebreakBox','bubIntroBox','bubPlayBox','bubOverBox','bubDoneBox','bubAfterBox',
+     'gltTiebreakBox','gltIntroBox','gltPlayBox','gltOverBox','gltDoneBox','gltAfterBox',
+     'cmbTiebreakBox','cmbIntroBox','cmbPlayBox','cmbOverBox','cmbDoneBox','cmbAfterBox'
     ].forEach(id => $(id).style.display = 'none');
   }
 
@@ -1728,6 +1952,47 @@
     $('gemTiebreakInfo').innerHTML = t('gemTiebreakInfo');
     $('gemTiebreakBtn').textContent = t('drawNumberBtn');
     $('gemWinnerSub').textContent = t('diceWinnerSub');
+    $('bubPlayerLabel').textContent = t('playerLabel');
+    $('bubAttemptText1').textContent = t('runAttemptText1');
+    $('bubAttemptText2').textContent = t('runAttemptText2');
+    $('bubStartBtn').textContent = t('runStartBtn');
+    $('bubScoreText').textContent = t('bubScoreText');
+    $('bubRetryBtn').textContent = t('runNextAttemptBtn');
+    $('bubDoneText1').textContent = t('runDoneText1');
+    $('bubDoneLabel').textContent = t('runDoneLabel');
+    $('bubDoneText2').textContent = t('runDoneText2');
+    $('bubTiebreakLabel').textContent = t('playerLabel');
+    $('bubTiebreakInfo').innerHTML = t('bubTiebreakInfo');
+    $('bubTiebreakBtn').textContent = t('drawNumberBtn');
+    $('bubWinnerSub').textContent = t('diceWinnerSub');
+    $('gltPlayerLabel').textContent = t('playerLabel');
+    $('gltAttemptText1').textContent = t('runAttemptText1');
+    $('gltAttemptText2').textContent = t('runAttemptText2');
+    $('gltStartBtn').textContent = t('runStartBtn');
+    $('gltScoreText').textContent = t('gltScoreText');
+    $('gltRetryBtn').textContent = t('runNextAttemptBtn');
+    $('gltDoneText1').textContent = t('runDoneText1');
+    $('gltDoneLabel').textContent = t('runDoneLabel');
+    $('gltDoneText2').textContent = t('runDoneText2');
+    $('gltTiebreakLabel').textContent = t('playerLabel');
+    $('gltTiebreakInfo').innerHTML = t('gltTiebreakInfo');
+    $('gltTiebreakBtn').textContent = t('drawNumberBtn');
+    $('gltWinnerSub').textContent = t('diceWinnerSub');
+    $('cmbPlayerLabel').textContent = t('playerLabel');
+    $('cmbAttemptText1').textContent = t('runAttemptText1');
+    $('cmbAttemptText2').textContent = t('runAttemptText2');
+    $('cmbStartBtn').textContent = t('runStartBtn');
+    $('cmbScoreText').textContent = t('cmbScoreText');
+    $('cmbTargetText').textContent = t('cmbTargetText');
+    $('cmbRevealLabel').textContent = t('cmbTargetText');
+    $('cmbRetryBtn').textContent = t('runNextAttemptBtn');
+    $('cmbDoneText1').textContent = t('runDoneText1');
+    $('cmbDoneLabel').textContent = t('runDoneLabel');
+    $('cmbDoneText2').textContent = t('runDoneText2');
+    $('cmbTiebreakLabel').textContent = t('playerLabel');
+    $('cmbTiebreakInfo').innerHTML = t('cmbTiebreakInfo');
+    $('cmbTiebreakBtn').textContent = t('drawNumberBtn');
+    $('cmbWinnerSub').textContent = t('diceWinnerSub');
     document.querySelectorAll('.lang-btn').forEach(b=>{
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -1833,6 +2098,18 @@
         const winner = computeGemWinner();
         $('gemAfterBox').style.display = 'block';
         $('gemWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'bubble'){
+        const winner = computeBubWinner();
+        $('bubAfterBox').style.display = 'block';
+        $('bubWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'glitter'){
+        const winner = computeGltWinner();
+        $('gltAfterBox').style.display = 'block';
+        $('gltWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'combo'){
+        const winner = computeCmbWinner();
+        $('cmbAfterBox').style.display = 'block';
+        $('cmbWinnerName').textContent = winner ? winner.name : '—';
       } else {
         $('closedBox').style.display = 'block';
         $('closedText').innerHTML = t('closedAccess');
@@ -1860,6 +2137,9 @@
     else if(type === 'mole') renderMole();
     else if(type === 'garden') renderGarden();
     else if(type === 'gems') renderGems();
+    else if(type === 'bubble') renderBubble();
+    else if(type === 'glitter') renderGlitter();
+    else if(type === 'combo') renderCombo();
 
     renderLeaderboard(type);
   }
@@ -1908,6 +2188,18 @@
     if(type === 'gems'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon gem-icon">💎</span>${t('rulesTitle')}</div><ul class="rules-list">
         ${t('rulesGems').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'bubble'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon bub-icon">🫧</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesBubble').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'glitter'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon glt-icon">💄</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesGlitter').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'combo'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon cmb-icon">💅</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesCombo').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -4254,6 +4546,520 @@
     $('gemRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
   }
 
+  // ==================== JEU : BULLES DE SAVON ====================
+  const BUB_DURATION_MS = 25000;
+  const BUB_COLORS = ['pink','lilac','gold'];
+  let bubScores = {};
+  let bubCurrentAttempt = 1;
+  let bubUiState = null;
+  let bubScore = 0, bubTimerId = null, bubSpawnTimeout = null, bubEndTime = 0;
+
+  function myBubRecord(){ return (bubScores && bubScores[myId]) || null; }
+
+  function renderBubble(){
+    if(bubUiState === 'playing'){ $('bubPlayBox').style.display = 'block'; return; }
+    const rec = myBubRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('bubDoneBox').style.display = 'block';
+      $('bubDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    if(!rec || rec.tiebreak === undefined){
+      $('bubTiebreakBox').style.display = 'block';
+      $('bubTiebreakName').textContent = myName;
+      return;
+    }
+    bubCurrentAttempt = attemptsUsed + 1;
+    $('bubIntroBox').style.display = 'block';
+    $('bubIntroName').textContent = myName;
+    $('bubTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+    $('bubAttemptNumber').textContent = bubCurrentAttempt;
+    $('bubBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollBubTiebreak(){
+    const btn = $('bubTiebreakBtn'), face = $('bubTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'bubbleGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeBubWinner(){
+    const entries = Object.keys(bubScores).map(id => ({id, ...bubScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  function startBubAttempt(){
+    hideAllGameBoxes();
+    $('bubPlayBox').style.display = 'block';
+    bubUiState = 'playing';
+    bubScore = 0;
+    $('bubScoreLabel').textContent = '0';
+    bubEndTime = Date.now() + BUB_DURATION_MS;
+    for(let i=0;i<9;i++){ $('bubHole'+i).innerHTML = ''; $('bubHole'+i).dataset.alive = '0'; }
+
+    bubTickTimer();
+    if(bubTimerId) clearInterval(bubTimerId);
+    bubTimerId = setInterval(bubTickTimer, 200);
+    bubSpawnNext();
+
+    document.querySelectorAll('#bubGrid .mole-hole').forEach((hole, idx)=>{
+      hole.onpointerdown = (e)=>{ e.preventDefault(); onBubHit(idx); };
+    });
+  }
+
+  function bubTickTimer(){
+    const remaining = Math.max(0, bubEndTime - Date.now());
+    const ss = Math.ceil(remaining/1000);
+    $('bubTimeLeft').textContent = `00:${String(ss).padStart(2,'0')}`;
+    if(remaining <= 0) endBubAttempt();
+  }
+
+  function bubSpawnNext(){
+    if(bubUiState !== 'playing') return;
+    const remaining = bubEndTime - Date.now();
+    if(remaining <= 400) return;
+    const idx = Math.floor(Math.random()*9);
+    const hole = $('bubHole'+idx);
+    const isBad = Math.random() < 0.18;
+    const color = isBad ? 'bad' : BUB_COLORS[Math.floor(Math.random()*BUB_COLORS.length)];
+    const critter = document.createElement('div');
+    critter.className = 'bubble-critter ' + color;
+    hole.innerHTML = '';
+    hole.appendChild(critter);
+    requestAnimationFrame(()=> critter.classList.add('up'));
+    hole.dataset.color = color;
+    hole.dataset.alive = '1';
+
+    const visibleMs = 700 + Math.random()*400;
+    setTimeout(()=>{
+      if(hole.dataset.alive === '1'){ hole.dataset.alive = '0'; critter.remove(); }
+    }, visibleMs);
+
+    bubSpawnTimeout = setTimeout(bubSpawnNext, 350 + Math.random()*350);
+  }
+
+  function onBubHit(idx){
+    if(bubUiState !== 'playing') return;
+    const hole = $('bubHole'+idx);
+    if(hole.dataset.alive !== '1') return;
+    hole.dataset.alive = '0';
+    const isBad = hole.dataset.color === 'bad';
+    bubScore += isBad ? -2 : 1;
+    $('bubScoreLabel').textContent = bubScore;
+    hole.classList.add('hit');
+    setTimeout(()=>{ hole.innerHTML = ''; hole.classList.remove('hit'); }, 300);
+    slotPlayTone(isBad ? 160 : 900, 0.08, isBad?'sawtooth':'sine', 0, 0.08);
+  }
+
+  async function endBubAttempt(){
+    if(bubUiState !== 'playing') return;
+    bubUiState = 'over';
+    clearInterval(bubTimerId); bubTimerId = null;
+    clearTimeout(bubSpawnTimeout);
+    document.querySelectorAll('#bubGrid .mole-hole').forEach(h=>{ h.onpointerdown=null; h.innerHTML=''; });
+    $('bubPlayBox').style.display = 'none';
+    $('bubOverBox').style.display = 'block';
+    const finalScore = Math.max(0, bubScore);
+    $('bubFinalScore').textContent = finalScore;
+
+    const path = 'bubbleGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      rec.attempts = (rec.attempts || []).concat([finalScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, finalScore);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('bubOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
+    $('bubRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
+  // ==================== JEU : PLUIE DE PAILLETTES ====================
+  const GLT_W = 300, GLT_H = 260, GLT_DURATION_MS = 25000;
+  const GLT_GOOD_ITEMS = ['💄','💎','👛','🎀'];
+  const GLT_BAD_ITEMS = ['🕷️','☁️'];
+  let gltScores = {};
+  let gltCurrentAttempt = 1;
+  let gltUiState = null;
+  let gltCanvas, gltCtx, gltRafId = null, gltRunning = false;
+  let gltBasketX = 0, gltMoveDir = 0, gltItems = [], gltScore = 0, gltEndTime = 0, gltSpawnTimer = 0, gltLastTs = null;
+
+  function myGltRecord(){ return (gltScores && gltScores[myId]) || null; }
+
+  function renderGlitter(){
+    if(gltUiState === 'playing'){ $('gltPlayBox').style.display = 'block'; return; }
+    const rec = myGltRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('gltDoneBox').style.display = 'block';
+      $('gltDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    if(!rec || rec.tiebreak === undefined){
+      $('gltTiebreakBox').style.display = 'block';
+      $('gltTiebreakName').textContent = myName;
+      return;
+    }
+    gltCurrentAttempt = attemptsUsed + 1;
+    $('gltIntroBox').style.display = 'block';
+    $('gltIntroName').textContent = myName;
+    $('gltTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+    $('gltAttemptNumber').textContent = gltCurrentAttempt;
+    $('gltBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollGltTiebreak(){
+    const btn = $('gltTiebreakBtn'), face = $('gltTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'glitterGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeGltWinner(){
+    const entries = Object.keys(gltScores).map(id => ({id, ...gltScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  function initGltCanvasOnce(){
+    if(gltCanvas) return;
+    gltCanvas = $('gltCanvas');
+    gltCtx = gltCanvas.getContext('2d');
+    const pressMove = (dir)=>{ gltMoveDir = dir; };
+    const releaseMove = ()=>{ gltMoveDir = 0; };
+    ['mousedown','touchstart'].forEach(ev=>{
+      $('gltLeftBtn').addEventListener(ev, e=>{ e.preventDefault(); pressMove(-1); });
+      $('gltRightBtn').addEventListener(ev, e=>{ e.preventDefault(); pressMove(1); });
+    });
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>{
+      $('gltLeftBtn').addEventListener(ev, releaseMove);
+      $('gltRightBtn').addEventListener(ev, releaseMove);
+    });
+  }
+
+  function startGltAttempt(){
+    hideAllGameBoxes();
+    $('gltPlayBox').style.display = 'block';
+    gltUiState = 'playing';
+    initGltCanvasOnce();
+    slotGetAudioCtx();
+
+    gltScore = 0; gltItems = []; gltBasketX = GLT_W/2 - 18; gltMoveDir = 0;
+    gltEndTime = Date.now() + GLT_DURATION_MS;
+    gltSpawnTimer = 0; gltLastTs = null;
+    $('gltScoreLabel').textContent = '0';
+
+    gltRunning = true;
+    gltRafId = requestAnimationFrame(gltLoop);
+  }
+
+  function gltLoop(ts){
+    if(!gltRunning) return;
+    if(gltLastTs === null) gltLastTs = ts;
+    const dt = Math.min((ts - gltLastTs)/1000, 0.05);
+    gltLastTs = ts;
+
+    const remaining = Math.max(0, gltEndTime - Date.now());
+    const ss = Math.ceil(remaining/1000);
+    $('gltTimeLeft').textContent = `00:${String(ss).padStart(2,'0')}`;
+    if(remaining <= 0){ endGltAttempt(); return; }
+
+    gltBasketX += gltMoveDir * 180 * dt;
+    gltBasketX = Math.max(4, Math.min(GLT_W - 40, gltBasketX));
+
+    gltSpawnTimer -= dt;
+    if(gltSpawnTimer <= 0){
+      const isBad = Math.random() < 0.25;
+      const emoji = isBad ? GLT_BAD_ITEMS[Math.floor(Math.random()*GLT_BAD_ITEMS.length)] : GLT_GOOD_ITEMS[Math.floor(Math.random()*GLT_GOOD_ITEMS.length)];
+      gltItems.push({x: 20+Math.random()*(GLT_W-40), y: -20, vy: 90+Math.random()*60, emoji, bad:isBad});
+      gltSpawnTimer = 0.5 + Math.random()*0.5;
+    }
+
+    gltItems.forEach(it=> it.y += it.vy*dt);
+
+    const basketY = GLT_H - 34, basketW = 40;
+    gltItems = gltItems.filter(it=>{
+      if(it.y > basketY && it.y < basketY+24 && it.x > gltBasketX-6 && it.x < gltBasketX+basketW+6){
+        gltScore += it.bad ? -2 : 1;
+        $('gltScoreLabel').textContent = gltScore;
+        slotPlayTone(it.bad?160:700, 0.08, it.bad?'sawtooth':'square', 0, 0.08);
+        return false;
+      }
+      return it.y < GLT_H + 20;
+    });
+
+    gltDrawFrame();
+    if(gltRunning) gltRafId = requestAnimationFrame(gltLoop);
+  }
+
+  function gltDrawFrame(){
+    const ctx = gltCtx;
+    ctx.fillStyle = '#0b0d0a';
+    ctx.fillRect(0,0,GLT_W,GLT_H);
+    ctx.fillStyle = 'rgba(255,159,214,0.12)';
+    for(let i=0;i<14;i++){ ctx.fillRect((i*41)%GLT_W, (i*67)%GLT_H, 1, 1); }
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '26px sans-serif';
+    gltItems.forEach(it=> ctx.fillText(it.emoji, it.x, it.y));
+
+    ctx.font = '30px sans-serif';
+    ctx.fillText('🧺', gltBasketX+20, GLT_H-24);
+  }
+
+  async function endGltAttempt(){
+    gltRunning = false;
+    if(gltRafId) cancelAnimationFrame(gltRafId);
+    gltUiState = 'over';
+    $('gltPlayBox').style.display = 'none';
+    $('gltOverBox').style.display = 'block';
+    const finalScore = Math.max(0, gltScore);
+    $('gltFinalScore').textContent = finalScore;
+
+    const path = 'glitterGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      rec.attempts = (rec.attempts || []).concat([finalScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, finalScore);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('gltOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
+    $('gltRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
+  // ==================== JEU : COMBO COULEURS ====================
+  const CMB_DURATION_MS = 25000, CMB_SLOT_COUNT = 12;
+  let cmbScores = {};
+  let cmbCurrentAttempt = 1;
+  let cmbUiState = null;
+  let cmbScore = 0, cmbTimerId = null, cmbSpawnTimeout = null, cmbEndTime = 0, cmbTargetColor = null;
+  let cmbRevealTimerId = null;
+
+  function myCmbRecord(){ return (cmbScores && cmbScores[myId]) || null; }
+
+  function renderCombo(){
+    if(cmbUiState === 'playing' || cmbUiState === 'reveal'){ $('cmbPlayBox').style.display = 'block'; return; }
+    const rec = myCmbRecord();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    if(attemptsUsed >= MAX_ATTEMPTS){
+      $('cmbDoneBox').style.display = 'block';
+      $('cmbDoneBest').textContent = rec.bestScore || 0;
+      return;
+    }
+    if(!rec || rec.tiebreak === undefined){
+      $('cmbTiebreakBox').style.display = 'block';
+      $('cmbTiebreakName').textContent = myName;
+      return;
+    }
+    cmbCurrentAttempt = attemptsUsed + 1;
+    $('cmbIntroBox').style.display = 'block';
+    $('cmbIntroName').textContent = myName;
+    $('cmbTiebreakTag').textContent = fmt(t('tiebreakTagText'), {tb: rec.tiebreak});
+    $('cmbAttemptNumber').textContent = cmbCurrentAttempt;
+    $('cmbBestSoFar').textContent = rec && rec.bestScore ? fmt(t('runBestSoFarText'), {score: rec.bestScore}) : '';
+  }
+
+  async function rollCmbTiebreak(){
+    const btn = $('cmbTiebreakBtn'), face = $('cmbTiebreakFace');
+    btn.disabled = true;
+    face.classList.add('spinning');
+    let spin = setInterval(()=>{ face.textContent = String(1 + Math.floor(Math.random()*99)); }, 70);
+    await new Promise(r=>setTimeout(r, 900));
+    clearInterval(spin);
+    face.classList.remove('spinning');
+    const value = 1 + Math.floor(Math.random()*99);
+    face.textContent = value;
+    await new Promise(r=>setTimeout(r, 400));
+    const path = 'comboGame/' + todayDateStr() + '/' + myId;
+    await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      if(rec.tiebreak === undefined) rec.tiebreak = value;
+      return rec;
+    });
+    btn.disabled = false;
+    render();
+  }
+
+  function computeCmbWinner(){
+    const entries = Object.keys(cmbScores).map(id => ({id, ...cmbScores[id]}));
+    if(entries.length === 0) return null;
+    const maxScore = Math.max(...entries.map(e => e.bestScore || 0));
+    const top = entries.filter(e => (e.bestScore||0) === maxScore);
+    top.sort((a,b)=> (b.tiebreak||0) - (a.tiebreak||0));
+    return top[0];
+  }
+
+  function startCmbAttempt(){
+    hideAllGameBoxes();
+    $('cmbPlayBox').style.display = 'block';
+    cmbUiState = 'reveal';
+    cmbScore = 0;
+    $('cmbScoreLabel').textContent = '0';
+    $('cmbTimeLeft').textContent = `00:${String(Math.ceil(CMB_DURATION_MS/1000)).padStart(2,'0')}`;
+    cmbTargetColor = GEM_COLORS[Math.floor(Math.random()*GEM_COLORS.length)];
+    const badge = $('cmbTargetColorName');
+    badge.textContent = t(GEM_COLOR_KEYS[cmbTargetColor]);
+    badge.className = cmbTargetColor;
+    for(let i=0;i<CMB_SLOT_COUNT;i++){ $('cmbSlot'+i).innerHTML = ''; $('cmbSlot'+i).dataset.alive = '0'; }
+
+    const revealColor = $('cmbRevealColor');
+    revealColor.textContent = t(GEM_COLOR_KEYS[cmbTargetColor]);
+    revealColor.className = 'gem-reveal-color ' + cmbTargetColor;
+    $('cmbRevealOverlay').style.display = 'flex';
+
+    let count = 5;
+    $('cmbRevealCount').textContent = count;
+    slotPlayTone(500, 0.08, 'triangle', 0, 0.08);
+    if(cmbRevealTimerId) clearInterval(cmbRevealTimerId);
+    cmbRevealTimerId = setInterval(()=>{
+      count--;
+      if(count <= 0){
+        clearInterval(cmbRevealTimerId);
+        cmbRevealTimerId = null;
+        $('cmbRevealOverlay').style.display = 'none';
+        slotPlayTone(880, 0.15, 'square', 0, 0.1);
+        beginCmbPlay();
+      } else {
+        $('cmbRevealCount').textContent = count;
+        slotPlayTone(500, 0.08, 'triangle', 0, 0.08);
+      }
+    }, 1000);
+  }
+
+  function beginCmbPlay(){
+    cmbUiState = 'playing';
+    cmbEndTime = Date.now() + CMB_DURATION_MS;
+
+    cmbTickTimer();
+    if(cmbTimerId) clearInterval(cmbTimerId);
+    cmbTimerId = setInterval(cmbTickTimer, 200);
+    cmbSpawnNext();
+
+    document.querySelectorAll('#cmbGrid .mole-hole').forEach((slot, idx)=>{
+      slot.onpointerdown = (e)=>{ e.preventDefault(); onCmbHit(idx); };
+    });
+  }
+
+  function cmbTickTimer(){
+    const remaining = Math.max(0, cmbEndTime - Date.now());
+    const ss = Math.ceil(remaining/1000);
+    $('cmbTimeLeft').textContent = `00:${String(ss).padStart(2,'0')}`;
+    if(remaining <= 0) endCmbAttempt();
+  }
+
+  function cmbSpawnNext(){
+    if(cmbUiState !== 'playing') return;
+    const remaining = cmbEndTime - Date.now();
+    if(remaining <= 400) return;
+    const idx = Math.floor(Math.random()*CMB_SLOT_COUNT);
+    const slot = $('cmbSlot'+idx);
+    const color = GEM_COLORS[Math.floor(Math.random()*GEM_COLORS.length)];
+    const critter = document.createElement('div');
+    critter.className = 'mole-critter ' + color;
+    critter.textContent = '💅';
+    slot.innerHTML = '';
+    slot.appendChild(critter);
+    requestAnimationFrame(()=> critter.classList.add('up'));
+    slot.dataset.color = color;
+    slot.dataset.alive = '1';
+
+    const visibleMs = 650 + Math.random()*350;
+    setTimeout(()=>{
+      if(slot.dataset.alive === '1'){ slot.dataset.alive = '0'; critter.remove(); }
+    }, visibleMs);
+
+    cmbSpawnTimeout = setTimeout(cmbSpawnNext, 280 + Math.random()*280);
+  }
+
+  function onCmbHit(idx){
+    if(cmbUiState !== 'playing') return;
+    const slot = $('cmbSlot'+idx);
+    if(slot.dataset.alive !== '1') return;
+    slot.dataset.alive = '0';
+    const isCorrect = slot.dataset.color === cmbTargetColor;
+    cmbScore += isCorrect ? 1 : -1;
+    $('cmbScoreLabel').textContent = cmbScore;
+    slot.classList.add('hit');
+    setTimeout(()=>{ slot.innerHTML=''; slot.classList.remove('hit'); }, 300);
+    slotPlayTone(isCorrect?700:160, 0.08, isCorrect?'square':'sawtooth', 0, 0.08);
+  }
+
+  async function endCmbAttempt(){
+    if(cmbUiState !== 'playing') return;
+    cmbUiState = 'over';
+    clearInterval(cmbTimerId); cmbTimerId = null;
+    clearTimeout(cmbSpawnTimeout);
+    document.querySelectorAll('#cmbGrid .mole-hole').forEach(h=>{ h.onpointerdown=null; h.innerHTML=''; });
+    $('cmbPlayBox').style.display = 'none';
+    $('cmbOverBox').style.display = 'block';
+    const finalScore = Math.max(0, cmbScore);
+    $('cmbFinalScore').textContent = finalScore;
+
+    const path = 'comboGame/' + todayDateStr() + '/' + myId;
+    const result = await db.ref(path).transaction(current=>{
+      const rec = current || {name: myName, attempts: [], bestScore: 0};
+      rec.name = myName;
+      rec.attempts = (rec.attempts || []).concat([finalScore]);
+      rec.bestScore = Math.max(rec.bestScore || 0, finalScore);
+      return rec;
+    });
+    const rec = result.snapshot.val();
+    const attemptsUsed = rec ? (rec.attempts||[]).length : 0;
+    $('cmbOverSub').textContent = attemptsUsed >= MAX_ATTEMPTS
+      ? fmt(t('runOverSubLast'), {score: rec.bestScore})
+      : fmt(t('runOverSubMore'), {n: attemptsUsed, score: rec.bestScore});
+    $('cmbRetryBtn').style.display = attemptsUsed >= MAX_ATTEMPTS ? 'none' : 'block';
+  }
+
   // ==================== LEADERBOARD (par jeu) ====================
   function renderLeaderboard(type){
     const body = $('leaderboardBody');
@@ -4348,8 +5154,9 @@
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
-    if(type === 'mole' || type === 'garden' || type === 'gems'){
-      const scoresMap = type === 'mole' ? molScores : (type === 'garden' ? gdnScores : gemScores);
+    if(type === 'mole' || type === 'garden' || type === 'gems' || type === 'bubble' || type === 'glitter' || type === 'combo'){
+      const scoreMaps = {mole:molScores, garden:gdnScores, gems:gemScores, bubble:bubScores, glitter:gltScores, combo:cmbScores};
+      const scoresMap = scoreMaps[type];
       head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
       const entries = Object.keys(scoresMap).map(id=>({id, ...scoresMap[id]}))
         .sort((a,b)=> (b.bestScore||0)-(a.bestScore||0) || (b.tiebreak||0)-(a.tiebreak||0));
@@ -4404,6 +5211,15 @@
   $('gemTiebreakBtn').addEventListener('click', rollGemTiebreak);
   $('gemStartBtn').addEventListener('click', startGemAttempt);
   $('gemRetryBtn').addEventListener('click', startGemAttempt);
+  $('bubTiebreakBtn').addEventListener('click', rollBubTiebreak);
+  $('bubStartBtn').addEventListener('click', startBubAttempt);
+  $('bubRetryBtn').addEventListener('click', startBubAttempt);
+  $('gltTiebreakBtn').addEventListener('click', rollGltTiebreak);
+  $('gltStartBtn').addEventListener('click', startGltAttempt);
+  $('gltRetryBtn').addEventListener('click', startGltAttempt);
+  $('cmbTiebreakBtn').addEventListener('click', rollCmbTiebreak);
+  $('cmbStartBtn').addEventListener('click', startCmbAttempt);
+  $('cmbRetryBtn').addEventListener('click', startCmbAttempt);
   $('seqRetryBtn').addEventListener('click', startSeqAttempt);
   document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));
