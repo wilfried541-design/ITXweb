@@ -523,11 +523,11 @@
       const disabled = (!checked && atMax) ? 'disabled' : '';
       const playing = f === playingFile;
       return `<div class="sched-row">
-        <label style="display:flex; align-items:center; gap:8px; flex:1; cursor:pointer; text-align:left;">
-          <input type="checkbox" data-sound="${escapeHtml(f)}" ${checked?'checked':''} ${disabled}>
-          <span class="mono" style="font-size:12px;">${escapeHtml(f)}</span>
+        <label style="display:flex; align-items:center; gap:8px; flex:1; min-width:0; cursor:pointer; text-align:left;">
+          <input type="checkbox" data-sound="${escapeHtml(f)}" ${checked?'checked':''} ${disabled} style="width:auto; flex-shrink:0; margin-top:0;">
+          <span class="mono" style="font-size:12px; min-width:0; flex:1; overflow-wrap:anywhere; word-break:break-word;">${escapeHtml(f)}</span>
         </label>
-        <button type="button" class="btn-ghost" data-preview="${escapeHtml(f)}">${playing?'⏸':'▶'}</button>
+        <button type="button" class="btn-ghost" data-preview="${escapeHtml(f)}" style="flex-shrink:0;">${playing?'⏸':'▶'}</button>
       </div>`;
     }).join('');
     wrap.querySelectorAll('input[data-sound]').forEach(cb=>{
