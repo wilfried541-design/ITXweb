@@ -148,6 +148,7 @@
         <option value="bubble">🫧 Bulles de savon</option>
         <option value="glitter">💄 Pluie de paillettes</option>
         <option value="combo">💅 Combo couleurs</option>
+        <option value="voice">🎙️ Imite le son</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -220,6 +221,14 @@
       <!-- Config spécifique : combo -->
       <div id="cfgCombo" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Une couleur cible est tirée, il faut cliquer uniquement les bons éléments pendant 25 secondes. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
+      </div>
+
+      <!-- Config spécifique : voice (Imite le son) -->
+      <div id="cfgVoice" class="game-config" style="display:none;">
+        <div class="info-line" style="margin-top:12px;">Sélectionne exactement 3 sons pour cette session. Chaque joueur devra les imiter, puis tout le monde vote sur les imitations (2h après la fermeture du jeu).</div>
+        <div id="voiceSoundPicker" style="max-height:280px; overflow-y:auto; margin-top:10px;"></div>
+        <div class="info-line mono" id="voiceSoundCount" style="margin-top:6px;">0 / 3 sélectionnés</div>
+        <audio id="voiceAdminPreviewPlayer" style="display:none;"></audio>
       </div>
 
       <!-- Pour ajouter un futur jeu : ajouter une <option> ci-dessus, un bloc #cfgXxx ici, -->
@@ -299,7 +308,33 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes', bubble:'🫧 Bulles de savon', glitter:'💄 Pluie de paillettes', combo:'💅 Combo couleurs' };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes', bubble:'🫧 Bulles de savon', glitter:'💄 Pluie de paillettes', combo:'💅 Combo couleurs', voice:'🎙️ Imite le son' };
+
+  // Bibliothèque de sons pour "Imite le son" — dupliquée à l'identique dans jouer.html (pas de module JS partagé
+  // dans ce projet, même convention que firebaseConfig). Ajoute/retire des entrées ici selon les fichiers déposés
+  // dans assets/sounds/.
+  const SOUND_LIBRARY = [
+    '6-_-7-watch-yo-jet-bro-446063.mp3',
+    'alex_jauk-uuuh-uuuuuuh-440273.mp3',
+    'alex_jauk-woooooaah-199849.mp3',
+    'cookiecatmusic-beeoooooooooo-271129.mp3',
+    'freesound_community-meow-to-an-egg-36412.mp3',
+    'humordome-goofy-laugh-454456.mp3',
+    'johnnybacon156-fah-469417.mp3',
+    'moutchitos-mario-grabish-14183.mp3',
+    'roninthebro-isnt-that-amazing-meme-sfx-172488.mp3',
+    'sourside-totally-222779.mp3',
+    'u_ecyjl18pfk-wait-a-minute-who-are-you-425166.mp3',
+    'u_qqgc1fle0j-omaga-rturr-version-242813.mp3',
+    'u_wmdu4evyhn-hankie-pankie-222974.mp3',
+    'universfield-funny-cartoon-scream-229172.mp3',
+    'universfield-mischievous-laugh-140131.mp3',
+    'universfield-what-the-fuck-120320.mp3',
+    'universfield-wow-reaction-121578.mp3',
+    'universfield-yeah-boy-114748.mp3',
+    'yamete-kudasai-mp3-(original)-made-with-Voicemod.mp3'
+  ];
+  let voiceSelectedSounds = []; // noms de fichiers choisis par le R4, dans l'ordre de sélection (= soundIndex 0,1,2)
 
   let db = null, auth = null;
   let r4Unlocked = false, currentR4Name = null;
@@ -447,8 +482,61 @@
   function onGameTypeChange(){
     const type = $('gameTypeSelect').value;
     document.querySelectorAll('.game-config').forEach(el => el.style.display = 'none');
-    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion', mole:'cfgMole', garden:'cfgGarden', gems:'cfgGems', bubble:'cfgBubble', glitter:'cfgGlitter', combo:'cfgCombo'};
+    const map = {dice:'cfgDice', target:'cfgTarget', run:'cfgRun', sequence:'cfgSequence', chrono:'cfgChrono', slot:'cfgSlot', blackjack:'cfgBlackjack', invasion:'cfgInvasion', mole:'cfgMole', garden:'cfgGarden', gems:'cfgGems', bubble:'cfgBubble', glitter:'cfgGlitter', combo:'cfgCombo', voice:'cfgVoice'};
     if(map[type]) $(map[type]).style.display = 'block';
+    if(type === 'voice') renderVoiceSoundPicker();
+  }
+
+  // ---- Sélecteur de sons pour "Imite le son" : sélection plafonnée à 3, avec aperçu audio ----
+  function toggleVoiceSound(filename, checked){
+    if(checked){
+      if(voiceSelectedSounds.length >= 3) return;
+      voiceSelectedSounds.push(filename);
+    } else {
+      voiceSelectedSounds = voiceSelectedSounds.filter(f => f !== filename);
+    }
+    renderVoiceSoundPicker();
+  }
+
+  function previewVoiceSound(filename){
+    const player = $('voiceAdminPreviewPlayer');
+    if(player.dataset.playing === filename){
+      player.pause();
+      player.dataset.playing = '';
+      renderVoiceSoundPicker();
+      return;
+    }
+    player.src = 'assets/sounds/' + filename;
+    player.currentTime = 0;
+    player.dataset.playing = filename;
+    player.play().catch(()=>{ showToast("Impossible de lire ce son (fichier manquant dans assets/sounds/ ?)."); player.dataset.playing = ''; renderVoiceSoundPicker(); });
+    renderVoiceSoundPicker();
+  }
+
+  function renderVoiceSoundPicker(){
+    const wrap = $('voiceSoundPicker');
+    if(!wrap) return;
+    const atMax = voiceSelectedSounds.length >= 3;
+    const playingFile = $('voiceAdminPreviewPlayer').dataset.playing || '';
+    wrap.innerHTML = SOUND_LIBRARY.map(f=>{
+      const checked = voiceSelectedSounds.includes(f);
+      const disabled = (!checked && atMax) ? 'disabled' : '';
+      const playing = f === playingFile;
+      return `<div class="sched-row">
+        <label style="display:flex; align-items:center; gap:8px; flex:1; cursor:pointer; text-align:left;">
+          <input type="checkbox" data-sound="${escapeHtml(f)}" ${checked?'checked':''} ${disabled}>
+          <span class="mono" style="font-size:12px;">${escapeHtml(f)}</span>
+        </label>
+        <button type="button" class="btn-ghost" data-preview="${escapeHtml(f)}">${playing?'⏸':'▶'}</button>
+      </div>`;
+    }).join('');
+    wrap.querySelectorAll('input[data-sound]').forEach(cb=>{
+      cb.addEventListener('change', ()=> toggleVoiceSound(cb.dataset.sound, cb.checked));
+    });
+    wrap.querySelectorAll('[data-preview]').forEach(btn=>{
+      btn.addEventListener('click', ()=> previewVoiceSound(btn.dataset.preview));
+    });
+    $('voiceSoundCount').textContent = `${voiceSelectedSounds.length} / 3 sélectionnés`;
   }
 
   // ---- Ouverture immédiate : accessible tout de suite, ignore le créneau programmé ----
@@ -486,6 +574,21 @@
       // Rien à initialiser : le classement "run" est journalier, géré côté joueur.
     }
 
+    if(type === 'voice'){
+      const startInput = $('cfgTimeStart').value;
+      const endInput = $('cfgTimeEnd').value;
+      if(!startInput || !endInput){ showToast('Renseigne le créneau (de/à).'); return; }
+      const startSec = hmsToSeconds(startInput + ':00');
+      const endSec = hmsToSeconds(endInput + ':00');
+      if(endSec <= startSec){ showToast("L'heure de fin doit être après le début."); return; }
+      if(voiceSelectedSounds.length !== 3){ showToast('Sélectionne exactement 3 sons.'); return; }
+      windowStart = secondsToHMS(startSec); windowEnd = secondsToHMS(endSec);
+      scheduledDate = todayDateStr();
+      config = { sounds: voiceSelectedSounds.slice() };
+      // .update() et pas .set() : ne doit jamais écraser recordings/votes déjà présents si la session est rouverte le même jour.
+      await db.ref('voiceGame/' + todayDateStr()).update({ windowStart, windowEnd, sounds: voiceSelectedSounds.slice() });
+    }
+
     await db.ref('gameControl').set({
       activeGame: type, status:'open', config, scheduledDate, windowStart, windowEnd,
       updatedAt: Date.now(), updatedBy: currentR4Name
@@ -517,6 +620,13 @@
     }
     if(type === 'dice'){
       await db.ref('sundayGame/' + dateInput + '/results').set({});
+    }
+    if(type === 'voice'){
+      if(voiceSelectedSounds.length !== 3){ showToast('Sélectionne exactement 3 sons.'); return; }
+      config = { sounds: voiceSelectedSounds.slice() };
+      await db.ref('voiceGame/' + dateInput).update({
+        windowStart: secondsToHMS(startSec), windowEnd: secondsToHMS(endSec), sounds: voiceSelectedSounds.slice()
+      });
     }
 
     const newRef = db.ref('scheduledSessions').push();
@@ -581,7 +691,8 @@
       'gemsGame/' + today,
       'bubbleGame/' + today,
       'glitterGame/' + today,
-      'comboGame/' + today
+      'comboGame/' + today,
+      'voiceGame/' + today
     ];
     await Promise.all(paths.map(p => db.ref(p).remove()));
     showToast('Scores du jour réinitialisés pour tous les jeux.');
@@ -595,6 +706,7 @@
   $('closeAccessBtn').addEventListener('click', closeAccess);
   $('clearOverrideBtn').addEventListener('click', clearOverride);
   $('resetScoresBtn').addEventListener('click', resetAllScores);
+  $('voiceAdminPreviewPlayer').addEventListener('ended', ()=>{ $('voiceAdminPreviewPlayer').dataset.playing=''; renderVoiceSoundPicker(); });
   $('cfgDate').value = todayDateStr();
   $('cfgDate').min = todayDateStr();
 

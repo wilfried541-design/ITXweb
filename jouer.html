@@ -565,9 +565,60 @@
   .locked-box{padding:30px 12px; text-align:center; color:var(--text-dim); font-size:14px;}
 
   footer{text-align:center; margin-top:28px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;}
+
+  /* ==== Mode test (voir TEST_GAME_TYPE) ==== */
+  .test-mode-banner{
+    position:fixed; top:0; left:0; right:0; z-index:999; background:#c1442f; color:#fff; text-align:center;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:6px 10px; box-shadow:0 2px 10px rgba(0,0,0,0.5);
+  }
+  body.test-mode-active{padding-top:30px;}
+
+  /* ==== Jeu : Imite le son ==== */
+  .voi-icon{border-color:var(--neon-pink); box-shadow:0 0 10px var(--neon-pink), 0 0 28px rgba(255,95,216,0.8);}
+  .voice-step-tag{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--text-dim); text-align:center; margin-bottom:6px;
+  }
+  .voice-record-btn{
+    width:120px; height:120px; border-radius:50%; margin:18px auto; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 35% 30%, #ff8a8a, #c1442f); color:#fff; font-size:36px; border:4px solid #0e120d;
+    box-shadow:0 8px 24px rgba(193,68,47,0.4); cursor:pointer;
+  }
+  .voice-record-btn.recording{animation:voiceRecPulse 1s ease-in-out infinite;}
+  @keyframes voiceRecPulse{0%,100%{box-shadow:0 0 0 0 rgba(193,68,47,0.6);} 50%{box-shadow:0 0 0 18px rgba(193,68,47,0);}}
+  .voice-record-btn:disabled{background:#3a3324; box-shadow:none; cursor:not-allowed;}
+  .voice-countdown{font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--accent-2); text-align:center; margin-top:2px; min-height:22px;}
+  #voicePlaybackRow{display:flex; flex-direction:column; gap:8px;}
+  .voice-playback-actions{display:flex; gap:8px;}
+  .voice-playback-actions button{margin-top:0; flex:1;}
+
+  .rank-list{display:flex; flex-direction:column; gap:8px; margin:14px 0;}
+  .rank-row{
+    display:flex; align-items:center; gap:10px; background:var(--panel-2); border:1px solid var(--border);
+    border-radius:8px; padding:8px 10px; transition:opacity 0.2s ease;
+  }
+  .rank-row.unranked{opacity:0.5;}
+  .rank-pos{
+    width:26px; height:26px; border-radius:50%; background:var(--accent); color:#1a1400; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:13px; flex-shrink:0;
+  }
+  .rank-pos.dim{background:var(--panel); color:var(--text-dim);}
+  .rank-label{flex:1; font-size:13px; text-align:left;}
+  .rank-listen-btn{
+    background:transparent; border:1px solid var(--neon-blue); color:var(--neon-blue); border-radius:6px;
+    padding:6px 10px; font-size:12px; width:auto; margin-top:0; flex-shrink:0;
+  }
+  .rank-move-col{display:flex; flex-direction:column; gap:2px; flex-shrink:0;}
+  .rank-move-btn{
+    background:var(--panel); border:1px solid var(--border); color:var(--text); border-radius:4px;
+    width:28px; height:22px; padding:0; margin-top:0; font-size:11px; line-height:1; cursor:pointer;
+  }
+  .rank-move-btn:disabled{opacity:0.3; cursor:not-allowed;}
 </style>
 </head>
 <body>
+<div class="test-mode-banner" id="testModeBanner" style="display:none;">⚠ MODE TEST — non visible des joueurs</div>
 <div class="hazard-bar"></div>
 <div class="hero-wrap">
   <img class="hero-banner" src="assets/hero-train.jpg" alt="ITX">
@@ -1225,6 +1276,52 @@
     </div>
   </div>
 
+  <!-- ==================== JEU : IMITE LE SON (VOICE) ==================== -->
+  <div id="voiceIntroBox" class="board" style="display:none;">
+    <div class="info-line"><span id="voicePlayerLabel">Joueur : </span><b id="voiceIntroName"></b></div>
+    <div class="info-line" style="margin-top:8px;" id="voiceIntroInfo">Tu vas écouter 3 sons et enregistrer ton imitation de chacun avec ton micro.</div>
+    <button class="btn-primary" id="voiceStartBtn">Commencer</button>
+  </div>
+  <div id="voiceRecordBox" class="board" style="display:none;">
+    <div class="voice-step-tag" id="voiceStepTag">Son 1/3</div>
+    <button class="btn-secondary" id="voiceListenSoundBtn">Écouter le son</button>
+    <button class="voice-record-btn" id="voiceRecordBtn">🎤</button>
+    <div class="voice-countdown" id="voiceCountdown"></div>
+    <div class="result-msg dead" id="voiceMicMsg" style="min-height:0;"></div>
+    <div id="voicePlaybackRow" style="display:none;">
+      <button class="btn-secondary" id="voiceListenMineBtn">Écouter mon imitation</button>
+      <div class="voice-playback-actions">
+        <button class="btn-secondary" id="voiceRetryBtn">Ré-enregistrer</button>
+        <button class="btn-primary" id="voiceValidateBtn">Valider cette imitation</button>
+      </div>
+    </div>
+    <audio id="voiceRefPlayer" style="display:none;"></audio>
+    <audio id="voiceMyPlayer" style="display:none;"></audio>
+  </div>
+  <div id="voiceRecordDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="voiceRecordDoneText">Tes imitations du jour sont enregistrées.</div>
+  </div>
+  <div id="voiceVotePlayBox" class="board" style="display:none;">
+    <div class="voice-step-tag" id="voiceVoteStepTag">Son 1/3</div>
+    <button class="btn-secondary" id="voiceVoteListenSoundBtn">Écouter le son original</button>
+    <div class="info-line" style="margin-top:10px;" id="voiceRankInstructions">Classe les imitations du meilleur au moins bon :</div>
+    <div class="rank-list" id="voiceRankList"></div>
+    <button class="btn-primary" id="voiceSubmitVoteBtn">Valider ce classement</button>
+    <audio id="voiceVoteRefPlayer" style="display:none;"></audio>
+    <audio id="voiceCandidatePlayer" style="display:none;"></audio>
+  </div>
+  <div id="voiceVoteDoneBox" class="board" style="display:none;">
+    <div class="info-line" id="voiceVoteDoneText">Tes votes sont enregistrés.</div>
+    <button class="btn-secondary" id="voiceEditVotesBtn">Modifier mes votes</button>
+  </div>
+  <div id="voiceAfterBox" style="display:none;">
+    <div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="wname" id="voiceWinnerName"></div>
+      <div class="wsub" id="voiceWinnerSub">A gagné le droit de conduire le train !</div>
+    </div>
+  </div>
+
   <!-- ==================== Pour ajouter un futur jeu : dupliquer un bloc ci-dessus,
        lui donner ses propres ids, et ajouter sa logique dans renderGame() / handlers plus bas. ==================== -->
 
@@ -1249,6 +1346,22 @@
     appId: "1:1015783442955:web:0e5c93470609a328ff550e"
   };
 
+  // ==================== MODE TEST (généralisable à tout futur jeu) ====================
+  // ?testgame=<type> force resolveSession() à ignorer gameControl/scheduledSessions et à afficher
+  // directement le jeu <type> comme si sa session était ouverte — SANS jamais rien écrire dans
+  // gameControl ni scheduledSessions. N'affecte que le navigateur qui porte ce paramètre dans son URL ;
+  // tout autre joueur sans ?testgame= continue de voir les vraies sessions programmées normalement.
+  // &testphase=<phase> est optionnel et sert aux jeux à sous-phases (aujourd'hui seul "voice" le lit,
+  // voir getVoicePhase()) pour sauter directement à un écran donné (ex: voting, results) sans attendre
+  // les vraies fenêtres horaires, tout en écrivant de vraies données de jeu dans Firebase.
+  const TEST_PARAMS = new URLSearchParams(location.search);
+  const TEST_GAME_TYPE = TEST_PARAMS.get('testgame');
+  const TEST_PHASE_OVERRIDE = TEST_PARAMS.get('testphase');
+  if(TEST_GAME_TYPE){
+    document.getElementById('testModeBanner').style.display = 'block';
+    document.body.classList.add('test-mode-active');
+  }
+
   let db = null;
   let members = [];
   let control = null;
@@ -1258,6 +1371,7 @@
   // état par jeu (rechargés en direct via Firebase)
   let diceGame = null;
   let targetGame = null;
+  let voiceGame = null;
   let runScores = {};
 
   const $ = id => document.getElementById(id);
@@ -1343,7 +1457,18 @@
       runDoneText1:"Tes 3 essais du jour sont terminés.", runDoneLabel:"Ton meilleur score", runDoneText2:"Reviens demain pour retenter ta chance !",
       lbPlayer:"Joueur", lbLevel:"Niv.", lbStatus:"Statut", lbAlive:"En jeu", lbDead:"Éliminé",
       lbTime:"Heure", lbDiff:"Écart", lbScore:"Score",
-      lbEmptyNoOne:"Personne n'a encore joué.", lbEmptyNoScore:"Aucun score pour l'instant.", lbEmptyGeneric:"Aucun classement pour l'instant."
+      lbEmptyNoOne:"Personne n'a encore joué.", lbEmptyNoScore:"Aucun score pour l'instant.", lbEmptyGeneric:"Aucun classement pour l'instant.",
+      rulesVoice:["Tu vas imiter 3 sons tirés par le R4, avec ton micro.","Pour chaque son : écoute-le, enregistre ta tentative (4-5 secondes max), réécoute-toi et ré-enregistre si besoin, puis valide.","Une fois les 3 imitations validées, c'est définitif pour la journée.","À la fermeture du jeu, une phase de vote de 2h s'ouvre : tout le monde écoute les imitations des autres (anonymisées) et établit un classement.","Chaque son rapporte des points selon le rang donné par les votants (1er = 5 pts ... 5e = 1 pt). Le score total le plus haut gagne."],
+      voiceIntroInfo:"Tu vas écouter 3 sons et enregistrer ton imitation de chacun avec ton micro.", voiceStartBtn:"Commencer", voiceStepTag:"Son {n}/3",
+      voiceListenSoundBtn:"Écouter le son", voiceCountdownText:"Enregistrement… {s}s", voiceListenMineBtn:"Écouter mon imitation",
+      voiceRetryBtn:"Ré-enregistrer", voiceValidateBtn:"Valider cette imitation",
+      voiceRecordDoneText:"Tes imitations du jour sont enregistrées. Reviens à la fermeture du jeu pour voter !",
+      voiceMicErrorText:"Micro indisponible — vérifie les autorisations de ton navigateur.",
+      voiceVoteListenSoundBtn:"Écouter le son original",
+      voiceRankInstructions:"Classe les imitations du meilleur au moins bon avec ▲▼ — seules les 5 premières places comptent pour le score.",
+      voiceImitationLabel:"Imitation {n}", voiceSubmitVoteBtn:"Valider ce classement",
+      voiceVoteDoneText:"Tes votes sont enregistrés. Le gagnant sera révélé à la fermeture du vote.", voiceEditVotesBtn:"Modifier mes votes",
+      voiceNotConfigured:"Le jeu n'a pas encore été configuré.", voiceTestBanner:"⚠ MODE TEST — non visible des joueurs"
     },
     en:{
       heroSub:"Train game", sectionGameTitle:"The game", sectionLbTitle:"Leaderboard", footerText:"ITX — Play",
@@ -1422,7 +1547,18 @@
       runDoneText1:"Your 3 attempts for today are done.", runDoneLabel:"Your best score", runDoneText2:"Come back tomorrow to try again!",
       lbPlayer:"Player", lbLevel:"Lvl", lbStatus:"Status", lbAlive:"Playing", lbDead:"Eliminated",
       lbTime:"Time", lbDiff:"Diff", lbScore:"Score",
-      lbEmptyNoOne:"No one has played yet.", lbEmptyNoScore:"No score yet.", lbEmptyGeneric:"No leaderboard yet."
+      lbEmptyNoOne:"No one has played yet.", lbEmptyNoScore:"No score yet.", lbEmptyGeneric:"No leaderboard yet.",
+      rulesVoice:["You'll imitate 3 sounds picked by the R4, using your microphone.","For each sound: listen to it, record your attempt (4-5 seconds max), listen back and re-record if needed, then confirm.","Once all 3 imitations are confirmed, it's final for the day.","When the game closes, a 2-hour voting phase opens: everyone listens to the other players' imitations (anonymized) and ranks them.","Each sound scores points based on the rank given by voters (1st = 5 pts ... 5th = 1 pt). Highest total score wins."],
+      voiceIntroInfo:"You'll listen to 3 sounds and record your imitation of each with your microphone.", voiceStartBtn:"Start", voiceStepTag:"Sound {n}/3",
+      voiceListenSoundBtn:"Listen to the sound", voiceCountdownText:"Recording… {s}s", voiceListenMineBtn:"Listen to my imitation",
+      voiceRetryBtn:"Re-record", voiceValidateBtn:"Confirm this imitation",
+      voiceRecordDoneText:"Your imitations for today are recorded. Come back once the game closes to vote!",
+      voiceMicErrorText:"Microphone unavailable — check your browser permissions.",
+      voiceVoteListenSoundBtn:"Listen to the original sound",
+      voiceRankInstructions:"Rank the imitations from best to worst with ▲▼ — only the top 5 spots count for scoring.",
+      voiceImitationLabel:"Imitation {n}", voiceSubmitVoteBtn:"Confirm this ranking",
+      voiceVoteDoneText:"Your votes are recorded. The winner will be revealed once voting closes.", voiceEditVotesBtn:"Edit my votes",
+      voiceNotConfigured:"The game hasn't been configured yet.", voiceTestBanner:"⚠ TEST MODE — not visible to players"
     },
     es:{
       heroSub:"Juego del tren", sectionGameTitle:"La partida", sectionLbTitle:"Clasificación", footerText:"ITX — Jugar",
@@ -1501,7 +1637,18 @@
       runDoneText1:"Tus 3 intentos de hoy han terminado.", runDoneLabel:"Tu mejor puntaje", runDoneText2:"¡Vuelve mañana para intentarlo de nuevo!",
       lbPlayer:"Jugador", lbLevel:"Niv.", lbStatus:"Estado", lbAlive:"Jugando", lbDead:"Eliminado",
       lbTime:"Hora", lbDiff:"Dif.", lbScore:"Puntaje",
-      lbEmptyNoOne:"Nadie ha jugado todavía.", lbEmptyNoScore:"Sin puntaje todavía.", lbEmptyGeneric:"Sin clasificación todavía."
+      lbEmptyNoOne:"Nadie ha jugado todavía.", lbEmptyNoScore:"Sin puntaje todavía.", lbEmptyGeneric:"Sin clasificación todavía.",
+      rulesVoice:["Vas a imitar 3 sonidos elegidos por el R4, usando tu micrófono.","Para cada sonido: escúchalo, graba tu intento (4-5 segundos máx.), vuelve a escucharte y regraba si quieres, luego confirma.","Una vez confirmadas las 3 imitaciones, es definitivo por hoy.","Al cerrarse el juego, se abre una fase de votación de 2 horas: todos escuchan las imitaciones de los demás (anónimas) y las clasifican.","Cada sonido da puntos según el puesto otorgado por los votantes (1º = 5 pts ... 5º = 1 pt). Gana el mayor puntaje total."],
+      voiceIntroInfo:"Vas a escuchar 3 sonidos y grabar tu imitación de cada uno con tu micrófono.", voiceStartBtn:"Empezar", voiceStepTag:"Sonido {n}/3",
+      voiceListenSoundBtn:"Escuchar el sonido", voiceCountdownText:"Grabando… {s}s", voiceListenMineBtn:"Escuchar mi imitación",
+      voiceRetryBtn:"Regrabar", voiceValidateBtn:"Confirmar esta imitación",
+      voiceRecordDoneText:"Tus imitaciones de hoy están grabadas. ¡Vuelve al cierre del juego para votar!",
+      voiceMicErrorText:"Micrófono no disponible — revisa los permisos de tu navegador.",
+      voiceVoteListenSoundBtn:"Escuchar el sonido original",
+      voiceRankInstructions:"Clasifica las imitaciones de mejor a peor con ▲▼ — solo los 5 primeros puestos puntúan.",
+      voiceImitationLabel:"Imitación {n}", voiceSubmitVoteBtn:"Confirmar esta clasificación",
+      voiceVoteDoneText:"Tus votos están guardados. El ganador se revelará al cerrar la votación.", voiceEditVotesBtn:"Modificar mis votos",
+      voiceNotConfigured:"El juego aún no se ha configurado.", voiceTestBanner:"⚠ MODO PRUEBA — no visible para los jugadores"
     },
     it:{
       heroSub:"Gioco del treno", sectionGameTitle:"La partita", sectionLbTitle:"Classifica", footerText:"ITX — Gioca",
@@ -1580,7 +1727,18 @@
       runDoneText1:"I tuoi 3 tentativi di oggi sono terminati.", runDoneLabel:"Il tuo miglior punteggio", runDoneText2:"Torna domani per riprovare!",
       lbPlayer:"Giocatore", lbLevel:"Liv.", lbStatus:"Stato", lbAlive:"In gioco", lbDead:"Eliminato",
       lbTime:"Ora", lbDiff:"Diff.", lbScore:"Punteggio",
-      lbEmptyNoOne:"Nessuno ha ancora giocato.", lbEmptyNoScore:"Nessun punteggio ancora.", lbEmptyGeneric:"Nessuna classifica ancora."
+      lbEmptyNoOne:"Nessuno ha ancora giocato.", lbEmptyNoScore:"Nessun punteggio ancora.", lbEmptyGeneric:"Nessuna classifica ancora.",
+      rulesVoice:["Dovrai imitare 3 suoni scelti dal R4, usando il tuo microfono.","Per ogni suono: ascoltalo, registra il tuo tentativo (4-5 secondi max), riascoltati e ri-registra se vuoi, poi conferma.","Una volta confermate tutte e 3 le imitazioni, è definitivo per la giornata.","Alla chiusura del gioco si apre una fase di voto di 2 ore: tutti ascoltano le imitazioni degli altri (anonime) e le classificano.","Ogni suono dà punti in base al posto assegnato dai votanti (1° = 5 pt ... 5° = 1 pt). Vince il punteggio totale più alto."],
+      voiceIntroInfo:"Ascolterai 3 suoni e registrerai la tua imitazione di ciascuno con il microfono.", voiceStartBtn:"Inizia", voiceStepTag:"Suono {n}/3",
+      voiceListenSoundBtn:"Ascolta il suono", voiceCountdownText:"Registrazione… {s}s", voiceListenMineBtn:"Ascolta la mia imitazione",
+      voiceRetryBtn:"Ri-registra", voiceValidateBtn:"Conferma questa imitazione",
+      voiceRecordDoneText:"Le tue imitazioni di oggi sono registrate. Torna alla chiusura del gioco per votare!",
+      voiceMicErrorText:"Microfono non disponibile — controlla i permessi del browser.",
+      voiceVoteListenSoundBtn:"Ascolta il suono originale",
+      voiceRankInstructions:"Classifica le imitazioni dalla migliore alla peggiore con ▲▼ — solo i primi 5 posti contano per il punteggio.",
+      voiceImitationLabel:"Imitazione {n}", voiceSubmitVoteBtn:"Conferma questa classifica",
+      voiceVoteDoneText:"I tuoi voti sono salvati. Il vincitore sarà rivelato alla chiusura del voto.", voiceEditVotesBtn:"Modifica i miei voti",
+      voiceNotConfigured:"Il gioco non è ancora stato configurato.", voiceTestBanner:"⚠ MODALITÀ TEST — non visibile ai giocatori"
     },
     tr:{
       heroSub:"Tren oyunu", sectionGameTitle:"Oyun", sectionLbTitle:"Sıralama", footerText:"ITX — Oyna",
@@ -1659,7 +1817,18 @@
       runDoneText1:"Bugünkü 3 denemen tamamlandı.", runDoneLabel:"En iyi skorun", runDoneText2:"Tekrar denemek için yarın gel!",
       lbPlayer:"Oyuncu", lbLevel:"Sev.", lbStatus:"Durum", lbAlive:"Oyunda", lbDead:"Elendi",
       lbTime:"Saat", lbDiff:"Fark", lbScore:"Skor",
-      lbEmptyNoOne:"Henüz kimse oynamadı.", lbEmptyNoScore:"Henüz skor yok.", lbEmptyGeneric:"Henüz sıralama yok."
+      lbEmptyNoOne:"Henüz kimse oynamadı.", lbEmptyNoScore:"Henüz skor yok.", lbEmptyGeneric:"Henüz sıralama yok.",
+      rulesVoice:["R4 tarafından seçilen 3 sesi mikrofonunla taklit edeceksin.","Her ses için: dinle, denemeni kaydet (en fazla 4-5 saniye), kendini tekrar dinle ve istersen yeniden kaydet, sonra onayla.","3 taklit de onaylandıktan sonra o gün için kesinleşir.","Oyun kapandığında 2 saatlik bir oylama aşaması açılır: herkes diğer oyuncuların taklitlerini (anonim olarak) dinler ve sıralar.","Her ses, oy verenlerin verdiği sıraya göre puan kazandırır (1. = 5 puan ... 5. = 1 puan). En yüksek toplam puan kazanır."],
+      voiceIntroInfo:"3 ses dinleyip mikrofonunla her birinin taklidini kaydedeceksin.", voiceStartBtn:"Başla", voiceStepTag:"Ses {n}/3",
+      voiceListenSoundBtn:"Sesi dinle", voiceCountdownText:"Kayıt… {s}sn", voiceListenMineBtn:"Taklidimi dinle",
+      voiceRetryBtn:"Yeniden kaydet", voiceValidateBtn:"Bu taklidi onayla",
+      voiceRecordDoneText:"Bugünkü taklitlerin kaydedildi. Oylama için oyun kapandığında geri dön!",
+      voiceMicErrorText:"Mikrofon kullanılamıyor — tarayıcı izinlerini kontrol et.",
+      voiceVoteListenSoundBtn:"Orijinal sesi dinle",
+      voiceRankInstructions:"Taklitleri ▲▼ ile en iyiden en kötüye sırala — sadece ilk 5 sıra puan kazandırır.",
+      voiceImitationLabel:"Taklit {n}", voiceSubmitVoteBtn:"Bu sıralamayı onayla",
+      voiceVoteDoneText:"Oyların kaydedildi. Kazanan, oylama kapandığında açıklanacak.", voiceEditVotesBtn:"Oylarımı düzenle",
+      voiceNotConfigured:"Oyun henüz yapılandırılmadı.", voiceTestBanner:"⚠ TEST MODU — oyunculara görünmez"
     },
     nl:{
       heroSub:"Treinspel", sectionGameTitle:"Het spel", sectionLbTitle:"Klassement", footerText:"ITX — Spelen",
@@ -1738,7 +1907,18 @@
       runDoneText1:"Je 3 pogingen van vandaag zijn afgerond.", runDoneLabel:"Jouw beste score", runDoneText2:"Kom morgen terug om het nog eens te proberen!",
       lbPlayer:"Speler", lbLevel:"Niv.", lbStatus:"Status", lbAlive:"Speelt", lbDead:"Uitgeschakeld",
       lbTime:"Tijd", lbDiff:"Verschil", lbScore:"Score",
-      lbEmptyNoOne:"Nog niemand heeft gespeeld.", lbEmptyNoScore:"Nog geen score.", lbEmptyGeneric:"Nog geen klassement."
+      lbEmptyNoOne:"Nog niemand heeft gespeeld.", lbEmptyNoScore:"Nog geen score.", lbEmptyGeneric:"Nog geen klassement.",
+      rulesVoice:["Je gaat 3 geluiden nadoen die door de R4 zijn gekozen, met je microfoon.","Voor elk geluid: luister ernaar, neem je poging op (max. 4-5 seconden), luister terug en neem eventueel opnieuw op, bevestig dan.","Zodra alle 3 imitaties bevestigd zijn, staat het definitief vast voor die dag.","Bij het sluiten van het spel start een stemfase van 2 uur: iedereen luistert naar de (anonieme) imitaties van anderen en rangschikt ze.","Elk geluid levert punten op op basis van de plaats die stemmers geven (1e = 5 pt ... 5e = 1 pt). De hoogste totaalscore wint."],
+      voiceIntroInfo:"Je gaat 3 geluiden beluisteren en met je microfoon je imitatie van elk opnemen.", voiceStartBtn:"Beginnen", voiceStepTag:"Geluid {n}/3",
+      voiceListenSoundBtn:"Luister naar het geluid", voiceCountdownText:"Opname… {s}s", voiceListenMineBtn:"Luister naar mijn imitatie",
+      voiceRetryBtn:"Opnieuw opnemen", voiceValidateBtn:"Bevestig deze imitatie",
+      voiceRecordDoneText:"Je imitaties van vandaag zijn opgeslagen. Kom terug zodra het spel sluit om te stemmen!",
+      voiceMicErrorText:"Microfoon niet beschikbaar — controleer je browserrechten.",
+      voiceVoteListenSoundBtn:"Luister naar het originele geluid",
+      voiceRankInstructions:"Rangschik de imitaties van beste naar slechtste met ▲▼ — alleen de top 5 plaatsen tellen mee voor de score.",
+      voiceImitationLabel:"Imitatie {n}", voiceSubmitVoteBtn:"Bevestig deze rangschikking",
+      voiceVoteDoneText:"Je stemmen zijn opgeslagen. De winnaar wordt onthuld zodra het stemmen sluit.", voiceEditVotesBtn:"Mijn stemmen bewerken",
+      voiceNotConfigured:"Het spel is nog niet geconfigureerd.", voiceTestBanner:"⚠ TESTMODUS — niet zichtbaar voor spelers"
     }
   };
 
@@ -1769,6 +1949,7 @@
 
     db.ref('sundayGame/' + todayDateStr()).on('value', snap=>{ diceGame = snap.val() || null; render(); });
     db.ref('targetGame/' + todayDateStr()).on('value', snap=>{ targetGame = snap.val() || null; render(); });
+    db.ref('voiceGame/' + todayDateStr()).on('value', snap=>{ voiceGame = snap.val() || null; render(); });
     db.ref('trainRunGame/' + todayDateStr()).on('value', snap=>{ runScores = snap.val() || {}; render(); });
     db.ref('sequenceAllianceGame/' + todayDateStr()).on('value', snap=>{ seqScores = snap.val() || {}; render(); });
     db.ref('chronoGame/' + todayDateStr()).on('value', snap=>{ chronoScores = snap.val() || {}; render(); });
@@ -1807,7 +1988,8 @@
      'gemTiebreakBox','gemIntroBox','gemPlayBox','gemOverBox','gemDoneBox','gemAfterBox',
      'bubTiebreakBox','bubIntroBox','bubPlayBox','bubOverBox','bubDoneBox','bubAfterBox',
      'gltTiebreakBox','gltIntroBox','gltPlayBox','gltOverBox','gltDoneBox','gltAfterBox',
-     'cmbTiebreakBox','cmbIntroBox','cmbPlayBox','cmbOverBox','cmbDoneBox','cmbAfterBox'
+     'cmbTiebreakBox','cmbIntroBox','cmbPlayBox','cmbOverBox','cmbDoneBox','cmbAfterBox',
+     'voiceIntroBox','voiceRecordBox','voiceRecordDoneBox','voiceVotePlayBox','voiceVoteDoneBox','voiceAfterBox'
     ].forEach(id => $(id).style.display = 'none');
   }
 
@@ -1993,6 +2175,21 @@
     $('cmbTiebreakInfo').innerHTML = t('cmbTiebreakInfo');
     $('cmbTiebreakBtn').textContent = t('drawNumberBtn');
     $('cmbWinnerSub').textContent = t('diceWinnerSub');
+    $('voicePlayerLabel').textContent = t('playerLabel');
+    $('voiceIntroInfo').textContent = t('voiceIntroInfo');
+    $('voiceStartBtn').textContent = t('voiceStartBtn');
+    $('voiceListenSoundBtn').textContent = t('voiceListenSoundBtn');
+    $('voiceListenMineBtn').textContent = t('voiceListenMineBtn');
+    $('voiceRetryBtn').textContent = t('voiceRetryBtn');
+    $('voiceValidateBtn').textContent = t('voiceValidateBtn');
+    $('voiceRecordDoneText').textContent = t('voiceRecordDoneText');
+    $('voiceVoteListenSoundBtn').textContent = t('voiceVoteListenSoundBtn');
+    $('voiceRankInstructions').textContent = t('voiceRankInstructions');
+    $('voiceSubmitVoteBtn').textContent = t('voiceSubmitVoteBtn');
+    $('voiceVoteDoneText').textContent = t('voiceVoteDoneText');
+    $('voiceEditVotesBtn').textContent = t('voiceEditVotesBtn');
+    $('voiceWinnerSub').textContent = t('diceWinnerSub');
+    $('testModeBanner').textContent = t('voiceTestBanner');
     document.querySelectorAll('.lang-btn').forEach(b=>{
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -2010,6 +2207,9 @@
   // 1. d'un éventuel forçage manuel (gameControl : ouvert ou fermé) — prioritaire
   // 2. sinon, de la liste des sessions programmées à l'avance (scheduledSessions)
   function resolveSession(){
+    // Mode test : bypass complet de gameControl/scheduledSessions, sans jamais rien y écrire.
+    // Voir le commentaire "MODE TEST" en haut du script.
+    if(TEST_GAME_TYPE) return {type: TEST_GAME_TYPE, phase:'open', session:{config:{}}};
     if(control && control.status === 'closed') return {type:null, phase:'closed', session:null};
     if(control && control.status === 'open' && control.activeGame){
       return {type: control.activeGame, phase:'open', session:{config: control.config || {}}};
@@ -2110,6 +2310,8 @@
         const winner = computeCmbWinner();
         $('cmbAfterBox').style.display = 'block';
         $('cmbWinnerName').textContent = winner ? winner.name : '—';
+      } else if(type === 'voice'){
+        renderVoice();
       } else {
         $('closedBox').style.display = 'block';
         $('closedText').innerHTML = t('closedAccess');
@@ -2140,6 +2342,7 @@
     else if(type === 'bubble') renderBubble();
     else if(type === 'glitter') renderGlitter();
     else if(type === 'combo') renderCombo();
+    else if(type === 'voice') renderVoice();
 
     renderLeaderboard(type);
   }
@@ -2200,6 +2403,10 @@
     if(type === 'combo'){
       return `<div class="rules-box"><div class="rules-title"><span class="game-icon cmb-icon">💅</span>${t('rulesTitle')}</div><ul class="rules-list">
         ${t('rulesCombo').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if(type === 'voice'){
+      return `<div class="rules-box"><div class="rules-title"><span class="game-icon voi-icon">🎙️</span>${t('rulesTitle')}</div><ul class="rules-list">
+        ${t('rulesVoice').map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
     }
     return '';
   }
@@ -5061,6 +5268,369 @@
   }
 
   // ==================== LEADERBOARD (par jeu) ====================
+  // ==================== JEU : IMITE LE SON (VOICE) ====================
+  // Bibliothèque de sons — dupliquée à l'identique dans admin.html (pas de module JS partagé dans ce projet,
+  // même convention que firebaseConfig). Les 3 sons utilisés chaque session sont choisis par le R4 dans
+  // admin.html, pas tirés au hasard ici.
+  const SOUND_LIBRARY = [
+    '6-_-7-watch-yo-jet-bro-446063.mp3',
+    'alex_jauk-uuuh-uuuuuuh-440273.mp3',
+    'alex_jauk-woooooaah-199849.mp3',
+    'cookiecatmusic-beeoooooooooo-271129.mp3',
+    'freesound_community-meow-to-an-egg-36412.mp3',
+    'humordome-goofy-laugh-454456.mp3',
+    'johnnybacon156-fah-469417.mp3',
+    'moutchitos-mario-grabish-14183.mp3',
+    'roninthebro-isnt-that-amazing-meme-sfx-172488.mp3',
+    'sourside-totally-222779.mp3',
+    'u_ecyjl18pfk-wait-a-minute-who-are-you-425166.mp3',
+    'u_qqgc1fle0j-omaga-rturr-version-242813.mp3',
+    'u_wmdu4evyhn-hankie-pankie-222974.mp3',
+    'universfield-funny-cartoon-scream-229172.mp3',
+    'universfield-mischievous-laugh-140131.mp3',
+    'universfield-what-the-fuck-120320.mp3',
+    'universfield-wow-reaction-121578.mp3',
+    'universfield-yeah-boy-114748.mp3',
+    'yamete-kudasai-mp3-(original)-made-with-Voicemod.mp3'
+  ];
+  const VOICE_MAX_RECORD_MS = 4500; // limite stricte côté code pour ne pas exploser la taille de la base
+  const VOICE_VOTE_WINDOW_SEC = 7200; // fenêtre de vote fixe de 2h après la fermeture du jeu (phase 1)
+  const VOICE_RANK_POINTS = [5,4,3,2,1]; // rang1..rang5
+
+  let voiceUiState = null; // null = calculer depuis les données ; 'recording' = capture micro en cours (état transitoire, évite les flashs)
+  let voiceStarted = false; // a cliqué "Commencer" sur l'intro cette visite (local, pas persistant)
+  let voiceRecStep = 0; // index du son courant en phase enregistrement (0,1,2)
+  let voiceRecorder = null, voiceRecordedChunks = [], voiceRecordedDataUrl = null, voiceRecordTimer = null, voiceIsRecording = false;
+  let voiceVoteStep = 0; // index du son courant en phase vote (0,1,2)
+  let voiceEditingVotes = false; // a cliqué "Modifier mes votes" depuis l'écran "votes enregistrés"
+  let voiceVoteCandidates = []; // ordre anonymisé stable des candidats pour (voiceVoteStep courant)
+  let voiceVoteCandidatesStep = -1; // dernier voiceVoteStep pour lequel voiceVoteCandidates/voiceVoteRanking ont été construits
+  let voiceVoteRanking = []; // classement en cours d'édition (memberIds), avant validation
+
+  function getVoicePhase(){
+    if(TEST_GAME_TYPE === 'voice') return TEST_PHASE_OVERRIDE || 'recording';
+    if(!voiceGame || voiceGame.windowStart === undefined) return 'no-game';
+    const nowSec = hmsToSeconds(`${nowInRome().hour}:${nowInRome().minute}:${nowInRome().second}`);
+    const recStart = hmsToSeconds(voiceGame.windowStart);
+    const recEnd = hmsToSeconds(voiceGame.windowEnd);
+    if(nowSec < recStart) return 'before';
+    if(nowSec < recEnd) return 'recording';
+    if(nowSec < recEnd + VOICE_VOTE_WINDOW_SEC) return 'voting';
+    return 'results';
+  }
+
+  function renderVoice(){
+    const phase = getVoicePhase();
+    if(phase === 'no-game'){
+      $('closedBox').style.display = 'block';
+      $('closedText').textContent = t('voiceNotConfigured');
+      return;
+    }
+    if(!voiceGame || !voiceGame.sounds || voiceGame.sounds.length < 3){
+      $('closedBox').style.display = 'block';
+      $('closedText').textContent = t('voiceNotConfigured');
+      return;
+    }
+    if(phase === 'before'){
+      $('closedBox').style.display = 'block';
+      $('closedText').innerHTML = fmt(t('scheduledBefore'), {date: todayDateStr(), start: voiceGame.windowStart.slice(0,5), end: voiceGame.windowEnd.slice(0,5)});
+      return;
+    }
+    if(phase === 'recording') return renderVoiceRecording();
+    if(phase === 'voting') return renderVoiceVoting();
+    if(phase === 'results') return renderVoiceResults();
+  }
+
+  // ---- Phase 1 : enregistrement ----
+  function renderVoiceRecording(){
+    if(voiceUiState === 'recording'){ $('voiceRecordBox').style.display = 'block'; return; }
+
+    const rec = (voiceGame.recordings && voiceGame.recordings[myId]) || {};
+    const doneCount = Object.keys(rec).length;
+
+    if(doneCount >= 3){
+      $('voiceRecordDoneBox').style.display = 'block';
+      voiceStarted = false;
+      return;
+    }
+
+    if(!voiceStarted){
+      $('voiceIntroBox').style.display = 'block';
+      $('voiceIntroName').textContent = myName;
+      return;
+    }
+
+    voiceRecStep = doneCount; // reprend au bon son si reload en cours de route
+    renderVoiceRecordStep();
+  }
+
+  function renderVoiceRecordStep(){
+    $('voiceRecordBox').style.display = 'block';
+    $('voiceStepTag').textContent = fmt(t('voiceStepTag'), {n: voiceRecStep+1});
+    const soundFile = voiceGame.sounds[voiceRecStep];
+    const refPlayer = $('voiceRefPlayer');
+    if(refPlayer.dataset.file !== soundFile){
+      refPlayer.src = 'assets/sounds/' + soundFile;
+      refPlayer.dataset.file = soundFile;
+    }
+    const hasTake = !!voiceRecordedDataUrl;
+    $('voiceRecordBtn').style.display = hasTake ? 'none' : 'flex';
+    $('voicePlaybackRow').style.display = hasTake ? 'block' : 'none';
+    $('voiceValidateBtn').disabled = false;
+    if(!voiceIsRecording) $('voiceCountdown').textContent = '';
+  }
+
+  async function startVoiceRecording(){
+    if(voiceIsRecording) return;
+    $('voiceMicMsg').textContent = '';
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      voiceIsRecording = true;
+      voiceUiState = 'recording';
+      $('voiceRecordBtn').classList.add('recording');
+      $('voiceRecordBtn').textContent = '⏹';
+
+      let mimeType = 'audio/webm;codecs=opus';
+      if(!(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mimeType))) mimeType = 'audio/webm';
+      if(!(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mimeType))) mimeType = '';
+      voiceRecorder = mimeType ? new MediaRecorder(stream, {mimeType}) : new MediaRecorder(stream);
+      voiceRecordedChunks = [];
+      voiceRecorder.addEventListener('dataavailable', e=>{ if(e.data && e.data.size>0) voiceRecordedChunks.push(e.data); });
+      voiceRecorder.addEventListener('stop', ()=>{
+        stream.getTracks().forEach(tr=>tr.stop());
+        const blob = new Blob(voiceRecordedChunks, {type: mimeType || 'audio/webm'});
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          voiceRecordedDataUrl = reader.result;
+          voiceIsRecording = false;
+          voiceUiState = null;
+          $('voiceRecordBtn').classList.remove('recording');
+          $('voiceRecordBtn').textContent = '🎤';
+          render();
+        };
+        reader.readAsDataURL(blob);
+      });
+      voiceRecorder.start();
+
+      let remaining = Math.ceil(VOICE_MAX_RECORD_MS/1000);
+      $('voiceCountdown').textContent = fmt(t('voiceCountdownText'), {s: remaining});
+      const tick = setInterval(()=>{
+        remaining -= 1;
+        if(remaining <= 0){ clearInterval(tick); return; }
+        $('voiceCountdown').textContent = fmt(t('voiceCountdownText'), {s: remaining});
+      }, 1000);
+      voiceRecordTimer = setTimeout(()=>{ clearInterval(tick); stopVoiceRecording(); }, VOICE_MAX_RECORD_MS);
+    }catch(e){
+      $('voiceMicMsg').textContent = t('voiceMicErrorText');
+    }
+  }
+
+  function stopVoiceRecording(){
+    if(voiceRecordTimer){ clearTimeout(voiceRecordTimer); voiceRecordTimer = null; }
+    if(voiceRecorder && voiceRecorder.state !== 'inactive') voiceRecorder.stop();
+  }
+
+  function retryVoiceRecording(){
+    voiceRecordedDataUrl = null;
+    render();
+  }
+
+  async function submitVoiceRecording(){
+    if(!voiceRecordedDataUrl) return;
+    $('voiceValidateBtn').disabled = true;
+    const soundFile = voiceGame.sounds[voiceRecStep];
+    const path = 'voiceGame/' + todayDateStr() + '/recordings/' + myId + '/' + voiceRecStep;
+    await db.ref(path).set({ name: myName, soundFile, audioData: voiceRecordedDataUrl, recordedAt: Date.now() });
+    voiceRecordedDataUrl = null;
+    render();
+  }
+
+  // ---- Phase 2 : vote ----
+  // Mélange déterministe (stable pour un même votant/son/jour, différent entre votants) : évite tout biais
+  // de position sans écriture Firebase supplémentaire. mulberry32 (PRNG rapide, seedé) + Fisher-Yates.
+  function mulberry32(seed){
+    return function(){
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function seedFromString(str){
+    let h = 0;
+    for(let i=0; i<str.length; i++){ h = (Math.imul(31,h) + str.charCodeAt(i)) | 0; }
+    return h;
+  }
+  function shuffleCandidatesForVote(voterId, soundIndex, candidateIds){
+    const rng = mulberry32(seedFromString(voterId + '|' + todayDateStr() + '|' + soundIndex));
+    const arr = candidateIds.slice();
+    for(let i=arr.length-1; i>0; i--){
+      const j = Math.floor(rng() * (i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function renderVoiceVoting(){
+    if(voiceUiState === 'voting'){ $('voiceVotePlayBox').style.display = 'block'; return; }
+    if(!myId){
+      $('playerSelectBox').style.display = 'block';
+      $('rulesInject').innerHTML = rulesFor('voice');
+      return;
+    }
+
+    const myVotes = (voiceGame.votes && voiceGame.votes[myId]) || {};
+    const votedCount = Object.keys(myVotes).length;
+
+    if(!voiceEditingVotes){
+      if(votedCount >= 3){ $('voiceVoteDoneBox').style.display = 'block'; return; }
+      voiceVoteStep = votedCount; // reprend où on en était si reload
+    }
+    if(voiceVoteStep >= 3){
+      voiceEditingVotes = false;
+      $('voiceVoteDoneBox').style.display = 'block';
+      return;
+    }
+    renderVoiceVoteStep();
+  }
+
+  function renderVoiceVoteStep(){
+    const recs = voiceGame.recordings || {};
+    const candidateIds = Object.keys(recs).filter(id => id !== myId && recs[id] && recs[id][voiceVoteStep]);
+
+    if(candidateIds.length === 0){
+      // Personne d'autre n'a d'imitation pour ce son : rien à classer, on passe au suivant.
+      voiceVoteStep += 1;
+      voiceVoteCandidatesStep = -1;
+      renderVoiceVoting();
+      return;
+    }
+
+    $('voiceVotePlayBox').style.display = 'block';
+    $('voiceVoteStepTag').textContent = fmt(t('voiceStepTag'), {n: voiceVoteStep+1});
+    const soundFile = voiceGame.sounds[voiceVoteStep];
+    const refPlayer = $('voiceVoteRefPlayer');
+    if(refPlayer.dataset.file !== soundFile){
+      refPlayer.src = 'assets/sounds/' + soundFile;
+      refPlayer.dataset.file = soundFile;
+    }
+
+    // Ne reconstruit la liste/l'ordre qu'à l'entrée sur ce son, jamais à chaque tick de render() (toutes les
+    // secondes) — sinon le classement en cours d'édition par le joueur serait perdu à chaque tick.
+    if(voiceVoteCandidatesStep !== voiceVoteStep){
+      const shuffled = shuffleCandidatesForVote(myId, voiceVoteStep, candidateIds);
+      voiceVoteCandidates = shuffled;
+      const existingVote = ((voiceGame.votes && voiceGame.votes[myId] && voiceGame.votes[myId][voiceVoteStep]) || []);
+      if(existingVote.length){
+        const ranked = existingVote.filter(id => shuffled.includes(id));
+        const rest = shuffled.filter(id => !ranked.includes(id));
+        voiceVoteRanking = ranked.concat(rest);
+      } else {
+        voiceVoteRanking = shuffled.slice();
+      }
+      voiceVoteCandidatesStep = voiceVoteStep;
+    }
+
+    $('voiceSubmitVoteBtn').disabled = false;
+    renderVoiceRankList();
+  }
+
+  function renderVoiceRankList(){
+    const topN = Math.min(5, voiceVoteRanking.length);
+    $('voiceRankList').innerHTML = voiceVoteRanking.map((id, i)=>{
+      const ranked = i < topN;
+      return `<div class="rank-row ${ranked?'':'unranked'}">
+        <div class="rank-pos ${ranked?'':'dim'}">${ranked ? (i+1) : '—'}</div>
+        <div class="rank-label">${fmt(t('voiceImitationLabel'), {n: voiceVoteCandidates.indexOf(id)+1})}</div>
+        <button type="button" class="rank-listen-btn" data-listen="${escapeHtml(id)}">▶</button>
+        <div class="rank-move-col">
+          <button type="button" class="rank-move-btn" data-move="up" data-id="${escapeHtml(id)}" ${i===0?'disabled':''}>▲</button>
+          <button type="button" class="rank-move-btn" data-move="down" data-id="${escapeHtml(id)}" ${i===voiceVoteRanking.length-1?'disabled':''}>▼</button>
+        </div>
+      </div>`;
+    }).join('');
+    $('voiceRankList').querySelectorAll('[data-listen]').forEach(btn=>{
+      btn.addEventListener('click', ()=> playVoiceCandidate(btn.dataset.listen));
+    });
+    $('voiceRankList').querySelectorAll('[data-move]').forEach(btn=>{
+      btn.addEventListener('click', ()=> moveVoteRank(btn.dataset.id, btn.dataset.move));
+    });
+  }
+
+  function playVoiceCandidate(id){
+    const rec = voiceGame.recordings && voiceGame.recordings[id] && voiceGame.recordings[id][voiceVoteStep];
+    if(!rec) return;
+    const player = $('voiceCandidatePlayer');
+    player.src = rec.audioData;
+    player.play();
+  }
+
+  function moveVoteRank(id, direction){
+    const idx = voiceVoteRanking.indexOf(id);
+    if(idx === -1) return;
+    if(direction === 'up' && idx > 0){
+      [voiceVoteRanking[idx-1], voiceVoteRanking[idx]] = [voiceVoteRanking[idx], voiceVoteRanking[idx-1]];
+    } else if(direction === 'down' && idx < voiceVoteRanking.length-1){
+      [voiceVoteRanking[idx+1], voiceVoteRanking[idx]] = [voiceVoteRanking[idx], voiceVoteRanking[idx+1]];
+    } else {
+      return;
+    }
+    renderVoiceRankList();
+  }
+
+  async function submitVoiceVote(){
+    const topN = Math.min(5, voiceVoteRanking.length);
+    const ranking = voiceVoteRanking.slice(0, topN);
+    $('voiceSubmitVoteBtn').disabled = true;
+    const path = 'voiceGame/' + todayDateStr() + '/votes/' + myId + '/' + voiceVoteStep;
+    await db.ref(path).set(ranking);
+    voiceVoteStep += 1;
+    voiceVoteCandidatesStep = -1;
+    render();
+  }
+
+  function editVoiceVotes(){
+    voiceEditingVotes = true;
+    voiceVoteStep = 0;
+    voiceVoteCandidatesStep = -1;
+    render();
+  }
+
+  // ---- Résultat ----
+  function computeVoiceTotals(){
+    const votes = (voiceGame && voiceGame.votes) || {};
+    const recs = (voiceGame && voiceGame.recordings) || {};
+    const totals = {}, names = {};
+    Object.keys(recs).forEach(id=>{
+      const idxs = Object.keys(recs[id]);
+      if(idxs.length) names[id] = recs[id][idxs[0]].name;
+      totals[id] = totals[id] || 0; // s'assure que tout participant apparaît, même à 0 point
+    });
+    Object.keys(votes).forEach(voterId=>{
+      const perSound = votes[voterId] || {};
+      Object.keys(perSound).forEach(soundIdx=>{
+        (perSound[soundIdx] || []).forEach((memberId, i)=>{
+          if(i >= VOICE_RANK_POINTS.length) return;
+          totals[memberId] = (totals[memberId]||0) + VOICE_RANK_POINTS[i];
+        });
+      });
+    });
+    return Object.keys(totals).map(id=>({id, name: names[id] || id, score: totals[id]})).sort((a,b)=> b.score - a.score);
+  }
+
+  function computeVoiceWinners(){
+    const entries = computeVoiceTotals();
+    if(entries.length === 0) return [];
+    const maxScore = entries[0].score;
+    return entries.filter(e=> e.score === maxScore);
+  }
+
+  function renderVoiceResults(){
+    $('voiceAfterBox').style.display = 'block';
+    const winners = computeVoiceWinners();
+    $('voiceWinnerName').textContent = winners.length ? winners.map(w=>w.name).join(' / ') : '—';
+  }
+
   function renderLeaderboard(type){
     const body = $('leaderboardBody');
     const head = $('lbHead');
@@ -5166,6 +5736,19 @@
       }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
       return;
     }
+    if(type === 'voice'){
+      head.innerHTML = `<span>${t('lbPlayer')}</span><span>${t('lbScore')}</span><span></span>`;
+      if(getVoicePhase() !== 'results'){
+        body.innerHTML = `<div class="empty-state">${t('lbEmptyGeneric')}</div>`;
+        return;
+      }
+      const entries = computeVoiceTotals();
+      body.innerHTML = entries.length ? entries.slice(0,20).map(e=>{
+        const meCls = e.id===myId?'me':'';
+        return `<div class="lb-row ${meCls}"><span>${escapeHtml(e.name)}</span><span class="score">${e.score}</span><span></span></div>`;
+      }).join('') : `<div class="empty-state">${t('lbEmptyNoScore')}</div>`;
+      return;
+    }
     head.innerHTML = `<span>${t('lbPlayer')}</span><span></span><span></span>`;
     body.innerHTML = `<div class="empty-state">${t('lbEmptyGeneric')}</div>`;
   }
@@ -5224,6 +5807,18 @@
   document.querySelectorAll('#seqPlayBox .pad-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> onSeqPadClick(btn.dataset.key));
   });
+  $('voiceStartBtn').addEventListener('click', ()=>{ voiceStarted = true; render(); });
+  $('voiceListenSoundBtn').addEventListener('click', ()=> $('voiceRefPlayer').play());
+  $('voiceRecordBtn').addEventListener('click', startVoiceRecording);
+  $('voiceListenMineBtn').addEventListener('click', ()=>{
+    if(!voiceRecordedDataUrl) return;
+    const p = $('voiceMyPlayer'); p.src = voiceRecordedDataUrl; p.play();
+  });
+  $('voiceRetryBtn').addEventListener('click', retryVoiceRecording);
+  $('voiceValidateBtn').addEventListener('click', submitVoiceRecording);
+  $('voiceVoteListenSoundBtn').addEventListener('click', ()=> $('voiceVoteRefPlayer').play());
+  $('voiceSubmitVoteBtn').addEventListener('click', submitVoiceVote);
+  $('voiceEditVotesBtn').addEventListener('click', editVoiceVotes);
   document.querySelectorAll('.lang-btn').forEach(b=>{
     b.addEventListener('click', ()=> setLang(b.dataset.lang));
   });
