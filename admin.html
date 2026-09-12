@@ -148,7 +148,7 @@
         <option value="bubble">🫧 Bulles de savon</option>
         <option value="glitter">💄 Pluie de paillettes</option>
         <option value="combo">💅 Combo couleurs</option>
-        <option value="voice">🎙️ Imite le son</option>
+        <option value="voice">🎙️ Mic Drop... or not</option>
       </select>
 
       <!-- Config spécifique : dice -->
@@ -223,7 +223,7 @@
         <div class="info-line" style="margin-top:12px;">Une couleur cible est tirée, il faut cliquer uniquement les bons éléments pendant 25 secondes. 3 essais/jour, meilleur score retenu. Aucun réglage supplémentaire.</div>
       </div>
 
-      <!-- Config spécifique : voice (Imite le son) -->
+      <!-- Config spécifique : voice (Mic Drop... or not) -->
       <div id="cfgVoice" class="game-config" style="display:none;">
         <div class="info-line" style="margin-top:12px;">Sélectionne exactement 3 sons pour cette session. Chaque joueur devra les imiter, puis tout le monde vote sur les imitations (2h après la fermeture du jeu).</div>
         <div id="voiceSoundPicker" style="max-height:280px; overflow-y:auto; margin-top:10px;"></div>
@@ -308,9 +308,9 @@
 
   const AUTH_DOMAIN_SUFFIX = '@itxweb.local';
 
-  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes', bubble:'🫧 Bulles de savon', glitter:'💄 Pluie de paillettes', combo:'💅 Combo couleurs', voice:'🎙️ Imite le son' };
+  const GAME_LABELS = { dice:'🎲 Duel du dimanche (dé)', target:'🎯 Précision horaire', run:'🚂 Course du train', sequence:"🧠 Séquence d'alliance", chrono:'⏱️ Chrono pile-poil', slot:'🎰 Machine à sous ITX', blackjack:'🃏 Blackjack ITX', invasion:'👾 Invasion ITX', mole:'🌸 Chasse aux taupes néon', garden:'🦋 Jardin de paires', gems:'💎 Tri de gemmes', bubble:'🫧 Bulles de savon', glitter:'💄 Pluie de paillettes', combo:'💅 Combo couleurs', voice:'🎙️ Mic Drop... or not' };
 
-  // Bibliothèque de sons pour "Imite le son" — dupliquée à l'identique dans jouer.html (pas de module JS partagé
+  // Bibliothèque de sons pour "Mic Drop... or not" — dupliquée à l'identique dans jouer.html (pas de module JS partagé
   // dans ce projet, même convention que firebaseConfig). Ajoute/retire des entrées ici selon les fichiers déposés
   // dans assets/sounds/.
   const SOUND_LIBRARY = [
@@ -487,7 +487,7 @@
     if(type === 'voice') renderVoiceSoundPicker();
   }
 
-  // ---- Sélecteur de sons pour "Imite le son" : sélection plafonnée à 3, avec aperçu audio ----
+  // ---- Sélecteur de sons pour "Mic Drop... or not" : sélection plafonnée à 3, avec aperçu audio ----
   function toggleVoiceSound(filename, checked){
     if(checked){
       if(voiceSelectedSounds.length >= 3) return;
